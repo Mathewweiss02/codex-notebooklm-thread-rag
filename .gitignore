@@ -1,0 +1,29 @@
+# Never commit authentication or generated corpus data.
+.notebooklm/
+master_token.json
+storage_state.json
+auth.json
+config.local.json
+*.local.json
+thread-rag/
+projections/
+runs/
+state.json
+manifest.json
+runner_state.json
+retrieval_cases.json
+retrieval-*.json
+
+# Local runtimes and caches.
+.venv/
+runtime/
+__pycache__/
+*.py[cod]
+node_modules/
+.pytest_cache/
+
+# Editor / OS noise.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

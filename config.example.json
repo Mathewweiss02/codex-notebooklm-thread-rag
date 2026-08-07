@@ -1,0 +1,21 @@
+{
+  "Device": "replace-with-stable-device-name",
+  "ProjectionRoot": "C:\\Users\\YOU\\.codex\\thread-rag\\replace-with-stable-device-name",
+  "Profile": "personal",
+  "NotebookId": "replace-with-notebook-id",
+  "NodePath": "C:\\Program Files\\nodejs\\node.exe",
+  "PythonPath": "C:\\Users\\YOU\\.codex\\runtimes\\notebooklm-py-0.8.0\\Scripts\\python.exe",
+  "NotebookLmCli": "C:\\Users\\YOU\\.codex\\runtimes\\notebooklm-py-0.8.0\\Scripts\\notebooklm.exe",
+  "ProjectionScript": "C:\\absolute\\path\\to\\repo\\scripts\\notebooklm_thread_projection.mjs",
+  "SyncScript": "C:\\absolute\\path\\to\\repo\\scripts\\notebooklm_thread_sync.py",
+  "QuietMinutes": 60,
+  "HardMaxHours": 6,
+  "MaxWords": 120000,
+  "MaxMessageChars": 100000,
+  "MaxLineBytes": 4194304,
+  "WaitTimeout": 300,
+  "RefreshMasterToken": true,
+  "SwapOld": true,
+  "ReconcileHour": 3,
+  "ThreadIds": []
+}
