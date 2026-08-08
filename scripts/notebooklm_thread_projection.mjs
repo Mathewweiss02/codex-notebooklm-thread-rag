@@ -5,6 +5,7 @@ import { basename, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import {
   PROJECTION_POLICY_VERSION,
+  projectionDueReason,
   readVisibleMessages,
   renderThreadProjection,
   sha256,
@@ -12,6 +13,7 @@ import {
 } from "./notebooklm_thread_projection_lib.mjs";
 
 const SOURCE_KINDS = ["cli", "vscode", "exec", "appServer", "subAgent", "subAgentReview", "subAgentCompact", "subAgentThreadSpawn", "subAgentOther", "unknown"];
+const SUBAGENT_SOURCE_KINDS = new Set(["subAgent", "subAgentReview", "subAgentCompact", "subAgentThreadSpawn", "subAgentOther"]);
 
 function timestampSlug() {
   return new Date().toISOString().replace(/[:.]/g, "-");
@@ -38,6 +40,8 @@ function parseArgs(argv) {
     maxWords: 120_000,
     maxMessageChars: 100_000,
     maxLineBytes: 4 * 1024 * 1024,
+    threadManifest: null,
+    includeSubagents: false,
     force: false,
     dryRun: false,
     fast: true,
@@ -56,6 +60,8 @@ function parseArgs(argv) {
     else if (arg === "--max-words") options.maxWords = Number(argv[++index]);
     else if (arg === "--max-message-chars") options.maxMessageChars = Number(argv[++index]);
     else if (arg === "--max-line-bytes") options.maxLineBytes = Number(argv[++index]);
+    else if (arg === "--thread-manifest") options.threadManifest = resolve(argv[++index]);
+    else if (arg === "--include-subagents") options.includeSubagents = true;
     else if (arg === "--force") options.force = true;
     else if (arg === "--dry-run") options.dryRun = true;
     else if (arg === "--scan-repair") options.fast = false;
@@ -83,6 +89,8 @@ Options:
   --max-words N          Maximum words per source part (default: 120000)
   --max-message-chars N  Keep first/last content beyond this size (default: 100000)
   --max-line-bytes N     Skip any JSONL line above this size (default: 4194304)
+  --thread-manifest FILE Use an explicit thread metadata fixture instead of app-server
+  --include-subagents    Include hidden worker/review sessions (excluded by default)
   --force                Ignore quiet/unchanged gates
   --dry-run              Report candidates without reading or writing projections
   --scan-repair          Ask Codex to scan/repair state rather than DB-only listing
@@ -177,12 +185,31 @@ async function listThreads(client, options) {
       cursor = page.nextCursor || null;
     } while (cursor);
   }
-  let rows = [...seen.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  let rows = [...seen.values()].filter((thread) => options.includeSubagents || !SUBAGENT_SOURCE_KINDS.has(thread.source)).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   if (options.threads.length) {
     const wanted = new Set(options.threads);
     rows = rows.filter((thread) => wanted.has(thread.id) || [...wanted].some((id) => thread.id.startsWith(id)));
   }
   return rows;
+}
+
+function listThreadsFromManifest(options) {
+  const value = readJson(options.threadManifest, null);
+  const rows = Array.isArray(value) ? value : value?.threads;
+  if (!Array.isArray(rows)) throw new Error("--thread-manifest must contain an array or {threads:[...]}.");
+  const seen = new Set();
+  const normalized = rows.map((thread) => {
+    if (!thread?.id || !thread?.path || !Number.isFinite(thread?.updatedAt)) throw new Error("Every manifest thread needs id, path, and numeric updatedAt.");
+    if (seen.has(thread.id)) throw new Error(`Duplicate manifest thread id: ${thread.id}`);
+    seen.add(thread.id);
+    return { archived: false, ...thread, path: resolve(thread.path) };
+  });
+  let selected = normalized.filter((thread) => options.includeSubagents || !SUBAGENT_SOURCE_KINDS.has(thread.source)).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  if (options.threads.length) {
+    selected = selected.filter((thread) => options.threads.some((id) => thread.id === id || thread.id.startsWith(id)));
+  }
+  if (options.limit) selected = selected.slice(0, options.limit);
+  return selected;
 }
 
 function readJson(path, fallback) {
@@ -197,17 +224,6 @@ function atomicJson(path, value) {
 
 function normalizePath(path) { return String(path || "").replace(/^\\\\\?\\/, ""); }
 
-function dueReason(thread, previous, options, nowMs) {
-  if (options.force) return "forced";
-  const updatedMs = (thread.updatedAt || 0) * 1000;
-  const unchanged = previous && previous.inputUpdatedAt === thread.updatedAt && previous.inputName === thread.name && previous.policyVersion === PROJECTION_POLICY_VERSION;
-  if (unchanged) return null;
-  if (nowMs - updatedMs >= options.quietMinutes * 60_000) return "quiet";
-  const projectedMs = Date.parse(previous?.lastProjectedAt || "") || 0;
-  if (previous && projectedMs && nowMs - projectedMs >= options.hardMaxHours * 3_600_000) return "hard-max";
-  return "active";
-}
-
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const statePath = join(options.outDir, "state.json");
@@ -215,17 +231,17 @@ async function main() {
   const projectionsDir = join(options.outDir, "projections");
   const runsDir = join(options.outDir, "runs");
   const prior = readJson(statePath, { schemaVersion: 1, policyVersion: PROJECTION_POLICY_VERSION, deviceId: options.device, threads: {} });
-  const client = new AppServerClient();
-  await client.start();
+  const client = options.threadManifest ? null : new AppServerClient();
+  if (client) await client.start();
   const now = new Date();
   const nowMs = now.getTime();
   const run = { startedAt: now.toISOString(), deviceId: options.device, policyVersion: PROJECTION_POLICY_VERSION, dryRun: options.dryRun, counts: {}, tasks: [] };
   try {
-    const threads = await listThreads(client, options);
+    const threads = options.threadManifest ? listThreadsFromManifest(options) : await listThreads(client, options);
     run.counts.considered = threads.length;
     for (const thread of threads) {
       const previous = prior.threads?.[thread.id] || null;
-      const reason = dueReason(thread, previous, options, nowMs);
+      const reason = projectionDueReason(thread, previous, options, nowMs);
       if (!reason) { run.tasks.push({ threadId: thread.id, action: "unchanged" }); continue; }
       if (reason === "active") { run.tasks.push({ threadId: thread.id, action: "deferred-active", updatedAt: thread.updatedAt }); continue; }
       if (options.dryRun) { run.tasks.push({ threadId: thread.id, action: "would-project", reason }); continue; }
@@ -298,7 +314,7 @@ async function main() {
       atomicJson(join(runsDir, `${timestampSlug()}.json`), run);
     }
     console.log(JSON.stringify({ outDir: options.outDir, ...run.counts }, null, 2));
-  } finally { client.close(); }
+  } finally { client?.close(); }
 }
 
 main().catch((error) => { console.error(error.stack || error.message); process.exit(1); });

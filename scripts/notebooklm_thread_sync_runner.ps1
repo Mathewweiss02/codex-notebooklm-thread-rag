@@ -52,6 +52,10 @@ $required = @("Device", "ProjectionRoot", "Profile", "NotebookId", "NodePath", "
 foreach ($name in $required) {
   if (-not $settings.$name) { throw "Missing required config field: $name" }
 }
+$threadIds = @($settings.ThreadIds | Where-Object { $_ })
+if ($threadIds.Count -eq 0 -and $settings.AllowAllThreads -ne $true) {
+  throw "ThreadIds is empty. Set AllowAllThreads=true explicitly only after source-budget planning."
+}
 
 $hasher = [System.Security.Cryptography.SHA256]::Create()
 try { $hash = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($configPath)) } finally { $hasher.Dispose() }
@@ -103,7 +107,7 @@ try {
       "--max-message-chars", [string]$settings.MaxMessageChars,
       "--max-line-bytes", [string]$settings.MaxLineBytes
     )
-    foreach ($threadId in @($settings.ThreadIds)) { $projectionArgs += @("--thread", [string]$threadId) }
+    foreach ($threadId in $threadIds) { $projectionArgs += @("--thread", [string]$threadId) }
     if ($DryRun) { $projectionArgs += "--dry-run" }
     $run.Steps += Invoke-Checked -Executable ([string]$settings.NodePath) -Arguments $projectionArgs -Label "projection"
 
@@ -142,7 +146,7 @@ try {
 } finally {
   $run.CompletedAt = (Get-Date).ToUniversalTime().ToString("o")
   $runsDir = Join-Path ([string]$settings.ProjectionRoot) "runs"
-  $runPath = Join-Path $runsDir ("runner-{0}.json" -f (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssZ"))
+  $runPath = Join-Path $runsDir ("runner-{0}-{1}.json" -f (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssfffZ"), $PID)
   Write-AtomicJson -Path $runPath -Value $run
   if ($hasMutex) { $mutex.ReleaseMutex() }
   $mutex.Dispose()

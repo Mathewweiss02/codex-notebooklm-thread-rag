@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex NotebookLM Thread RAG"
+  short_description: "Search Codex history with verified semantic retrieval."
+  default_prompt: "Use $codex-notebooklm-thread-rag to find a prior Codex task semantically, verify it locally, and report the evidence."

@@ -1,7 +1,9 @@
 param(
   [string] $CodexRoot = (Join-Path $env:USERPROFILE ".codex"),
   [string] $Python = "3.12",
-  [switch] $SkipTests
+  [switch] $SkipTests,
+  [switch] $SkipSkill,
+  [switch] $ForceSkill
 )
 
 $ErrorActionPreference = "Stop"
@@ -21,10 +23,14 @@ if (-not (Test-Path -LiteralPath $pythonExe)) {
 if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed with code $LASTEXITCODE" }
 
 if (-not $SkipTests) {
-  & $node.Source --test (Join-Path $PSScriptRoot "scripts\notebooklm_thread_projection.test.mjs")
-  if ($LASTEXITCODE -ne 0) { throw "Projection tests failed with code $LASTEXITCODE" }
-  & $pythonExe -m py_compile (Join-Path $PSScriptRoot "scripts\notebooklm_thread_sync.py") (Join-Path $PSScriptRoot "scripts\notebooklm_thread_retrieval_benchmark.py")
-  if ($LASTEXITCODE -ne 0) { throw "Python compilation failed with code $LASTEXITCODE" }
+  & (Join-Path $PSScriptRoot "tests\run_all.ps1") -PythonPath $pythonExe -NodePath $node.Source | Out-Null
+}
+
+$skillResult = $null
+if (-not $SkipSkill) {
+  $skillArgs = @{ CodexRoot = $CodexRoot }
+  if ($ForceSkill) { $skillArgs.Force = $true }
+  $skillResult = & (Join-Path $PSScriptRoot "Install-CodexSkill.ps1") @skillArgs | ConvertFrom-Json
 }
 
 [pscustomobject]@{
@@ -32,5 +38,6 @@ if (-not $SkipTests) {
   Runtime = $runtime
   Python = $pythonExe
   NotebookLm = $notebookLmExe
-  Next = "Authenticate a profile, create a test notebook, then generate config.local.json."
+  Skill = $skillResult.Target
+  Next = "Authenticate a profile, create a bounded test notebook, then run New-SyncConfig.ps1."
 } | ConvertTo-Json

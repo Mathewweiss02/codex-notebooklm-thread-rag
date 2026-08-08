@@ -6,15 +6,19 @@ This project does **not** repair broken Codex tasks or replace Codex storage. It
 
 ## Proven baseline
 
-The initial ADS-PC evaluation used 20 varied tasks, including renamed tasks, forks, active/archive pairs, giant histories, unrelated titles, and split sources:
+The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, forks, active/archive pairs, giant histories, unrelated titles, split sources, and close decoys:
 
-- 28,043 visible messages projected into 32 sources (about 17.18 MB).
-- Zero surviving credential patterns, raw user-home paths, reasoning records, or tool payloads in the current projection.
-- 19/20 Top-1 semantic retrieval: **95%**, meeting the acceptance gate.
-- 32/32 live source reconciliation with no missing, mismatched, or duplicate titles.
-- A 15-minute Windows Scheduled Task burn-in completed with exit code 0.
+- 28,056 visible messages projected into 32 ready sources (17.18 MB).
+- Zero surviving credential patterns, raw user-home paths, reasoning records, or tool payloads in the inspected projection.
+- Raw NotebookLM citation-order Top-1: 18/20 (90%); candidate recall: 20/20 (100%).
+- End-to-end hybrid Top-1 after authoritative local reranking: **20/20 (100%)**.
+- 32/32 live source reconciliation with no missing sources, title drift, or duplicate titles.
+- Both isolated auth profiles passed exact-account checks, passive live checks, browserless master-token renewal, and restricted-ACL tests.
+- The installed global skill completed a scheduled v4 refresh with exit code 0; all 20 unchanged tasks were skipped without duplicate uploads.
 
-These are machine-specific results. NotebookLM is used for candidate discovery, never as the sole source of truth.
+A separate local-only full-corpus proof projected 312 tasks into 338 parts (54.18 MB) with the same privacy gates. The deterministic planner produced two bounded shards: 240 sources plus 60-source update headroom, and 98 sources plus 202-source headroom. That full corpus was deliberately not uploaded.
+
+These are machine-specific results. NotebookLM is the candidate finder; local Codex history remains the authority.
 
 ## Architecture
 
@@ -31,7 +35,10 @@ NotebookLM revisioned sources
 semantic candidate task IDs + citations
         |
         v
-local Codex task verification
+candidate-only local reranking
+        |
+        v
+local Codex evidence verification
         |
         +--> deterministic ThreadOps search fallback
 ```
@@ -55,14 +62,14 @@ NotebookLM-py uses undocumented Google interfaces and may temporarily break afte
 .\install.ps1
 ```
 
-This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`. It does not remove or modify an existing `nlm` installation.
+This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not remove or modify an existing `nlm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
 
 ## 2. Authenticate
 
 Normal browser auth:
 
 ```powershell
-.\scripts\notebooklm_profiles.ps1 login-personal
+.\scripts\notebooklm_profiles.ps1 login-personal -Account "you@example.com"
 ```
 
 Durable unattended auth:
@@ -86,7 +93,7 @@ Profiles live under `%USERPROFILE%\.notebooklm\profiles`. Master tokens are dura
 
 ## 4. Create a sacrificial notebook and config
 
-Start with a small, disposable notebook and 20 varied task IDs. Create the notebook with the NotebookLM CLI, record its ID, then generate local configuration:
+Start with a small, disposable notebook and 20 varied task IDs. Create the notebook with the NotebookLM CLI, record its ID, then generate a stable registered configuration:
 
 ```powershell
 .\New-SyncConfig.ps1 -Device "my-pc-eval" -NotebookId "NOTEBOOK_ID" -Profile personal -ThreadIds @(
@@ -95,14 +102,15 @@ Start with a small, disposable notebook and 20 varied task IDs. Create the noteb
 )
 ```
 
-`config.local.json` is gitignored. An empty `ThreadIds` array means all visible tasks; do not enable that until source-budget planning is complete.
+The config is written under `%USERPROFILE%\.codex\thread-rag\my-pc-eval\sync_config.json` and registered in `%USERPROFILE%\.codex\thread-rag\registry.json`. Empty task scope is rejected. `-AllowAllThreads` is an explicit high-risk opt-in that must wait for source-budget planning.
 
 ## 5. Dry-run, upload, and reconcile
 
 ```powershell
-.\scripts\notebooklm_thread_sync_runner.ps1 -Config .\config.local.json -DryRun
-.\scripts\notebooklm_thread_sync_runner.ps1 -Config .\config.local.json
-.\scripts\notebooklm_thread_sync_runner.ps1 -Config .\config.local.json -ReconcileOnly
+$Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json"
+.\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config -DryRun
+.\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config
+.\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config -ReconcileOnly
 ```
 
 The sync uploads a new revision fully before deleting only the old source IDs already linked to that task. It refuses schema-policy drift, missing parts, size drift, oversized skipped visible messages, and lineage-mismatched deletion.
@@ -118,16 +126,28 @@ Create a local, gitignored `retrieval_cases.json` with vague remembered queries 
   --cases .\retrieval_cases.json `
   --profile personal `
   --notebook-id NOTEBOOK_ID `
+  --threshold 0
+```
+
+The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. Raw citation order is diagnostic. Measure the actual retrieval contract by reranking its recorded candidates locally:
+
+```powershell
+& "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" `
+  .\scripts\thread_rag_hybrid_benchmark.py `
+  --raw-report "PATH_TO_RAW_REPORT" `
+  --cases .\retrieval_cases.json `
+  --state "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\state.json" `
+  --out "PATH_TO_HYBRID_REPORT" `
   --threshold 0.95
 ```
 
-The benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. Require at least 95% Top-1 before depending on semantic discovery.
+Require 100% semantic candidate recall and at least 95% hybrid Top-1 before depending on semantic discovery.
 
 ## 7. Schedule
 
 ```powershell
 .\scripts\install_notebooklm_thread_sync_task.ps1 `
-  -Config .\config.local.json `
+  -Config "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json" `
   -TaskName "Codex NotebookLM Thread Sync - my-pc" `
   -Minutes 15
 ```
@@ -137,10 +157,11 @@ The task runs only while that Windows user has an interactive session. Runs are 
 ## Search contract
 
 1. Use Codex metadata/title search first.
-2. If the synchronized notebook is healthy and fresh, use NotebookLM to identify candidate task IDs and require citations.
-3. Read and verify the cited task locally before reporting facts or taking action.
-4. If freshness, auth, reconciliation, citations, or identity is uncertain, use deterministic local ThreadOps content search.
-5. For original instructions, use provenance-aware origin recovery after task discovery.
+2. If the synchronized notebook is healthy and fresh, use NotebookLM to identify cited candidate task IDs.
+3. Rerank only those candidates against local Codex JSONL. The bundled semantic command does this automatically and refuses to return a usable result when local verification fails.
+4. Read and verify local evidence before reporting facts or taking action.
+5. If freshness, auth, reconciliation, citations, or identity is uncertain, use deterministic local ThreadOps content search.
+6. For original instructions, use provenance-aware origin recovery after task discovery.
 
 ## Multiple accounts and devices
 
@@ -150,4 +171,4 @@ Use one stable device namespace and preferably one notebook per computer. Cross-
 
 ## Current boundary
 
-The 20-task burn-in is ready. Full-corpus rollout is intentionally not automatic: hundreds of tasks plus split giant histories can exceed a notebook's source budget. Plan sharding/packing first, then promote in bounded batches with the same validation gates.
+The 20-task pilot and two-shard full-corpus plan are proven. Full-corpus upload is intentionally not automatic: create and validate each notebook shard separately, preserve rolling-revision headroom, and promote in bounded batches with the same privacy, reconciliation, and retrieval gates.

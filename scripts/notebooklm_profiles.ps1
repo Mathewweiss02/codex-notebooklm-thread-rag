@@ -1,6 +1,6 @@
 param(
   [Parameter(Mandatory = $true, Position = 0)]
-  [ValidateSet("list", "check", "login-work", "login-personal", "master-login-work", "master-login-personal", "refresh-work", "refresh-personal", "refresh-all", "switch-work", "switch-personal", "doctor-work", "doctor-personal")]
+  [ValidateSet("list", "check", "login-work", "login-personal", "master-login-work", "master-login-personal", "refresh-work", "refresh-personal", "refresh-all", "verify-work", "verify-personal", "lock-work", "lock-personal", "lock-all", "switch-work", "switch-personal", "doctor-work", "doctor-personal")]
   [string] $Action,
   [string] $Account,
   [string] $NotebookLmCli
@@ -28,7 +28,41 @@ function Invoke-NotebookLm {
 }
 
 function Require-Account {
-  if (-not $Account) { throw "-Account EMAIL is required for master-token login." }
+  if (-not $Account) { throw "-Account EMAIL is required for account-verified login or verification." }
+}
+
+function Assert-ProfileAccount {
+  param([string] $Profile)
+  Require-Account
+  $raw = @(& $NotebookLmCli profile list --json 2>&1)
+  if ($LASTEXITCODE -ne 0) { throw "Unable to inspect NotebookLM profiles (exit $LASTEXITCODE)." }
+  $payload = ($raw -join "`n") | ConvertFrom-Json
+  $match = @($payload.profiles | Where-Object { $_.name -eq $Profile })
+  if ($match.Count -ne 1) { throw "Expected one NotebookLM profile named '$Profile'; found $($match.Count)." }
+  if (-not $match[0].authenticated) { throw "NotebookLM profile '$Profile' is not authenticated." }
+  if ([string]$match[0].account -ine $Account) {
+    throw "NotebookLM profile '$Profile' is bound to a different Google account. Rerun with --fresh and the intended identity."
+  }
+  [pscustomobject]@{ Profile = $Profile; Account = $match[0].account; Authenticated = $true }
+}
+
+function Protect-ProfileDirectory {
+  param([string] $Profile)
+  if ($env:OS -ne "Windows_NT") { throw "Profile ACL locking is currently supported on Windows only." }
+  $directory = Join-Path $env:USERPROFILE ".notebooklm\profiles\$Profile"
+  if (-not (Test-Path -LiteralPath $directory)) { throw "NotebookLM profile directory not found: $directory" }
+  $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+  & icacls.exe $directory /inheritance:r /grant:r "${identity}:(OI)(CI)F" "SYSTEM:(OI)(CI)F" | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw "Failed to restrict the '$Profile' directory ACL (exit $LASTEXITCODE)." }
+  Get-ChildItem -Force -Recurse -LiteralPath $directory | ForEach-Object {
+    if ($_.PSIsContainer) {
+      & icacls.exe $_.FullName /inheritance:r /grant:r "${identity}:(OI)(CI)F" "SYSTEM:(OI)(CI)F" | Out-Null
+    } else {
+      & icacls.exe $_.FullName /inheritance:r /grant:r "${identity}:F" "SYSTEM:F" | Out-Null
+    }
+    if ($LASTEXITCODE -ne 0) { throw "Failed to restrict a '$Profile' profile item ACL (exit $LASTEXITCODE)." }
+  }
+  [pscustomobject]@{ Profile = $Profile; Directory = $directory; Locked = $true }
 }
 
 switch ($Action) {
@@ -36,22 +70,30 @@ switch ($Action) {
     Invoke-NotebookLm -CliArgs @("profile", "list")
   }
   "check" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "check")
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "check")
+    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "check", "--test", "--passive")
+    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "check", "--test", "--passive")
   }
   "login-work" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", "chrome")
+    Require-Account
+    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", "chrome", "--fresh")
+    Assert-ProfileAccount -Profile "work"
   }
   "login-personal" {
+    Require-Account
     Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", "chrome", "--fresh")
+    Assert-ProfileAccount -Profile "personal"
   }
   "master-login-work" {
     Require-Account
     Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", "chrome", "--fresh", "--master-token", "--account", $Account)
+    Assert-ProfileAccount -Profile "work"
+    Protect-ProfileDirectory -Profile "work"
   }
   "master-login-personal" {
     Require-Account
     Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", "chrome", "--fresh", "--master-token", "--account", $Account)
+    Assert-ProfileAccount -Profile "personal"
+    Protect-ProfileDirectory -Profile "personal"
   }
   "refresh-work" {
     Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--master-token-refresh")
@@ -62,6 +104,22 @@ switch ($Action) {
   "refresh-all" {
     Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--master-token-refresh")
     Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--master-token-refresh")
+  }
+  "verify-work" {
+    Assert-ProfileAccount -Profile "work"
+  }
+  "verify-personal" {
+    Assert-ProfileAccount -Profile "personal"
+  }
+  "lock-work" {
+    Protect-ProfileDirectory -Profile "work"
+  }
+  "lock-personal" {
+    Protect-ProfileDirectory -Profile "personal"
+  }
+  "lock-all" {
+    Protect-ProfileDirectory -Profile "work"
+    Protect-ProfileDirectory -Profile "personal"
   }
   "switch-work" {
     Invoke-NotebookLm -CliArgs @("profile", "switch", "work")

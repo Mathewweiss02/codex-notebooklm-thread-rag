@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { basename } from "node:path";
 
-export const PROJECTION_POLICY_VERSION = "visible-messages-secrets-redacted-v2";
+export const PROJECTION_POLICY_VERSION = "visible-messages-secrets-redacted-v4";
 
 const SECRET_PATTERNS = [
   ["pem-private-key", /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g],
@@ -16,8 +16,8 @@ const SECRET_PATTERNS = [
   ["authorization", /\b(?:Authorization\s*:\s*)?(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{12,}/gi],
   ["cookie-header", /\b(?:Cookie|Set-Cookie)\s*:\s*[^\r\n]{12,}/gi],
   ["url-credential", /\bhttps?:\/\/([^\s:/?#]+):([^\s@/?#]+)@/gi],
-  ["user-home-path", /\b[A-Za-z]:[\\/]Users[\\/][^\\/\s"'<>\]\)]+[\\/]/gi],
-  ["unix-home-path", /(?:^|\s)\/(?:Users|home)\/[^/\s"'<>\]\)]+\//g],
+  ["user-home-path", /[A-Za-z]:[\\/]Users[\\/][^\\/\s"'<>\]\)]+(?:[\\/])?/gi],
+  ["unix-home-path", /\/(?:Users?|home)\/[^/\s"'<>\]\)]+(?:\/)?/gi],
   ["query-secret", /([?&](?:access_token|auth_token|api_key|apikey|client_secret|refresh_token|signature|sig)=)[^&\s#]+/gi],
   ["named-secret", /\b(password|passwd|pwd|secret|client[_ -]?secret|private[_ -]?key|refresh[_ -]?token|access[_ -]?token|auth[_ -]?token|api[_ -]?key|access[_ -]?key|session[_ -]?token)\s*[:=]\s*(?:["'][^"'\r\n]{6,}["']|[^\s,;\r\n]{6,})/gi],
   ["data-url", /data:[A-Za-z0-9.+/-]+;base64,[A-Za-z0-9+/=\r\n]{80,}/g],
@@ -28,6 +28,20 @@ export function sha256(value) {
   return createHash("sha256").update(String(value ?? ""), "utf8").digest("hex");
 }
 
+export function projectionDueReason(thread, previous, options, nowMs = Date.now()) {
+  if (options.force) return "forced";
+  const updatedMs = (thread.updatedAt || 0) * 1000;
+  const unchanged = previous
+    && previous.inputUpdatedAt === thread.updatedAt
+    && previous.inputName === thread.name
+    && previous.policyVersion === PROJECTION_POLICY_VERSION;
+  if (unchanged) return null;
+  if (nowMs - updatedMs >= options.quietMinutes * 60_000) return "quiet";
+  const projectedMs = Date.parse(previous?.lastProjectedAt || "") || 0;
+  if (previous && projectedMs && nowMs - projectedMs >= options.hardMaxHours * 3_600_000) return "hard-max";
+  return "active";
+}
+
 export function sanitizeSecrets(value) {
   let text = String(value ?? "").replace(/\u0000/g, "");
   const counts = {};
@@ -36,8 +50,8 @@ export function sanitizeSecrets(value) {
     text = text.replace(pattern, (match, prefix) => {
       counts[label] = (counts[label] || 0) + 1;
       if (label === "url-credential") return match.replace(/\/\/[^@]+@/, "//[REDACTED]@");
-      if (label === "user-home-path") return "[USERPROFILE]\\";
-      if (label === "unix-home-path") return `${/^\s/.test(match) ? match[0] : ""}[USERPROFILE]/`;
+      if (label === "user-home-path") return `[USERPROFILE]${/[\\/]$/.test(match) ? "\\" : ""}`;
+      if (label === "unix-home-path") return `[USERPROFILE]${/\/$/.test(match) ? "/" : ""}`;
       if (label === "query-secret") return `${prefix}[REDACTED]`;
       if (label === "named-secret") {
         const name = match.match(/^\s*([^:=]+)\s*[:=]/)?.[1]?.trim() || "secret";

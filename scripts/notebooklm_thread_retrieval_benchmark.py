@@ -85,7 +85,7 @@ async def main() -> int:
     cases = normalize_cases(read_json(args.cases.resolve()))
     if args.limit is not None:
         cases = cases[: args.limit]
-    output = args.out or args.state.resolve().parent / "runs" / f"retrieval-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"
+    output = args.out or args.state.resolve().parent / "runs" / f"retrieval-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}-{os.getpid()}.json"
     report: dict[str, Any] = {
         "startedAt": now_iso(),
         "profile": args.profile,

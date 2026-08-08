@@ -6,8 +6,8 @@
   "NodePath": "C:\\Program Files\\nodejs\\node.exe",
   "PythonPath": "C:\\Users\\YOU\\.codex\\runtimes\\notebooklm-py-0.8.0\\Scripts\\python.exe",
   "NotebookLmCli": "C:\\Users\\YOU\\.codex\\runtimes\\notebooklm-py-0.8.0\\Scripts\\notebooklm.exe",
-  "ProjectionScript": "C:\\absolute\\path\\to\\repo\\scripts\\notebooklm_thread_projection.mjs",
-  "SyncScript": "C:\\absolute\\path\\to\\repo\\scripts\\notebooklm_thread_sync.py",
+  "ProjectionScript": "C:\\Users\\YOU\\.codex\\skills\\codex-notebooklm-thread-rag\\scripts\\notebooklm_thread_projection.mjs",
+  "SyncScript": "C:\\Users\\YOU\\.codex\\skills\\codex-notebooklm-thread-rag\\scripts\\notebooklm_thread_sync.py",
   "QuietMinutes": 60,
   "HardMaxHours": 6,
   "MaxWords": 120000,
@@ -17,5 +17,7 @@
   "RefreshMasterToken": true,
   "SwapOld": true,
   "ReconcileHour": 3,
-  "ThreadIds": []
+  "AllowAllThreads": false,
+  "DisposableSearchChat": true,
+  "ThreadIds": ["replace-with-thread-id"]
 }

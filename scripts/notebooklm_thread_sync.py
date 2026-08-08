@@ -15,7 +15,7 @@ from typing import Any
 from notebooklm import NotebookLMClient
 
 
-REQUIRED_POLICY = "visible-messages-secrets-redacted-v2"
+REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
 
 
 def now_iso() -> str:
@@ -143,6 +143,13 @@ def planned_new_sources(threads: list[dict[str, Any]], by_title: dict[str, list[
     return total
 
 
+def ensure_source_capacity(existing: int, planned_new: int, limit: int) -> None:
+    if existing < 0 or planned_new < 0 or limit < 1:
+        raise ValueError("Invalid source-cap values")
+    if existing + planned_new > limit:
+        raise ValueError(f"Source cap would be exceeded: existing={existing} new={planned_new} limit={limit}")
+
+
 def validate_thread_lineage(thread: dict[str, Any], by_id: dict[str, Any]) -> None:
     thread_id = thread["threadId"]
     for part in thread["parts"]:
@@ -154,9 +161,9 @@ def validate_thread_lineage(thread: dict[str, Any], by_id: dict[str, Any]) -> No
 
 
 def thread_is_current(thread: dict[str, Any], by_id: dict[str, Any]) -> bool:
-    if thread.get("uploadStatus") != "ready" or thread.get("uploadRevision") != thread.get("revision"):
+    if thread.get("uploadStatus") not in {"ready", "ready-old-retained"} or thread.get("uploadRevision") != thread.get("revision"):
         return False
-    if thread.get("previousSources"):
+    if thread.get("previousSources") and thread.get("uploadStatus") != "ready-old-retained":
         return False
     try:
         validate_thread_lineage(thread, by_id)
@@ -250,6 +257,7 @@ async def sync_thread(
     thread["lastUploadedAt"] = now_iso()
     thread["uploadRevision"] = thread.get("revision")
     thread["uploadStatus"] = "ready" if not retained_old else "ready-old-retained"
+    thread.pop("uploadError", None)
     atomic_json(state_path, state)
     return {
         "threadId": thread_id,
@@ -295,10 +303,7 @@ async def main() -> int:
         by_id, by_title = source_index(sources)
         limits = await client.settings.get_account_limits()
         new_count = planned_new_sources(threads, by_title)
-        if len(sources) + new_count > limits.source_limit:
-            raise ValueError(
-                f"Source cap would be exceeded: existing={len(sources)} new={new_count} limit={limits.source_limit}"
-            )
+        ensure_source_capacity(len(sources), new_count, limits.source_limit)
         report["sourceGate"] = {
             "existing": len(sources),
             "plannedNew": new_count,
@@ -311,6 +316,12 @@ async def main() -> int:
             ]
         elif args.validate_only:
             for thread in threads:
+                if thread.get("notebookId") and thread.get("notebookId") != notebook.id:
+                    raise ValueError(f"Thread {thread['threadId']} is linked to a different notebook")
+                if thread.get("uploadRevision") != thread.get("revision"):
+                    raise ValueError(f"Thread {thread['threadId']} upload revision is stale")
+                if thread.get("uploadStatus") not in {"ready", "ready-old-retained"}:
+                    raise ValueError(f"Thread {thread['threadId']} is not in a ready upload state")
                 validate_thread_lineage(thread, by_id)
                 report["results"].append({"threadId": thread["threadId"], "action": "validated", "parts": len(thread["parts"])})
         else:
@@ -335,7 +346,7 @@ async def main() -> int:
         report["errors"] = sum(1 for item in report["results"] if item["action"] == "error")
         runs_dir = state_path.parent / "runs"
         runs_dir.mkdir(parents=True, exist_ok=True)
-        report_path = runs_dir / f"upload-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"
+        report_path = runs_dir / f"upload-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}-{os.getpid()}.json"
         atomic_json(report_path, report)
         print(json.dumps({
             "notebookId": notebook.id,

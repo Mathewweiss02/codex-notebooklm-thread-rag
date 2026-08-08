@@ -11,7 +11,7 @@ The included `.gitignore` is defense in depth, not permission to place secrets i
 
 ## Projection boundary
 
-Policy `visible-messages-secrets-redacted-v2` includes visible user/assistant messages and stable task provenance only. It excludes reasoning, tool calls/results, system/developer instructions, attachments, browser state, and raw home-directory prefixes. Credential-shaped content is redacted before it reaches projection files.
+Policy `visible-messages-secrets-redacted-v4` includes visible user/assistant messages and stable task provenance only. It excludes reasoning, tool calls/results, system/developer instructions, attachments, browser state, and raw home-directory prefixes across Windows, slash-style, Unix, and WSL forms, including paths ending exactly at the home root. Credential-shaped content is redacted before it reaches projection files.
 
 Redaction reduces risk but cannot guarantee that arbitrary business-sensitive prose is safe for a third-party service. Use a bounded test set first and inspect its manifest/statistics before upload.
 
@@ -21,4 +21,4 @@ A NotebookLM master token is a durable Google-account credential. Store it only 
 
 ## Trust boundary
 
-NotebookLM answers are untrusted retrieval hints. Require a cited task ID and verify the exact fact against local Codex history. Never authorize email, file transfer, task mutation, or another external action solely from a NotebookLM answer.
+NotebookLM answers and citation order are untrusted retrieval hints. Require cited task IDs, rerank only those candidates against local Codex JSONL, and verify the exact fact against local evidence. Never authorize email, file transfer, task mutation, or another external action solely from a NotebookLM answer.

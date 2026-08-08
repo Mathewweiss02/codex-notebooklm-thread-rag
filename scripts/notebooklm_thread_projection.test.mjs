@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   PROJECTION_POLICY_VERSION,
+  projectionDueReason,
   readVisibleMessages,
   renderThreadProjection,
   sanitizeSecrets,
@@ -21,11 +22,14 @@ test("sanitizer redacts common durable credentials without removing ordinary ord
     "password=hunter-hunter",
     "Authorization: Bearer abcdefghijklmnopqrstuvwxyz",
     "https://alice:secretpass@example.com/path?access_token=topsecretvalue",
+    "Root paths C:\\Users\\person and /home/person must not survive.",
+    "Jammed path okayC:/Users/person/Downloads and WSL /mnt/c/Users/person/.codex must not survive.",
     "-----BEGIN PRIVATE KEY-----\nabcdef\n-----END PRIVATE KEY-----",
   ].join("\n");
   const result = sanitizeSecrets(input);
   assert.match(result.text, /Order 26-12504 has 64,800 rows/);
-  assert.doesNotMatch(result.text, /AKIA1234567890ABCDEF|hunter-hunter|secretpass|topsecretvalue|BEGIN PRIVATE KEY/);
+  assert.doesNotMatch(result.text, /AKIA1234567890ABCDEF|hunter-hunter|secretpass|topsecretvalue|BEGIN PRIVATE KEY|C:[\\/]Users[\\/]person|\/(?:Users?|home)\/person/);
+  assert.match(result.text, /Root paths \[USERPROFILE\] and \[USERPROFILE\] must not survive/);
   assert.ok(Object.values(result.counts).reduce((sum, count) => sum + count, 0) >= 5);
 });
 
@@ -61,7 +65,7 @@ test("projection contains visible messages and provenance but excludes tool trac
   assert.match(text, /Better Data files/);
   assert.doesNotMatch(text, /tool-only private payload|hidden developer policy|C:\\Users\\person/);
   assert.equal(projected.metadata.deviceId, "ads-pc");
-  assert.equal(PROJECTION_POLICY_VERSION, "visible-messages-secrets-redacted-v2");
+  assert.equal(PROJECTION_POLICY_VERSION, "visible-messages-secrets-redacted-v4");
 });
 
 test("oversized messages and lines are bounded and projection splits deterministically", async () => {
@@ -86,4 +90,35 @@ test("oversized messages and lines are bounded and projection splits determinist
   assert.ok(first.parts.length >= 2);
   assert.equal(first.contentDigest, second.contentDigest);
   assert.deepEqual(first.parts.map((part) => part.text), second.parts.map((part) => part.text));
+});
+
+test("context-compaction records stay excluded while visible conversation history remains", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "thread-projection-compaction-"));
+  const file = join(dir, "fixture.jsonl");
+  const lines = [
+    event("2026-08-01T12:00:00Z", "user", "Original instruction before compaction: preserve the blue cohort."),
+    JSON.stringify({ timestamp: "2026-08-01T12:10:00Z", type: "compacted", payload: { summary: "hidden compacted context" } }),
+    JSON.stringify({ timestamp: "2026-08-01T12:10:01Z", type: "response_item", payload: { type: "message", role: "developer", content: [{ text: "hidden context summary" }] } }),
+    event("2026-08-01T12:20:00Z", "assistant", "Visible answer after compaction: blue cohort preserved."),
+  ];
+  await writeFile(file, `${lines.join("\n")}\n`, "utf8");
+  const visible = await readVisibleMessages(file);
+  assert.equal(visible.messages.length, 2);
+  const projected = renderThreadProjection({ id: "compact-thread", name: "Compacted", updatedAt: 2 }, visible, { deviceId: "test" });
+  const text = projected.parts.map((part) => part.text).join("\n");
+  assert.match(text, /Original instruction before compaction/);
+  assert.match(text, /Visible answer after compaction/);
+  assert.doesNotMatch(text, /hidden compacted context|hidden context summary/);
+});
+
+test("incremental eligibility enforces unchanged, quiet, active, forced, and hard-ceiling gates", () => {
+  const now = Date.parse("2026-08-07T12:00:00Z");
+  const options = { force: false, quietMinutes: 60, hardMaxHours: 6 };
+  const thread = { name: "Task", updatedAt: Date.parse("2026-08-07T11:30:00Z") / 1000 };
+  const current = { inputUpdatedAt: thread.updatedAt, inputName: thread.name, policyVersion: PROJECTION_POLICY_VERSION, lastProjectedAt: "2026-08-07T10:00:00Z" };
+  assert.equal(projectionDueReason(thread, current, options, now), null);
+  assert.equal(projectionDueReason(thread, { ...current, inputUpdatedAt: thread.updatedAt - 1 }, options, now), "active");
+  assert.equal(projectionDueReason({ ...thread, updatedAt: Date.parse("2026-08-07T10:30:00Z") / 1000 }, null, options, now), "quiet");
+  assert.equal(projectionDueReason(thread, { ...current, inputUpdatedAt: thread.updatedAt - 1, lastProjectedAt: "2026-08-07T05:00:00Z" }, options, now), "hard-max");
+  assert.equal(projectionDueReason(thread, null, { ...options, force: true }, now), "forced");
 });
