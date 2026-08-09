@@ -4,6 +4,7 @@ import importlib.util
 import json
 import tempfile
 import unittest
+from unittest import mock
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -62,10 +63,76 @@ def part(path: Path, title: str, source_id=None):
 
 
 class SyncTests(unittest.IsolatedAsyncioTestCase):
+    def test_atomic_json_retries_transient_windows_permission_error(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "state.json"
+            real_replace = sync.os.replace
+            attempts = 0
+
+            def flaky_replace(source, destination):
+                nonlocal attempts
+                attempts += 1
+                if attempts < 3:
+                    raise PermissionError("simulated transient lock")
+                return real_replace(source, destination)
+
+            with mock.patch.object(sync.os, "replace", side_effect=flaky_replace):
+                sync.atomic_json(target, {"ok": True})
+            self.assertEqual(attempts, 3)
+            self.assertEqual(json.loads(target.read_text(encoding="utf-8")), {"ok": True})
+
     def test_source_capacity_boundaries(self):
         sync.ensure_source_capacity(299, 1, 300)
         with self.assertRaisesRegex(ValueError, "Source cap would be exceeded"):
             sync.ensure_source_capacity(299, 2, 300)
+
+    def test_provider_title_equivalence_allows_only_one_trailing_character_with_lineage(self):
+        thread_id = "019f7082-1111-7111-8111-111111111111"
+        expected = f"Codex ads-pc | {thread_id} | r0002 p1/1 | title"
+        self.assertTrue(sync.provider_title_equivalent(expected, expected[:-1], thread_id))
+        self.assertFalse(sync.provider_title_equivalent(expected, expected[:-2], thread_id))
+        self.assertFalse(sync.provider_title_equivalent(expected, expected.replace("title", "xitle"), thread_id))
+        self.assertFalse(sync.provider_title_equivalent(expected, expected[:-1], "different-thread"))
+
+    def test_sequential_swap_peak_counts_shared_old_sources_once(self):
+        old = FakeSource("shared", "old collision")
+        threads = [
+            {"threadId": "one", "parts": [{"title": "new one", "sourceId": None}], "previousSources": [{"sourceId": "shared", "title": "old collision"}]},
+            {"threadId": "two", "parts": [{"title": "new two", "sourceId": None}], "previousSources": [{"sourceId": "shared", "title": "old collision"}]},
+        ]
+        plan = sync.planned_source_peak(threads, [old], swap_old=True)
+        self.assertEqual(plan, {"existing": 1, "plannedNew": 2, "projectedPeak": 2, "projectedFinal": 2})
+        retained = sync.planned_source_peak(threads, [old], swap_old=False)
+        self.assertEqual(retained["projectedPeak"], 3)
+        self.assertEqual(retained["projectedFinal"], 3)
+
+    def test_duplicate_cross_task_titles_and_source_ids_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Duplicate projected source title"):
+            sync.validate_unique_current_lineage([
+                {"threadId": "one", "parts": [{"title": "same", "sourceId": None}]},
+                {"threadId": "two", "parts": [{"title": "same", "sourceId": None}]},
+            ])
+
+    def test_known_orphans_accepts_only_unreferenced_prior_lineage_titles(self):
+        referenced = FakeSource("old-1", "old title")
+        orphan = FakeSource("orphan", "old title")
+        thread = {"threadId": "one", "parts": [{"title": "new", "sourceId": None}], "previousSources": [{"sourceId": "old-1", "title": "old title"}]}
+        self.assertEqual(sync.known_orphans([thread], [referenced, orphan]), [orphan])
+        with self.assertRaisesRegex(ValueError, "unrecognized live source"):
+            sync.known_orphans([thread], [referenced, FakeSource("foreign", "foreign title")])
+
+    def test_exact_notebook_scope_rejects_missing_extra_and_duplicate_ids(self):
+        threads = [{"threadId": "one", "parts": [{"sourceId": "one", "title": "one"}]}]
+        sync.validate_exact_notebook_scope(threads, [FakeSource("one", "one")])
+        with self.assertRaisesRegex(ValueError, "source-set mismatch"):
+            sync.validate_exact_notebook_scope(threads, [FakeSource("one", "one"), FakeSource("extra", "extra")])
+        with self.assertRaisesRegex(ValueError, "duplicate IDs"):
+            sync.validate_exact_notebook_scope([{"threadId": "dup", "parts": [{"sourceId": "one"}, {"sourceId": "one"}]}], [FakeSource("one", "one")])
+        with self.assertRaisesRegex(ValueError, "Duplicate projected source ID"):
+            sync.validate_unique_current_lineage([
+                {"threadId": "one", "parts": [{"title": "one", "sourceId": "shared"}]},
+                {"threadId": "two", "parts": [{"title": "two", "sourceId": "shared"}]},
+            ])
 
     def test_ready_old_retained_is_a_stable_current_mode(self):
         live = FakeSource("current", "current title")

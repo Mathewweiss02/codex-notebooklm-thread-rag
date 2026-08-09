@@ -11,7 +11,7 @@ The included `.gitignore` is defense in depth, not permission to place secrets i
 
 ## Projection boundary
 
-Policy `visible-messages-secrets-redacted-v4` includes visible user/assistant messages and stable task provenance only. It excludes reasoning, tool calls/results, system/developer instructions, attachments, browser state, and raw home-directory prefixes across Windows, slash-style, Unix, and WSL forms, including paths ending exactly at the home root. Credential-shaped content is redacted before it reaches projection files.
+Policy `visible-messages-secrets-redacted-v6` includes visible user/assistant messages and stable task provenance only. It excludes reasoning, tool calls/results, system/developer instructions, attachments, browser state, and raw home-directory prefixes across normal and repeatedly escaped Windows, slash-style, Unix, and WSL forms, including paths ending exactly at the home root. Source titles carry the full task ID, revision, and part lineage before any truncatable human title. Credential-shaped content is redacted before it reaches projection files.
 
 Redaction reduces risk but cannot guarantee that arbitrary business-sensitive prose is safe for a third-party service. Use a bounded test set first and inspect its manifest/statistics before upload.
 

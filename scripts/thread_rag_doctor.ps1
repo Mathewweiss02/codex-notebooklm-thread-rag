@@ -31,7 +31,7 @@ $statePath = Join-Path ([string]$settings.ProjectionRoot) "state.json"
 Add-Check "projection-state" (Test-Path -LiteralPath $statePath) $statePath
 if (Test-Path -LiteralPath $statePath) {
   $state = Get-Content -Raw -LiteralPath $statePath | ConvertFrom-Json
-  Add-Check "projection-policy" ([string]$state.policyVersion -eq "visible-messages-secrets-redacted-v4") ([string]$state.policyVersion)
+  Add-Check "projection-policy" ([string]$state.policyVersion -eq "visible-messages-secrets-redacted-v6") ([string]$state.policyVersion)
   Add-Check "projection-threads" (@($state.threads.PSObject.Properties).Count -gt 0) ("count={0}" -f @($state.threads.PSObject.Properties).Count)
 }
 

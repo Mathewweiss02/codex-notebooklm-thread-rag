@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
+REQUIRED_POLICY = "visible-messages-secrets-redacted-v6"
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -37,7 +37,7 @@ def plan_shards(state: dict[str, Any], source_limit: int, requested_reserve: int
         parts = thread.get("parts") or []
         if not parts:
             raise ValueError(f"Thread {thread_id} has no projected parts")
-        rows.append({"threadId": thread_id, "revision": int(thread.get("revision") or 0), "parts": len(parts)})
+        rows.append({"threadId": thread_id, "revision": int(thread.get("revision") or 0), "parts": len(parts), "notebookId": thread.get("notebookId") or None})
     if not rows:
         raise ValueError("Projection state has no threads")
     largest = max(row["parts"] for row in rows)
@@ -48,11 +48,23 @@ def plan_shards(state: dict[str, Any], source_limit: int, requested_reserve: int
     if largest > capacity:
         raise ValueError(f"One thread needs {largest} sources, above shard capacity {capacity}")
 
-    bins: list[dict[str, Any]] = []
-    for row in sorted(rows, key=lambda item: (-item["parts"], item["threadId"])):
+    grouped: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        notebook_id = row.get("notebookId")
+        if not notebook_id:
+            continue
+        target = grouped.setdefault(notebook_id, {"sourceParts": 0, "threads": [], "notebookId": notebook_id})
+        target["threads"].append(row)
+        target["sourceParts"] += row["parts"]
+    bins: list[dict[str, Any]] = sorted(grouped.values(), key=lambda item: (-item["sourceParts"], item["notebookId"]))
+    for item in bins:
+        if item["sourceParts"] > capacity:
+            raise ValueError(f"Existing notebook assignment needs {item['sourceParts']} sources, above shard capacity {capacity}")
+    unassigned = [row for row in rows if not row.get("notebookId")]
+    for row in sorted(unassigned, key=lambda item: (-item["parts"], item["threadId"])):
         target = next((item for item in bins if item["sourceParts"] + row["parts"] <= capacity), None)
         if target is None:
-            target = {"sourceParts": 0, "threads": []}
+            target = {"sourceParts": 0, "threads": [], "notebookId": None}
             bins.append(target)
         target["threads"].append(row)
         target["sourceParts"] += row["parts"]
@@ -65,6 +77,7 @@ def plan_shards(state: dict[str, Any], source_limit: int, requested_reserve: int
             "name": f"{prefix}-{index:02d}",
             "sourceParts": item["sourceParts"],
             "steadyHeadroom": source_limit - item["sourceParts"],
+            "notebookId": item.get("notebookId"),
             "threads": sorted(item["threads"], key=lambda row: row["threadId"]),
         })
     return {

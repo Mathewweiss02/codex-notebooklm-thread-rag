@@ -56,6 +56,41 @@ try {
   $reconcileRun = Get-Content -Raw -LiteralPath $reconcile.Run | ConvertFrom-Json
   Assert-True (@($reconcileRun.Steps.Label) -contains "nightly-reconcile") "reconcile-only must validate live lineage"
 
+  $shardedRoot = Join-Path $temporary "sharded-state"
+  New-Item -ItemType Directory -Path $shardedRoot -Force | Out-Null
+  Set-Content -LiteralPath (Join-Path $shardedRoot "state.json") -Encoding UTF8 -Value '{"threads":{}}'
+  $shardPlanPath = Join-Path $shardedRoot "shard_plan.json"
+  [ordered]@{
+    threadCount = 2
+    sourceParts = 2
+    shards = @(
+      [ordered]@{ index = 1; notebookId = "notebook-a"; threads = @([ordered]@{ threadId = "thread-a" }) },
+      [ordered]@{ index = 2; notebookId = "notebook-b"; threads = @([ordered]@{ threadId = "thread-b" }) }
+    )
+  } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $shardPlanPath -Encoding UTF8
+  $shardedPath = Join-Path $temporary "sharded.json"
+  $config.Sharded = $true
+  $config.Remove("NotebookId")
+  $config.ProjectionRoot = $shardedRoot
+  $config.PlanScript = "plan-placeholder"
+  $config.ShardPlanPath = $shardPlanPath
+  $config.SourceLimit = 300
+  $config.Reserve = 60
+  $config.ShardPrefix = "Fixture"
+  $config.AllowAllThreads = $true
+  $config.ThreadIds = @()
+  $config | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $shardedPath -Encoding UTF8
+  $sharded = (& $Runner -Config $shardedPath) | ConvertFrom-Json
+  $shardedRun = Get-Content -Raw -LiteralPath $sharded.Run | ConvertFrom-Json
+  Assert-True ($shardedRun.Status -eq "ok") "sharded runner must complete"
+  Assert-True (@($shardedRun.Steps.Label) -contains "sync-shard-1") "sharded runner must sync shard 1"
+  Assert-True (@($shardedRun.Steps.Label) -contains "sync-shard-2") "sharded runner must sync shard 2"
+
+  $config.Sharded = $false
+  $config.NotebookId = "fixture-notebook"
+  $config.ProjectionRoot = $root
+  $config.AllowAllThreads = $false
+
   $unsafePath = Join-Path $temporary "unsafe.json"
   $config.ThreadIds = @()
   $config.AllowAllThreads = $false
@@ -94,7 +129,7 @@ try {
   Assert-True ($process.ExitCode -eq 0) "first slow runner must finish successfully"
 
   $global:LASTEXITCODE = 0
-  [pscustomobject]@{ Status = "passed"; Checks = 8; TempRoot = $temporary } | ConvertTo-Json
+  [pscustomobject]@{ Status = "passed"; Checks = 11; TempRoot = $temporary } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

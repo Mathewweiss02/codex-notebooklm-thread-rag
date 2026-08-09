@@ -5,10 +5,13 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   PROJECTION_POLICY_VERSION,
+  classifyTaskExecution,
   projectionDueReason,
+  readTaskLifecycle,
   readVisibleMessages,
   renderThreadProjection,
   sanitizeSecrets,
+  sourceTitle,
 } from "./notebooklm_thread_projection_lib.mjs";
 
 function event(timestamp, role, text) {
@@ -24,11 +27,13 @@ test("sanitizer redacts common durable credentials without removing ordinary ord
     "https://alice:secretpass@example.com/path?access_token=topsecretvalue",
     "Root paths C:\\Users\\person and /home/person must not survive.",
     "Jammed path okayC:/Users/person/Downloads and WSL /mnt/c/Users/person/.codex must not survive.",
+    String.raw`Escaped paths C:\\Users\\person\\Downloads and C:\\\\Users\\\\person\\\\Desktop must not survive.`,
+    "Template paths /Users/<profile-name>/.codex and C:\\Users\\<profile-name>\\.codex must not survive.",
     "-----BEGIN PRIVATE KEY-----\nabcdef\n-----END PRIVATE KEY-----",
   ].join("\n");
   const result = sanitizeSecrets(input);
   assert.match(result.text, /Order 26-12504 has 64,800 rows/);
-  assert.doesNotMatch(result.text, /AKIA1234567890ABCDEF|hunter-hunter|secretpass|topsecretvalue|BEGIN PRIVATE KEY|C:[\\/]Users[\\/]person|\/(?:Users?|home)\/person/);
+  assert.doesNotMatch(result.text, /AKIA1234567890ABCDEF|hunter-hunter|secretpass|topsecretvalue|BEGIN PRIVATE KEY|C:[\\/]+Users[\\/]+person|\/(?:Users?|home)\/+person/);
   assert.match(result.text, /Root paths \[USERPROFILE\] and \[USERPROFILE\] must not survive/);
   assert.ok(Object.values(result.counts).reduce((sum, count) => sum + count, 0) >= 5);
 });
@@ -65,7 +70,20 @@ test("projection contains visible messages and provenance but excludes tool trac
   assert.match(text, /Better Data files/);
   assert.doesNotMatch(text, /tool-only private payload|hidden developer policy|C:\\Users\\person/);
   assert.equal(projected.metadata.deviceId, "ads-pc");
-  assert.equal(PROJECTION_POLICY_VERSION, "visible-messages-secrets-redacted-v4");
+  assert.equal(PROJECTION_POLICY_VERSION, "visible-messages-secrets-redacted-v6");
+});
+
+test("source titles keep full task lineage when UUIDv7 prefixes collide", () => {
+  const first = { metadata: { deviceId: "ads-pc", threadId: "019f7082-1111-7111-8111-111111111111", title: "First" } };
+  const second = { metadata: { deviceId: "ads-pc", threadId: "019f7082-2222-7222-8222-222222222222", title: "Second" } };
+  const part = { part: 1, totalParts: 1 };
+  const firstTitle = sourceTitle(first, 2, part);
+  const secondTitle = sourceTitle(second, 2, part);
+  assert.notEqual(firstTitle, secondTitle);
+  assert.match(firstTitle, /019f7082-1111-7111-8111-111111111111/);
+  assert.match(secondTitle, /019f7082-2222-7222-8222-222222222222/);
+  assert.match(firstTitle, /r0002 p1\/1/);
+  assert.ok(firstTitle.length <= 189);
 });
 
 test("oversized messages and lines are bounded and projection splits deterministically", async () => {
@@ -121,4 +139,22 @@ test("incremental eligibility enforces unchanged, quiet, active, forced, and har
   assert.equal(projectionDueReason({ ...thread, updatedAt: Date.parse("2026-08-07T10:30:00Z") / 1000 }, null, options, now), "quiet");
   assert.equal(projectionDueReason(thread, { ...current, inputUpdatedAt: thread.updatedAt - 1, lastProjectedAt: "2026-08-07T05:00:00Z" }, options, now), "hard-max");
   assert.equal(projectionDueReason(thread, null, { ...options, force: true }, now), "forced");
+});
+
+test("running turns and active goals veto forced and hard-ceiling projection", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "thread-projection-lifecycle-"));
+  const file = join(dir, "fixture.jsonl");
+  const lines = [
+    JSON.stringify({ timestamp: "2026-08-07T06:00:00Z", type: "event_msg", payload: { type: "task_started" } }),
+    JSON.stringify({ timestamp: "2026-08-07T06:30:00Z", type: "event_msg", payload: { type: "task_complete" } }),
+    JSON.stringify({ timestamp: "2026-08-07T07:00:00Z", type: "event_msg", payload: { type: "task_started" } }),
+  ];
+  await writeFile(file, `${lines.join("\n")}\n`, "utf8");
+  const lifecycle = await readTaskLifecycle(file);
+  assert.equal(lifecycle.open, true);
+  assert.equal(classifyTaskExecution(lifecycle, { openTurnStaleHours: 24 }, Date.parse("2026-08-07T12:00:00Z")), "open");
+  assert.equal(classifyTaskExecution(lifecycle, { openTurnStaleHours: 4 }, Date.parse("2026-08-07T12:00:00Z")), "stale-unclosed");
+  const options = { force: true, quietMinutes: 60, hardMaxHours: 6 };
+  assert.equal(projectionDueReason({ updatedAt: 1, executionState: "open" }, null, options), "running-turn");
+  assert.equal(projectionDueReason({ updatedAt: 1, executionState: "closed", goalStatus: "active" }, null, options), "active-goal");
 });

@@ -5,7 +5,9 @@ import { basename, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import {
   PROJECTION_POLICY_VERSION,
+  classifyTaskExecution,
   projectionDueReason,
+  readTaskLifecycle,
   readVisibleMessages,
   renderThreadProjection,
   sha256,
@@ -37,6 +39,7 @@ function parseArgs(argv) {
     threads: [],
     quietMinutes: 60,
     hardMaxHours: 6,
+    openTurnStaleHours: 24,
     maxWords: 120_000,
     maxMessageChars: 100_000,
     maxLineBytes: 4 * 1024 * 1024,
@@ -57,6 +60,7 @@ function parseArgs(argv) {
     else if (arg === "--thread") options.threads.push(argv[++index]);
     else if (arg === "--quiet-minutes") options.quietMinutes = Number(argv[++index]);
     else if (arg === "--hard-max-hours") options.hardMaxHours = Number(argv[++index]);
+    else if (arg === "--open-turn-stale-hours") options.openTurnStaleHours = Number(argv[++index]);
     else if (arg === "--max-words") options.maxWords = Number(argv[++index]);
     else if (arg === "--max-message-chars") options.maxMessageChars = Number(argv[++index]);
     else if (arg === "--max-line-bytes") options.maxLineBytes = Number(argv[++index]);
@@ -70,6 +74,7 @@ function parseArgs(argv) {
   options.outDir = resolve(options.outDir || defaultRoot(options.device));
   if (!Number.isFinite(options.quietMinutes) || options.quietMinutes < 0) throw new Error("--quiet-minutes must be >= 0");
   if (!Number.isFinite(options.hardMaxHours) || options.hardMaxHours <= 0) throw new Error("--hard-max-hours must be > 0");
+  if (!Number.isFinite(options.openTurnStaleHours) || options.openTurnStaleHours <= 0) throw new Error("--open-turn-stale-hours must be > 0");
   return options;
 }
 
@@ -86,6 +91,7 @@ Options:
   --limit N              Consider at most N newest tasks
   --quiet-minutes N      Wait after last update before projecting (default: 60)
   --hard-max-hours N     Reproject a still-active changed task after N hours (default: 6)
+  --open-turn-stale-hours N  Treat an unmatched task start as abandoned after N hours (default: 24)
   --max-words N          Maximum words per source part (default: 120000)
   --max-message-chars N  Keep first/last content beyond this size (default: 100000)
   --max-line-bytes N     Skip any JSONL line above this size (default: 4194304)
@@ -241,12 +247,29 @@ async function main() {
     run.counts.considered = threads.length;
     for (const thread of threads) {
       const previous = prior.threads?.[thread.id] || null;
-      const reason = projectionDueReason(thread, previous, options, nowMs);
-      if (!reason) { run.tasks.push({ threadId: thread.id, action: "unchanged" }); continue; }
-      if (reason === "active") { run.tasks.push({ threadId: thread.id, action: "deferred-active", updatedAt: thread.updatedAt }); continue; }
-      if (options.dryRun) { run.tasks.push({ threadId: thread.id, action: "would-project", reason }); continue; }
+      const unchanged = !options.force
+        && previous
+        && previous.inputUpdatedAt === thread.updatedAt
+        && previous.inputName === thread.name
+        && previous.policyVersion === PROJECTION_POLICY_VERSION;
+      if (unchanged) { run.tasks.push({ threadId: thread.id, action: "unchanged" }); continue; }
       const path = normalizePath(thread.path);
       if (!path || !existsSync(path)) { run.tasks.push({ threadId: thread.id, action: "error", error: "session-path-missing" }); continue; }
+      const lifecycle = await readTaskLifecycle(path, { maxLineBytes: options.maxLineBytes });
+      thread.executionState = classifyTaskExecution(lifecycle, options, nowMs);
+      if (client) {
+        try {
+          const result = await client.request("thread/goal/get", { threadId: thread.id });
+          thread.goalStatus = result?.goal?.status || result?.status || null;
+        } catch { thread.goalStatus = null; }
+      }
+      const reason = projectionDueReason(thread, previous, options, nowMs);
+      if (!reason) { run.tasks.push({ threadId: thread.id, action: "unchanged" }); continue; }
+      if (["active", "running-turn", "active-goal"].includes(reason)) {
+        run.tasks.push({ threadId: thread.id, action: reason === "running-turn" ? "deferred-running-turn" : reason === "active-goal" ? "deferred-active-goal" : "deferred-active", updatedAt: thread.updatedAt });
+        continue;
+      }
+      if (options.dryRun) { run.tasks.push({ threadId: thread.id, action: "would-project", reason }); continue; }
       const visible = await readVisibleMessages(path, { maxMessageChars: options.maxMessageChars, maxLineBytes: options.maxLineBytes });
       if (visible.stats.overflowVisibleLines > 0) {
         run.tasks.push({ threadId: thread.id, action: "error", error: "visible-message-line-exceeded-limit", overflowVisibleLines: visible.stats.overflowVisibleLines });
@@ -293,7 +316,7 @@ async function main() {
       run.tasks.push({ threadId: thread.id, action: "projected", reason, revision, parts: parts.length, messages: projection.stats.messages, redactions: projection.stats.redactions, overflowLines: projection.stats.overflowLines, overflowVisibleLines: projection.stats.overflowVisibleLines });
     }
     run.completedAt = new Date().toISOString();
-    for (const action of ["unchanged", "deferred-active", "would-project", "digest-unchanged", "projected", "error"]) run.counts[action] = run.tasks.filter((task) => task.action === action).length;
+    for (const action of ["unchanged", "deferred-active", "deferred-running-turn", "deferred-active-goal", "would-project", "digest-unchanged", "projected", "error"]) run.counts[action] = run.tasks.filter((task) => task.action === action).length;
     if (!options.dryRun) {
       mkdirSync(options.outDir, { recursive: true });
       mkdirSync(runsDir, { recursive: true });

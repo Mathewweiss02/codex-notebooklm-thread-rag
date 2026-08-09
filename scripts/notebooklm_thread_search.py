@@ -18,7 +18,7 @@ from typing import Any
 from notebooklm import NotebookLMClient
 
 
-REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
+REQUIRED_POLICY = "visible-messages-secrets-redacted-v6"
 
 
 def now_iso() -> str:

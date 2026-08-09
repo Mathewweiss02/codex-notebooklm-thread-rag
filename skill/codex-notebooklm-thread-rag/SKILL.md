@@ -30,12 +30,13 @@ Read `references/operations.md` for setup, synchronization, search, and recovery
 
 ## Synchronize safely
 
-1. Run the projection first. Permit only policy `visible-messages-secrets-redacted-v4`.
-2. Review errors, visible-message overflow, source count, and the shard plan before upload.
-3. Upload new revision parts fully and verify them live before deleting any previous source.
-4. Delete only source IDs recorded in that task's `previousSources` with an exact live title match.
-5. Run `--validate-only` reconciliation after changes.
-6. Keep `AllowAllThreads=false` until the source-budget planner produces bounded shards with rolling-update headroom.
+1. Run the projection first. Permit only policy `visible-messages-secrets-redacted-v6`.
+2. Treat unmatched JSONL task-start markers and active goals as absolute projection vetoes. A quiet timer, hard ceiling, or force must never capture a running turn.
+3. Review errors, visible-message overflow, source count, and the shard plan before upload.
+4. Upload new revision parts fully and verify them live before deleting any previous source.
+5. Delete only source IDs recorded in that task's `previousSources` with an exact live title match.
+6. Run exact scoped `--validate-only` reconciliation after changes; missing, extra, or duplicate live sources fail the gate.
+7. Keep `AllowAllThreads=false` until the source-budget planner produces bounded shards with rolling-update headroom. For production, use one sharded runner/mutex per projection root and sync shards serially.
 
 ## Authentication boundary
 

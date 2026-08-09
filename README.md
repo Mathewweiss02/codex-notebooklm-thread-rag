@@ -16,7 +16,7 @@ The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, for
 - Both isolated auth profiles passed exact-account checks, passive live checks, browserless master-token renewal, and restricted-ACL tests.
 - The installed global skill completed a scheduled v4 refresh with exit code 0; all 20 unchanged tasks were skipped without duplicate uploads.
 
-A separate local-only full-corpus proof projected 312 tasks into 338 parts (54.18 MB) with the same privacy gates. The deterministic planner produced two bounded shards: 240 sources plus 60-source update headroom, and 98 sources plus 202-source headroom. That full corpus was deliberately not uploaded.
+A full-corpus production proof projected 312 closed tasks into 338 parts with the same privacy gates, uploaded them into two fresh isolated notebooks, and independently reconciled the exact live source sets: 216 tasks/240 parts and 96 tasks/98 parts. Both shards passed with zero missing, extra, duplicate, or errored sources. The larger shard retains 60-source rolling-update headroom. Running tasks remain excluded until their active turn closes.
 
 These are machine-specific results. NotebookLM is the candidate finder; local Codex history remains the authority.
 
@@ -27,7 +27,7 @@ Codex session JSONL
         |
         v
 sanitized incremental projection
-        |  60-minute quiet gate / 6-hour hard ceiling
+        |  active-turn/goal veto, then 60-minute quiet gate
         v
 NotebookLM revisioned sources
         |
@@ -43,7 +43,7 @@ local Codex evidence verification
         +--> deterministic ThreadOps search fallback
 ```
 
-The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed task normally waits until it has been quiet for 60 minutes; a previously projected task still changing for six hours becomes eligible at the hard ceiling.
+The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed task normally waits until it has been quiet for 60 minutes. JSONL task-start/task-complete markers and active goal state veto projection even after the six-hour hard ceiling or an explicit force, so multi-hour reasoning runs are not captured mid-turn.
 
 ## Requirements
 
@@ -104,6 +104,16 @@ Start with a small, disposable notebook and 20 varied task IDs. Create the noteb
 
 The config is written under `%USERPROFILE%\.codex\thread-rag\my-pc-eval\sync_config.json` and registered in `%USERPROFILE%\.codex\thread-rag\registry.json`. Empty task scope is rejected. `-AllowAllThreads` is an explicit high-risk opt-in that must wait for source-budget planning.
 
+After bounded shard notebooks have been created, uploaded, and exactly reconciled, generate one serialized production config:
+
+```powershell
+.\New-SyncConfig.ps1 -Device "my-pc-prod" -Profile personal `
+  -AllowAllThreads -Sharded -SourceLimit 300 -Reserve 60 `
+  -ShardPrefix "Codex Threads - my-pc"
+```
+
+The planner preserves existing task-to-notebook assignments. New closed tasks enter available headroom; if another shard is required but no notebook has been provisioned, the runner fails closed and drops nothing.
+
 ## 5. Dry-run, upload, and reconcile
 
 ```powershell
@@ -149,10 +159,11 @@ Require 100% semantic candidate recall and at least 95% hybrid Top-1 before depe
 .\scripts\install_notebooklm_thread_sync_task.ps1 `
   -Config "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json" `
   -TaskName "Codex NotebookLM Thread Sync - my-pc" `
-  -Minutes 15
+  -Minutes 15 `
+  -ExecutionLimitMinutes 120
 ```
 
-The task runs only while that Windows user has an interactive session. Runs are mutex-protected, and a nightly read-only reconciliation validates every state-linked source ID and title.
+The task starts at logon and every 15 minutes while that Windows user has an interactive session. Runs sharing a projection root use one mutex, overlapping triggers are ignored, and a nightly read-only reconciliation validates the exact scoped source set for every shard.
 
 ## Search contract
 
@@ -167,8 +178,8 @@ The task runs only while that Windows user has an interactive session. Runs are 
 
 Keep `work` and `personal` profiles separate. Do not infer source limits from a subscription label; query the live limits for each account because entitlements can change. In the initial test both profiles reported tier 2, 500 notebooks, and 300 sources per notebook.
 
-Use one stable device namespace and preferably one notebook per computer. Cross-device search can query both notebooks, while each machine retains independent provenance and credentials. See [docs/MULTI_DEVICE.md](docs/MULTI_DEVICE.md).
+Use one stable device namespace and one bounded notebook set per computer. Cross-device search can query each device's notebooks, while every machine retains independent provenance and credentials. See [docs/MULTI_DEVICE.md](docs/MULTI_DEVICE.md).
 
 ## Current boundary
 
-The 20-task pilot and two-shard full-corpus plan are proven. Full-corpus upload is intentionally not automatic: create and validate each notebook shard separately, preserve rolling-revision headroom, and promote in bounded batches with the same privacy, reconciliation, and retrieval gates.
+The 20-task retrieval pilot and bounded two-shard full-corpus synchronization are proven on the reference machine. Initial shard creation remains an explicit gated operation. After exact reconciliation, the serialized scheduler may incrementally maintain those provisioned shards while preserving privacy, active-turn, capacity, lineage, and exact-source gates.

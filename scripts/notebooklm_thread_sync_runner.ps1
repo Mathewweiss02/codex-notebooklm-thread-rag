@@ -48,7 +48,13 @@ function Invoke-Checked {
 
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
-$required = @("Device", "ProjectionRoot", "Profile", "NotebookId", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")
+$isSharded = $settings.Sharded -eq $true
+$required = @("Device", "ProjectionRoot", "Profile", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")
+if ($isSharded) {
+  $required += @("PlanScript", "SourceLimit", "Reserve", "ShardPrefix")
+} else {
+  $required += "NotebookId"
+}
 foreach ($name in $required) {
   if (-not $settings.$name) { throw "Missing required config field: $name" }
 }
@@ -57,8 +63,9 @@ if ($threadIds.Count -eq 0 -and $settings.AllowAllThreads -ne $true) {
   throw "ThreadIds is empty. Set AllowAllThreads=true explicitly only after source-budget planning."
 }
 
+$mutexScope = [System.IO.Path]::GetFullPath([string]$settings.ProjectionRoot).ToLowerInvariant()
 $hasher = [System.Security.Cryptography.SHA256]::Create()
-try { $hash = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($configPath)) } finally { $hasher.Dispose() }
+try { $hash = $hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($mutexScope)) } finally { $hasher.Dispose() }
 $hashText = ([System.BitConverter]::ToString($hash)).Replace("-", "")
 $mutexName = "Global\CodexThreadRag-" + $hashText.Substring(0, 20)
 $mutex = [System.Threading.Mutex]::new($false, $mutexName)
@@ -68,7 +75,7 @@ $run = [ordered]@{
   Config = $configPath
   Device = $settings.Device
   Profile = $settings.Profile
-  NotebookId = $settings.NotebookId
+  Sharded = $isSharded
   DryRun = [bool]$DryRun
   ReconcileOnly = [bool]$ReconcileOnly
   Steps = @()
@@ -111,27 +118,82 @@ try {
     if ($DryRun) { $projectionArgs += "--dry-run" }
     $run.Steps += Invoke-Checked -Executable ([string]$settings.NodePath) -Arguments $projectionArgs -Label "projection"
 
-    $syncArgs = @(
-      [string]$settings.SyncScript,
-      "--state", (Join-Path $root "state.json"),
-      "--profile", [string]$settings.Profile,
-      "--notebook-id", [string]$settings.NotebookId,
-      "--wait-timeout", [string]$settings.WaitTimeout
-    )
-    if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
-    if ($DryRun) { $syncArgs += "--dry-run" }
-    $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label "sync"
+    if ($isSharded) {
+      $planPath = if ($settings.ShardPlanPath) { [string]$settings.ShardPlanPath } else { Join-Path $root "shard_plan.json" }
+      $planArgs = @(
+        [string]$settings.PlanScript,
+        "--state", (Join-Path $root "state.json"),
+        "--source-limit", [string]$settings.SourceLimit,
+        "--reserve", [string]$settings.Reserve,
+        "--prefix", [string]$settings.ShardPrefix,
+        "--out", $planPath
+      )
+      $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $planArgs -Label "shard-plan"
+      $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+      $shards = @($plan.shards)
+      if ($shards.Count -eq 0 -and $plan.threadCount -gt 0) { throw "Shard plan contains tasks but no shards." }
+      foreach ($shard in $shards) {
+        $shardThreads = @($shard.threads | ForEach-Object { [string]$_.threadId } | Where-Object { $_ })
+        if (-not $shard.notebookId) {
+          throw "Shard $($shard.index) has no provisioned NotebookLM notebook. Provision one and rerun; no tasks were dropped."
+        }
+        if ($shardThreads.Count -eq 0) { continue }
+        $syncArgs = @(
+          [string]$settings.SyncScript,
+          "--state", (Join-Path $root "state.json"),
+          "--profile", [string]$settings.Profile,
+          "--notebook-id", [string]$shard.notebookId,
+          "--wait-timeout", [string]$settings.WaitTimeout
+        )
+        foreach ($threadId in $shardThreads) { $syncArgs += @("--thread", $threadId) }
+        if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
+        if ($DryRun) { $syncArgs += "--dry-run" }
+        $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label ("sync-shard-{0}" -f $shard.index)
+      }
+      $run.ShardCount = $shards.Count
+      $run.ThreadCount = [int]$plan.threadCount
+      $run.SourceParts = [int]$plan.sourceParts
+    } else {
+      $syncArgs = @(
+        [string]$settings.SyncScript,
+        "--state", (Join-Path $root "state.json"),
+        "--profile", [string]$settings.Profile,
+        "--notebook-id", [string]$settings.NotebookId,
+        "--wait-timeout", [string]$settings.WaitTimeout
+      )
+      if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
+      if ($DryRun) { $syncArgs += "--dry-run" }
+      $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label "sync"
+    }
   }
 
   if (($ReconcileOnly -or $isReconcileDue) -and -not $DryRun) {
-    $validateArgs = @(
-      [string]$settings.SyncScript,
-      "--state", (Join-Path $root "state.json"),
-      "--profile", [string]$settings.Profile,
-      "--notebook-id", [string]$settings.NotebookId,
-      "--validate-only"
-    )
-    $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $validateArgs -Label "nightly-reconcile"
+    if ($isSharded) {
+      $planPath = if ($settings.ShardPlanPath) { [string]$settings.ShardPlanPath } else { Join-Path $root "shard_plan.json" }
+      $plan = Get-Content -Raw -LiteralPath $planPath | ConvertFrom-Json
+      foreach ($shard in @($plan.shards)) {
+        $shardThreads = @($shard.threads | ForEach-Object { [string]$_.threadId } | Where-Object { $_ })
+        if (-not $shard.notebookId) { throw "Shard $($shard.index) has no provisioned NotebookLM notebook." }
+        $validateArgs = @(
+          [string]$settings.SyncScript,
+          "--state", (Join-Path $root "state.json"),
+          "--profile", [string]$settings.Profile,
+          "--notebook-id", [string]$shard.notebookId,
+          "--validate-only"
+        )
+        foreach ($threadId in $shardThreads) { $validateArgs += @("--thread", $threadId) }
+        $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $validateArgs -Label ("nightly-reconcile-shard-{0}" -f $shard.index)
+      }
+    } else {
+      $validateArgs = @(
+        [string]$settings.SyncScript,
+        "--state", (Join-Path $root "state.json"),
+        "--profile", [string]$settings.Profile,
+        "--notebook-id", [string]$settings.NotebookId,
+        "--validate-only"
+      )
+      $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $validateArgs -Label "nightly-reconcile"
+    }
     $runnerState | Add-Member -NotePropertyName LastReconcileDate -NotePropertyValue $today -Force
     $runnerState | Add-Member -NotePropertyName LastReconcileAt -NotePropertyValue ((Get-Date).ToUniversalTime().ToString("o")) -Force
   }

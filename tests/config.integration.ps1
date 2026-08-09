@@ -23,7 +23,14 @@ try {
   & $generator -CodexRoot $temporary -Device "fixture" -NotebookId "notebook" -Profile personal -ThreadIds @("thread-a") | Out-Null
   $registry = Get-Content -Raw -LiteralPath (Join-Path $temporary "thread-rag\registry.json") | ConvertFrom-Json
   Assert-True (@($registry.Configs).Count -eq 1) "regeneration must update instead of duplicating registry entries"
-  [pscustomobject]@{ Status = "passed"; Checks = 6 } | ConvertTo-Json
+
+  $shardedOutput = Join-Path $temporary "sharded.json"
+  & $generator -CodexRoot $temporary -Device "fixture-sharded" -Profile personal -AllowAllThreads -Sharded -Output $shardedOutput -Register:$false | Out-Null
+  $sharded = Get-Content -Raw -LiteralPath $shardedOutput | ConvertFrom-Json
+  Assert-True ($sharded.Sharded -eq $true) "sharded config must be explicit"
+  Assert-True (-not $sharded.NotebookId) "sharded config must not require a single notebook"
+  Assert-True ([bool]$sharded.PlanScript) "sharded config must include the planner"
+  [pscustomobject]@{ Status = "passed"; Checks = 9 } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

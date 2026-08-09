@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { basename } from "node:path";
 
-export const PROJECTION_POLICY_VERSION = "visible-messages-secrets-redacted-v4";
+export const PROJECTION_POLICY_VERSION = "visible-messages-secrets-redacted-v6";
 
 const SECRET_PATTERNS = [
   ["pem-private-key", /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g],
@@ -16,8 +16,8 @@ const SECRET_PATTERNS = [
   ["authorization", /\b(?:Authorization\s*:\s*)?(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{12,}/gi],
   ["cookie-header", /\b(?:Cookie|Set-Cookie)\s*:\s*[^\r\n]{12,}/gi],
   ["url-credential", /\bhttps?:\/\/([^\s:/?#]+):([^\s@/?#]+)@/gi],
-  ["user-home-path", /[A-Za-z]:[\\/]Users[\\/][^\\/\s"'<>\]\)]+(?:[\\/])?/gi],
-  ["unix-home-path", /\/(?:Users?|home)\/[^/\s"'<>\]\)]+(?:\/)?/gi],
+  ["user-home-path", /[A-Za-z]:[\\/]+Users[\\/]+(?:<[^>\r\n]{1,128}>|[^\\/\s"'<>\]\)]+)(?:[\\/]+)?/gi],
+  ["unix-home-path", /\/(?:Users?|home)\/+(?:<[^>\r\n]{1,128}>|[^/\s"'<>\]\)]+)(?:\/+)?/gi],
   ["query-secret", /([?&](?:access_token|auth_token|api_key|apikey|client_secret|refresh_token|signature|sig)=)[^&\s#]+/gi],
   ["named-secret", /\b(password|passwd|pwd|secret|client[_ -]?secret|private[_ -]?key|refresh[_ -]?token|access[_ -]?token|auth[_ -]?token|api[_ -]?key|access[_ -]?key|session[_ -]?token)\s*[:=]\s*(?:["'][^"'\r\n]{6,}["']|[^\s,;\r\n]{6,})/gi],
   ["data-url", /data:[A-Za-z0-9.+/-]+;base64,[A-Za-z0-9+/=\r\n]{80,}/g],
@@ -29,6 +29,8 @@ export function sha256(value) {
 }
 
 export function projectionDueReason(thread, previous, options, nowMs = Date.now()) {
+  if (["active", "usageLimited", "budgetLimited"].includes(thread.goalStatus)) return "active-goal";
+  if (thread.executionState === "open") return "running-turn";
   if (options.force) return "forced";
   const updatedMs = (thread.updatedAt || 0) * 1000;
   const unchanged = previous
@@ -40,6 +42,43 @@ export function projectionDueReason(thread, previous, options, nowMs = Date.now(
   const projectedMs = Date.parse(previous?.lastProjectedAt || "") || 0;
   if (previous && projectedMs && nowMs - projectedMs >= options.hardMaxHours * 3_600_000) return "hard-max";
   return "active";
+}
+
+export async function readTaskLifecycle(file, options = {}) {
+  const maxLineBytes = options.maxLineBytes ?? 4 * 1024 * 1024;
+  let open = false;
+  let starts = 0;
+  let completes = 0;
+  let lastStartedAt = null;
+  let lastCompletedAt = null;
+  let malformedLines = 0;
+  for await (const line of boundedLines(file, maxLineBytes)) {
+    if (line.overflow || !line.text.includes('"type":"event_msg"') || !line.text.includes('"type":"task_')) continue;
+    let event;
+    try { event = JSON.parse(line.text); } catch {
+      malformedLines += 1;
+      continue;
+    }
+    const type = event?.type === "event_msg" ? event?.payload?.type : null;
+    if (type === "task_started") {
+      open = true;
+      starts += 1;
+      lastStartedAt = event.timestamp || null;
+    } else if (type === "task_complete") {
+      open = false;
+      completes += 1;
+      lastCompletedAt = event.timestamp || null;
+    }
+  }
+  return { open, starts, completes, lastStartedAt, lastCompletedAt, malformedLines };
+}
+
+export function classifyTaskExecution(lifecycle, options = {}, nowMs = Date.now()) {
+  if (!lifecycle?.open) return "closed";
+  const startedMs = Date.parse(lifecycle.lastStartedAt || "") || 0;
+  const staleHours = options.openTurnStaleHours ?? 24;
+  if (startedMs && nowMs - startedMs > staleHours * 3_600_000) return "stale-unclosed";
+  return "open";
 }
 
 export function sanitizeSecrets(value) {
@@ -301,5 +340,5 @@ export function renderThreadProjection(thread, visible, options = {}) {
 export function sourceTitle(projection, revision, part) {
   const meta = projection.metadata;
   const suffix = `r${String(revision).padStart(4, "0")} p${part.part}/${part.totalParts}`;
-  return safeTitle(`Codex ${meta.deviceId} | ${meta.title} | ${meta.threadId.slice(0, 8)} | ${suffix}`, 190);
+  return safeTitle(`Codex ${meta.deviceId} | ${meta.threadId} | ${suffix} | ${meta.title}`, 189);
 }

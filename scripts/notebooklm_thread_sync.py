@@ -7,6 +7,7 @@ import argparse
 import asyncio
 import json
 import os
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -15,7 +16,7 @@ from typing import Any
 from notebooklm import NotebookLMClient
 
 
-REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
+REQUIRED_POLICY = "visible-messages-secrets-redacted-v6"
 
 
 def now_iso() -> str:
@@ -36,7 +37,14 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
     with temporary.open("w", encoding="utf-8", newline="\n") as handle:
         json.dump(value, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
-    os.replace(temporary, path)
+    for attempt in range(10):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if attempt == 9:
+                raise
+            time.sleep(0.05 * (attempt + 1))
 
 
 def validate_state(state: dict[str, Any]) -> list[dict[str, Any]]:
@@ -80,6 +88,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wait-timeout", type=float, default=300.0)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--validate-only", action="store_true", help="Validate state and live source lineage without uploads")
+    parser.add_argument("--prune-known-orphans", action="store_true", help="Delete only unreferenced live sources whose titles match known prior lineage")
     args = parser.parse_args()
     if not args.notebook_id and not args.notebook_title:
         parser.error("use --notebook-id or --notebook-title")
@@ -120,6 +129,57 @@ def select_threads(threads: list[dict[str, Any]], args: argparse.Namespace) -> l
     return selected
 
 
+def validate_unique_current_lineage(threads: list[dict[str, Any]]) -> None:
+    seen_titles: dict[str, str] = {}
+    seen_ids: dict[str, str] = {}
+    for thread in threads:
+        thread_id = str(thread.get("threadId") or "")
+        for part in thread.get("parts") or []:
+            title = str(part.get("title") or "")
+            if title in seen_titles:
+                raise ValueError(f"Duplicate projected source title across tasks: {seen_titles[title]} and {thread_id}")
+            seen_titles[title] = thread_id
+            source_id = part.get("sourceId")
+            if not source_id:
+                continue
+            if source_id in seen_ids:
+                raise ValueError(f"Duplicate projected source ID across tasks: {seen_ids[source_id]} and {thread_id}")
+            seen_ids[source_id] = thread_id
+
+
+def known_orphans(threads: list[dict[str, Any]], sources: list[Any]) -> list[Any]:
+    referenced_ids: set[str] = set()
+    known_prior_titles: set[str] = set()
+    for thread in threads:
+        for part in thread.get("parts") or []:
+            if part.get("sourceId"):
+                referenced_ids.add(part["sourceId"])
+        for old in thread.get("previousSources") or []:
+            if old.get("sourceId"):
+                referenced_ids.add(old["sourceId"])
+            if old.get("title"):
+                known_prior_titles.add(old["title"])
+    extras = [source for source in sources if source.id not in referenced_ids]
+    unknown = [source for source in extras if (source.title or "") not in known_prior_titles]
+    if unknown:
+        raise ValueError(f"Refusing to prune {len(unknown)} unrecognized live source(s)")
+    return extras
+
+
+def validate_exact_notebook_scope(threads: list[dict[str, Any]], sources: list[Any]) -> None:
+    expected = [part.get("sourceId") for thread in threads for part in thread.get("parts") or []]
+    if any(not source_id for source_id in expected):
+        raise ValueError("Expected source set contains an unlinked projected part")
+    expected_set = set(expected)
+    if len(expected_set) != len(expected):
+        raise ValueError("Expected source set contains duplicate IDs")
+    live_ids = {source.id for source in sources}
+    missing = expected_set - live_ids
+    extra = live_ids - expected_set
+    if missing or extra:
+        raise ValueError(f"Notebook source-set mismatch: missing={len(missing)} extra={len(extra)}")
+
+
 def source_index(sources) -> tuple[dict[str, Any], dict[str, list[Any]]]:
     by_id = {source.id: source for source in sources}
     by_title: dict[str, list[Any]] = {}
@@ -143,11 +203,62 @@ def planned_new_sources(threads: list[dict[str, Any]], by_title: dict[str, list[
     return total
 
 
+def planned_source_peak(threads: list[dict[str, Any]], sources: list[Any], swap_old: bool) -> dict[str, int]:
+    live_by_id = {source.id: source.title or "" for source in sources}
+    live_title_counts: dict[str, int] = {}
+    for title in live_by_id.values():
+        live_title_counts[title] = live_title_counts.get(title, 0) + 1
+    current = len(live_by_id)
+    peak = current
+    planned_new = 0
+    synthetic = 0
+    for thread in threads:
+        expected_ids = {part.get("sourceId") for part in thread.get("parts") or [] if part.get("sourceId") in live_by_id}
+        for part in thread.get("parts") or []:
+            source_id = part.get("sourceId")
+            title = part.get("title") or ""
+            if source_id in live_by_id or live_title_counts.get(title, 0) == 1:
+                continue
+            if live_title_counts.get(title, 0) > 1:
+                raise ValueError(f"Duplicate live sources have title {title!r}")
+            synthetic += 1
+            fake_id = f"__planned_{synthetic}"
+            live_by_id[fake_id] = title
+            live_title_counts[title] = 1
+            expected_ids.add(fake_id)
+            current += 1
+            planned_new += 1
+        peak = max(peak, current)
+        if not swap_old:
+            continue
+        for old in thread.get("previousSources") or []:
+            old_id = old.get("sourceId")
+            if not old_id or old_id in expected_ids or old_id not in live_by_id:
+                continue
+            if live_by_id[old_id] != (old.get("title") or ""):
+                continue
+            old_title = live_by_id.pop(old_id)
+            live_title_counts[old_title] -= 1
+            if live_title_counts[old_title] == 0:
+                del live_title_counts[old_title]
+            current -= 1
+    return {"existing": len(sources), "plannedNew": planned_new, "projectedPeak": peak, "projectedFinal": current}
+
+
 def ensure_source_capacity(existing: int, planned_new: int, limit: int) -> None:
     if existing < 0 or planned_new < 0 or limit < 1:
         raise ValueError("Invalid source-cap values")
     if existing + planned_new > limit:
         raise ValueError(f"Source cap would be exceeded: existing={existing} new={planned_new} limit={limit}")
+
+
+def provider_title_equivalent(expected: str, actual: str, required_lineage: str | None = None) -> bool:
+    if expected == actual:
+        return True
+    shorter, longer = (expected, actual) if len(expected) < len(actual) else (actual, expected)
+    if len(longer) - len(shorter) != 1 or not longer.startswith(shorter):
+        return False
+    return not required_lineage or required_lineage in shorter
 
 
 def validate_thread_lineage(thread: dict[str, Any], by_id: dict[str, Any]) -> None:
@@ -156,7 +267,7 @@ def validate_thread_lineage(thread: dict[str, Any], by_id: dict[str, Any]) -> No
         source_id = part.get("sourceId")
         if not source_id or source_id not in by_id:
             raise ValueError(f"Missing live source for {thread_id}: {part['title']}")
-        if (by_id[source_id].title or "") != part["title"]:
+        if not provider_title_equivalent(part["title"], by_id[source_id].title or "", thread_id):
             raise ValueError(f"Source title drift for {thread_id}: {source_id}")
 
 
@@ -189,7 +300,7 @@ async def sync_thread(
         source_id = part.get("sourceId")
         if source_id and source_id in by_id:
             live = by_id[source_id]
-            if (live.title or "") != part["title"]:
+            if not provider_title_equivalent(part["title"], live.title or "", thread_id):
                 raise ValueError(f"Source title drift for {thread_id}: {source_id}")
             part["status"] = "ready"
             reused.append(source_id)
@@ -245,7 +356,7 @@ async def sync_thread(
             live = refreshed_by_id.get(old_id)
             if live is None:
                 continue
-            if (live.title or "") != (old.get("title") or ""):
+            if not provider_title_equivalent(old.get("title") or "", live.title or ""):
                 raise ValueError(f"Refusing lineage-mismatched deletion for {thread_id}: {old_id}")
             await client.sources.delete(notebook_id, old_id)
             deleted.append(old_id)
@@ -276,6 +387,7 @@ async def main() -> int:
     threads = select_threads(validate_state(state), args)
     if not threads:
         raise ValueError("No projected threads matched the selection")
+    validate_unique_current_lineage(threads)
 
     report: dict[str, Any] = {
         "startedAt": now_iso(),
@@ -300,14 +412,23 @@ async def main() -> int:
         report["notebookId"] = notebook.id
         report["notebookTitle"] = notebook.title
         sources = await client.sources.list(notebook.id, strict=True)
+        pruned_orphans = []
+        if args.prune_known_orphans:
+            if args.dry_run or args.validate_only:
+                raise ValueError("--prune-known-orphans requires a live sync run")
+            pruned_orphans = known_orphans(threads, sources)
+            for source in pruned_orphans:
+                await client.sources.delete(notebook.id, source.id)
+            sources = await client.sources.list(notebook.id, strict=True)
         by_id, by_title = source_index(sources)
         limits = await client.settings.get_account_limits()
-        new_count = planned_new_sources(threads, by_title)
-        ensure_source_capacity(len(sources), new_count, limits.source_limit)
+        source_plan = planned_source_peak(threads, sources, args.swap_old)
+        if source_plan["projectedPeak"] > limits.source_limit:
+            raise ValueError(f"Source cap would be exceeded: peak={source_plan['projectedPeak']} limit={limits.source_limit}")
         report["sourceGate"] = {
-            "existing": len(sources),
-            "plannedNew": new_count,
+            **source_plan,
             "limit": limits.source_limit,
+            "prunedKnownOrphans": len(pruned_orphans),
         }
         if args.dry_run:
             report["results"] = [
@@ -324,6 +445,7 @@ async def main() -> int:
                     raise ValueError(f"Thread {thread['threadId']} is not in a ready upload state")
                 validate_thread_lineage(thread, by_id)
                 report["results"].append({"threadId": thread["threadId"], "action": "validated", "parts": len(thread["parts"])})
+            validate_exact_notebook_scope(threads, sources)
         else:
             state["notebookId"] = notebook.id
             state["notebookTitle"] = notebook.title

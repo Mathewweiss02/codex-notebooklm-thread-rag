@@ -1,6 +1,10 @@
 param(
   [Parameter(Mandatory = $true)] [string] $Device,
-  [Parameter(Mandatory = $true)] [string] $NotebookId,
+  [string] $NotebookId,
+  [switch] $Sharded,
+  [ValidateRange(1, 1000)] [int] $SourceLimit = 300,
+  [ValidateRange(1, 999)] [int] $Reserve = 60,
+  [string] $ShardPrefix,
   [ValidateSet("work", "personal")] [string] $Profile = "personal",
   [string] $CodexRoot = (Join-Path $env:USERPROFILE ".codex"),
   [string] $Output,
@@ -15,6 +19,8 @@ $cleanThreadIds = @($ThreadIds | Where-Object { $_ })
 if ($cleanThreadIds.Count -eq 0 -and -not $AllowAllThreads) {
   throw "Provide at least one -ThreadIds value. Use -AllowAllThreads only after running the source-budget planner."
 }
+if (-not $Sharded -and -not $NotebookId) { throw "NotebookId is required unless -Sharded is used." }
+if ($Reserve -ge $SourceLimit) { throw "Reserve must be smaller than SourceLimit." }
 $node = (Get-Command node -ErrorAction Stop).Source
 $projectionRoot = Join-Path $CodexRoot ("thread-rag\" + $Device)
 if (-not $Output) { $Output = Join-Path $projectionRoot "sync_config.json" }
@@ -24,12 +30,17 @@ $config = [ordered]@{
   Device = $Device
   ProjectionRoot = $projectionRoot
   Profile = $Profile
-  NotebookId = $NotebookId
+  Sharded = [bool]$Sharded
   NodePath = $node
   PythonPath = Join-Path $runtime "Scripts\python.exe"
   NotebookLmCli = Join-Path $runtime "Scripts\notebooklm.exe"
   ProjectionScript = Join-Path $scriptRoot "notebooklm_thread_projection.mjs"
+  PlanScript = Join-Path $scriptRoot "notebooklm_thread_plan.py"
   SyncScript = Join-Path $scriptRoot "notebooklm_thread_sync.py"
+  ShardPlanPath = Join-Path $projectionRoot "shard_plan.json"
+  SourceLimit = $SourceLimit
+  Reserve = $Reserve
+  ShardPrefix = $(if ($ShardPrefix) { $ShardPrefix } else { "Codex Threads - $Device" })
   QuietMinutes = 60
   HardMaxHours = 6
   MaxWords = 120000
@@ -43,6 +54,7 @@ $config = [ordered]@{
   DisposableSearchChat = $true
   ThreadIds = $cleanThreadIds
 }
+if (-not $Sharded) { $config["NotebookId"] = $NotebookId }
 $outputParent = Split-Path -Parent $Output
 if ($outputParent) { New-Item -ItemType Directory -Path $outputParent -Force | Out-Null }
 $config | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $Output -Encoding UTF8

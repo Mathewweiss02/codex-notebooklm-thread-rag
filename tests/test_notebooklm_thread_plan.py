@@ -34,6 +34,22 @@ class PlannerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "above shard capacity"):
             planner.plan_shards(state, source_limit=7, requested_reserve=3, prefix="Test")
 
+    def test_existing_notebook_assignments_remain_stable(self):
+        state = {
+            "policyVersion": planner.REQUIRED_POLICY,
+            "threads": {
+                "large": {"revision": 1, "parts": [{}, {}, {}], "notebookId": "notebook-large"},
+                "small": {"revision": 1, "parts": [{}, {}], "notebookId": "notebook-small"},
+                "new": {"revision": 1, "parts": [{}]},
+            },
+        }
+        plan = planner.plan_shards(state, source_limit=10, requested_reserve=3, prefix="Stable")
+        by_notebook = {item["notebookId"]: item for item in plan["shards"]}
+        self.assertIn("large", {row["threadId"] for row in by_notebook["notebook-large"]["threads"]})
+        self.assertIn("small", {row["threadId"] for row in by_notebook["notebook-small"]["threads"]})
+        assigned_new = next(item for item in plan["shards"] if "new" in {row["threadId"] for row in item["threads"]})
+        self.assertEqual(assigned_new["notebookId"], "notebook-large")
+
 
 if __name__ == "__main__":
     unittest.main()
