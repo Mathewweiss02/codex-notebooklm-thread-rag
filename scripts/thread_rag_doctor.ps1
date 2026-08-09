@@ -8,6 +8,7 @@ param(
 $ErrorActionPreference = "Stop"
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
+$isSharded = $settings.Sharded -eq $true
 $checks = @()
 $failed = $false
 
@@ -17,15 +18,32 @@ function Add-Check {
   if (-not $Passed) { $script:failed = $true }
 }
 
-foreach ($name in @("Device", "ProjectionRoot", "Profile", "NotebookId", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")) {
+$required = @("Device", "ProjectionRoot", "Profile", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")
+if ($isSharded) { $required += @("PlanScript", "ShardPlanPath") } else { $required += "NotebookId" }
+foreach ($name in $required) {
   Add-Check "config-$name" ([bool]$settings.$name) $(if ($settings.$name) { "present" } else { "missing" })
 }
-foreach ($name in @("NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")) {
+$pathFields = @("NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")
+if ($isSharded) { $pathFields += "PlanScript" }
+foreach ($name in $pathFields) {
   $value = [string]$settings.$name
   Add-Check "path-$name" (Test-Path -LiteralPath $value) $value
 }
 $threadIds = @($settings.ThreadIds | Where-Object { $_ })
 Add-Check "scope-gate" ($threadIds.Count -gt 0 -or $settings.AllowAllThreads -eq $true) ("threads={0}; allowAll={1}" -f $threadIds.Count, [bool]$settings.AllowAllThreads)
+
+$shardPlan = $null
+if ($isSharded) {
+  $shardPlanPath = [string]$settings.ShardPlanPath
+  Add-Check "shard-plan" (Test-Path -LiteralPath $shardPlanPath) $shardPlanPath
+  if (Test-Path -LiteralPath $shardPlanPath) {
+    $shardPlan = Get-Content -Raw -LiteralPath $shardPlanPath | ConvertFrom-Json
+    $shards = @($shardPlan.shards)
+    Add-Check "shard-count" ($shards.Count -gt 0) ("count={0}" -f $shards.Count)
+    $unprovisioned = @($shards | Where-Object { -not $_.notebookId })
+    Add-Check "shard-provisioning" ($unprovisioned.Count -eq 0) ("unprovisioned={0}" -f $unprovisioned.Count)
+  }
+}
 
 $statePath = Join-Path ([string]$settings.ProjectionRoot) "state.json"
 Add-Check "projection-state" (Test-Path -LiteralPath $statePath) $statePath
@@ -70,8 +88,23 @@ if ($RefreshAuth) {
 if ($Live) {
   & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) auth check --test --passive --json | Out-Null
   Add-Check "live-auth-passive" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
-  & ([string]$settings.PythonPath) ([string]$settings.SyncScript) --state $statePath --profile ([string]$settings.Profile) --notebook-id ([string]$settings.NotebookId) --validate-only | Out-Null
-  Add-Check "live-source-reconcile" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
+  if ($isSharded) {
+    foreach ($shard in @($shardPlan.shards)) {
+      $arguments = @(
+        [string]$settings.SyncScript,
+        "--state", $statePath,
+        "--profile", [string]$settings.Profile,
+        "--notebook-id", [string]$shard.notebookId,
+        "--validate-only"
+      )
+      foreach ($thread in @($shard.threads)) { $arguments += @("--thread", [string]$thread.threadId) }
+      & ([string]$settings.PythonPath) @arguments | Out-Null
+      Add-Check ("live-source-reconcile-shard-{0}" -f $shard.index) ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
+    }
+  } else {
+    & ([string]$settings.PythonPath) ([string]$settings.SyncScript) --state $statePath --profile ([string]$settings.Profile) --notebook-id ([string]$settings.NotebookId) --validate-only | Out-Null
+    Add-Check "live-source-reconcile" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
+  }
 }
 
 $result = [ordered]@{ Status = $(if ($failed) { "error" } else { "ok" }); Config = $configPath; Live = [bool]$Live; Checks = $checks }
