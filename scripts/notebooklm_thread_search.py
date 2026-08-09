@@ -217,56 +217,101 @@ def load_instance(config_path: Path, max_run_age_minutes: int, allow_unmonitored
                 source_to_thread[part["sourceId"]] = thread_id
     if not source_to_thread:
         raise ValueError(f"No current uploaded sources in {state_path}")
-    return {"configPath": config_path, "config": config, "statePath": state_path, "state": state, "lastSuccess": last_success, "sourceToThread": source_to_thread}
+    notebooks: list[dict[str, Any]] = []
+    if config.get("Sharded") is True:
+        plan_path = Path(config.get("ShardPlanPath") or root / "shard_plan.json")
+        plan = read_json(plan_path)
+        assigned_threads: set[str] = set()
+        for shard in plan.get("shards") or []:
+            notebook_id = shard.get("notebookId")
+            if not notebook_id:
+                raise ValueError(f"Shard {shard.get('index')} has no provisioned notebook")
+            thread_ids = {item.get("threadId") for item in shard.get("threads") or [] if item.get("threadId")}
+            overlap = assigned_threads & thread_ids
+            if overlap:
+                raise ValueError(f"Shard plan assigns {len(overlap)} tasks more than once")
+            assigned_threads.update(thread_ids)
+            scoped = {source_id: thread_id for source_id, thread_id in source_to_thread.items() if thread_id in thread_ids}
+            if thread_ids and not scoped:
+                raise ValueError(f"Shard {shard.get('index')} has tasks but no current uploaded sources")
+            notebooks.append({"notebookId": notebook_id, "shard": shard.get("index"), "sourceToThread": scoped})
+        current_threads = set(source_to_thread.values())
+        missing_assignments = current_threads - assigned_threads
+        if missing_assignments:
+            raise ValueError(f"Shard plan omits {len(missing_assignments)} current uploaded tasks")
+    else:
+        notebook_id = config.get("NotebookId")
+        if not notebook_id:
+            raise ValueError(f"NotebookId is missing from {config_path}")
+        notebooks.append({"notebookId": notebook_id, "shard": None, "sourceToThread": source_to_thread})
+    return {
+        "configPath": config_path,
+        "config": config,
+        "statePath": state_path,
+        "state": state,
+        "lastSuccess": last_success,
+        "sourceToThread": source_to_thread,
+        "notebooks": notebooks,
+    }
 
 
 async def search_instance(instance: dict[str, Any], query: str, allow_followup: bool, limit: int) -> dict[str, Any]:
     config = instance["config"]
     profile = config["Profile"]
-    notebook_id = config["NotebookId"]
     disposable = config.get("DisposableSearchChat") is True
     if not disposable and not allow_followup:
         raise ValueError(f"Config {instance['configPath']} is not marked DisposableSearchChat=true")
+    candidates: list[dict[str, Any]] = []
+    answer_hashes: list[str] = []
+    answer_chars = 0
+    reference_count = 0
     async with NotebookLMClient.from_storage(profile=profile, chat_timeout=240.0) as client:
-        live_ids = {source.id for source in await client.sources.list(notebook_id, strict=True)}
-        expected_ids = set(instance["sourceToThread"])
-        missing = expected_ids - live_ids
-        if missing:
-            raise ValueError(f"Notebook is missing {len(missing)} state-linked sources")
-        if disposable:
-            conversation_id = await client.chat.get_conversation_id(notebook_id)
-            if conversation_id:
-                await client.chat.delete_conversation(notebook_id, conversation_id)
-            client.chat.clear_cache()
-        # Keep the retrieval prompt identical to the benchmark surface. Additional
-        # meta-instructions measurably changed citation ordering on related-task decoys.
-        result = await client.chat.ask(notebook_id, query)
-        references = sorted(result.references, key=lambda item: item.citation_number)
-        candidates: list[dict[str, Any]] = []
-        seen: set[str] = set()
-        for reference in references:
-            thread_id = instance["sourceToThread"].get(reference.source_id)
-            if not thread_id or thread_id in seen:
-                continue
-            seen.add(thread_id)
-            thread = instance["state"]["threads"].get(thread_id, {})
-            candidates.append({
-                "threadId": thread_id,
-                "title": thread.get("title"),
-                "citationRank": reference.citation_number,
-                "sourceId": reference.source_id,
-            })
-            if len(candidates) >= limit:
-                break
+        for notebook in instance["notebooks"]:
+            notebook_id = notebook["notebookId"]
+            live_ids = {source.id for source in await client.sources.list(notebook_id, strict=True)}
+            expected_ids = set(notebook["sourceToThread"])
+            missing = expected_ids - live_ids
+            extras = live_ids - expected_ids
+            if missing or extras:
+                raise ValueError(f"Notebook source scope mismatch: missing={len(missing)}, extra={len(extras)}")
+            if disposable:
+                conversation_id = await client.chat.get_conversation_id(notebook_id)
+                if conversation_id:
+                    await client.chat.delete_conversation(notebook_id, conversation_id)
+                client.chat.clear_cache()
+            # Keep the retrieval prompt identical to the benchmark surface. Additional
+            # meta-instructions measurably changed citation ordering on related-task decoys.
+            result = await client.chat.ask(notebook_id, query)
+            references = sorted(result.references, key=lambda item: item.citation_number)
+            reference_count += len(references)
+            answer_chars += len(result.answer)
+            answer_hashes.append(hashlib.sha256(result.answer.encode("utf-8")).hexdigest())
+            seen: set[str] = set()
+            for reference in references:
+                thread_id = notebook["sourceToThread"].get(reference.source_id)
+                if not thread_id or thread_id in seen:
+                    continue
+                seen.add(thread_id)
+                thread = instance["state"]["threads"].get(thread_id, {})
+                candidates.append({
+                    "threadId": thread_id,
+                    "title": thread.get("title"),
+                    "citationRank": reference.citation_number,
+                    "sourceId": reference.source_id,
+                    "shard": notebook.get("shard"),
+                })
+                if len(seen) >= limit:
+                    break
         return {
             "device": config["Device"],
             "profile": profile,
             "lastRunnerSuccess": instance["lastSuccess"].isoformat().replace("+00:00", "Z") if instance["lastSuccess"] else None,
             "quietMinutes": config.get("QuietMinutes"),
             "hardMaxHours": config.get("HardMaxHours"),
-            "referenceCount": len(references),
-            "answerSha256": hashlib.sha256(result.answer.encode("utf-8")).hexdigest(),
-            "answerChars": len(result.answer),
+            "notebookCount": len(instance["notebooks"]),
+            "referenceCount": reference_count,
+            "answerSha256": hashlib.sha256("\n".join(answer_hashes).encode("utf-8")).hexdigest(),
+            "answerChars": answer_chars,
             "candidates": candidates,
         }
 

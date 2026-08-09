@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -55,6 +57,39 @@ class SearchTests(unittest.TestCase):
         self.assertNotIn("AKIAABCDEFGHIJKLMNOP", value)
         self.assertNotIn("supersecretvalue", value)
         self.assertGreaterEqual(count, 2)
+
+    def test_load_sharded_instance_builds_exact_notebook_scopes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            state = {
+                "policyVersion": search.REQUIRED_POLICY,
+                "threads": {
+                    "thread-a": {"revision": "r1", "uploadRevision": "r1", "parts": [{"sourceId": "source-a"}]},
+                    "thread-b": {"revision": "r1", "uploadRevision": "r1", "parts": [{"sourceId": "source-b"}]},
+                },
+            }
+            plan = {
+                "shards": [
+                    {"index": 1, "notebookId": "notebook-a", "threads": [{"threadId": "thread-a"}]},
+                    {"index": 2, "notebookId": "notebook-b", "threads": [{"threadId": "thread-b"}]},
+                ]
+            }
+            config = {
+                "Device": "fixture",
+                "ProjectionRoot": str(root),
+                "Profile": "personal",
+                "Sharded": True,
+                "ShardPlanPath": str(root / "shard_plan.json"),
+                "DisposableSearchChat": True,
+            }
+            (root / "state.json").write_text(json.dumps(state), encoding="utf-8")
+            (root / "shard_plan.json").write_text(json.dumps(plan), encoding="utf-8")
+            config_path = root / "config.json"
+            config_path.write_text(json.dumps(config), encoding="utf-8")
+            instance = search.load_instance(config_path, 45, allow_unmonitored=True)
+            self.assertEqual(len(instance["notebooks"]), 2)
+            self.assertEqual(instance["notebooks"][0]["sourceToThread"], {"source-a": "thread-a"})
+            self.assertEqual(instance["notebooks"][1]["sourceToThread"], {"source-b": "thread-b"})
 
 
 if __name__ == "__main__":
