@@ -47,6 +47,8 @@ def validate_state(state: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(threads, dict) or not threads:
         raise ValueError("State contains no projected threads")
     validated: list[dict[str, Any]] = []
+    title_owners: dict[str, str] = {}
+    source_owners: dict[str, str] = {}
     for thread_id, thread in threads.items():
         if thread.get("policyVersion") != REQUIRED_POLICY:
             raise ValueError(f"Thread {thread_id} has the wrong projection policy")
@@ -56,13 +58,23 @@ def validate_state(state: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(parts, list) or not parts:
             raise ValueError(f"Thread {thread_id} has no source parts")
         for part in parts:
+            part_key = f"{thread_id}:p{part.get('part')}"
             file_path = Path(part.get("file") or "")
             if not file_path.is_file():
                 raise ValueError(f"Missing projected part for {thread_id}: {file_path}")
             if file_path.stat().st_size != int(part.get("bytes") or -1):
                 raise ValueError(f"Projected part size drift for {thread_id}: {file_path}")
-            if not part.get("title"):
+            title = str(part.get("title") or "")
+            if not title:
                 raise ValueError(f"Projected part lacks a source title for {thread_id}")
+            prior_title_owner = title_owners.setdefault(title, part_key)
+            if prior_title_owner != part_key:
+                raise ValueError(f"Duplicate projected source title across parts: {title!r}")
+            source_id = str(part.get("sourceId") or "")
+            if source_id:
+                prior_source_owner = source_owners.setdefault(source_id, part_key)
+                if prior_source_owner != part_key:
+                    raise ValueError("One live source id is assigned to multiple projected parts")
         validated.append(thread)
     return validated
 
@@ -80,6 +92,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wait-timeout", type=float, default=300.0)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--validate-only", action="store_true", help="Validate state and live source lineage without uploads")
+    parser.add_argument("--reject-untracked-sources", action="store_true", help="Fail when the dedicated notebook contains a source outside known state lineage")
     args = parser.parse_args()
     if not args.notebook_id and not args.notebook_title:
         parser.error("use --notebook-id or --notebook-title")
@@ -121,11 +134,24 @@ def select_threads(threads: list[dict[str, Any]], args: argparse.Namespace) -> l
 
 
 def source_index(sources) -> tuple[dict[str, Any], dict[str, list[Any]]]:
-    by_id = {source.id: source for source in sources}
+    by_id: dict[str, Any] = {}
     by_title: dict[str, list[Any]] = {}
     for source in sources:
+        if source.id in by_id:
+            raise ValueError(f"Duplicate live source id: {source.id}")
+        by_id[source.id] = source
         by_title.setdefault(source.title or "", []).append(source)
     return by_id, by_title
+
+
+def known_lineage_source_ids(state: dict[str, Any]) -> set[str]:
+    source_ids: set[str] = set()
+    for thread in (state.get("threads") or {}).values():
+        for part in list(thread.get("parts") or []) + list(thread.get("previousSources") or []):
+            source_id = str(part.get("sourceId") or "")
+            if source_id:
+                source_ids.add(source_id)
+    return source_ids
 
 
 def planned_new_sources(threads: list[dict[str, Any]], by_title: dict[str, list[Any]]) -> int:
@@ -301,6 +327,15 @@ async def main() -> int:
         report["notebookTitle"] = notebook.title
         sources = await client.sources.list(notebook.id, strict=True)
         by_id, by_title = source_index(sources)
+        known_ids = known_lineage_source_ids(state)
+        untracked_ids = set(by_id) - known_ids
+        report["sourceReconcile"] = {
+            "live": len(by_id),
+            "knownLineage": len(set(by_id) & known_ids),
+            "untracked": len(untracked_ids),
+        }
+        if args.reject_untracked_sources and untracked_ids:
+            raise ValueError(f"Dedicated retrieval notebook contains {len(untracked_ids)} untracked sources")
         limits = await client.settings.get_account_limits()
         new_count = planned_new_sources(threads, by_title)
         ensure_source_capacity(len(sources), new_count, limits.source_limit)

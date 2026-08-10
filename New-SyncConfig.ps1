@@ -2,10 +2,12 @@ param(
   [Parameter(Mandatory = $true)] [string] $Device,
   [Parameter(Mandatory = $true)] [string] $NotebookId,
   [ValidateSet("work", "personal")] [string] $Profile = "personal",
+  [ValidateSet("retrieval", "chat")] [string] $NotebookRole = "retrieval",
   [string] $CodexRoot = (Join-Path $env:USERPROFILE ".codex"),
   [string] $Output,
   [string[]] $ThreadIds = @(),
   [switch] $AllowAllThreads,
+  [bool] $RetentionApply = $false,
   [bool] $Register = $true
 )
 
@@ -30,17 +32,33 @@ $config = [ordered]@{
   NotebookLmCli = Join-Path $runtime "Scripts\notebooklm.exe"
   ProjectionScript = Join-Path $scriptRoot "notebooklm_thread_projection.mjs"
   SyncScript = Join-Path $scriptRoot "notebooklm_thread_sync.py"
+  EnrollmentScript = Join-Path $scriptRoot "notebooklm_thread_enroll.py"
+  RetentionScript = Join-Path $scriptRoot "thread_rag_retention.py"
   QuietMinutes = 60
   HardMaxHours = 6
   MaxWords = 120000
   MaxMessageChars = 100000
-  MaxLineBytes = 4194304
+  MaxLineBytes = 8388608
   WaitTimeout = 300
-  RefreshMasterToken = $true
+  RefreshAuth = $true
   SwapOld = $true
   ReconcileHour = 3
+  MaxRunnerAgeMinutes = 45
+  ExecutionTimeLimitMinutes = 120
+  SourceReserve = 60
+  AutoEnroll = $true
+  RetentionEnabled = $true
+  RetentionApply = $RetentionApply
+  RetentionDays = 30
+  ProjectionRevisions = 1
+  MaxRunReports = 40
+  MaxSearchReports = 100
+  SearchReportsRoot = Join-Path (Join-Path $CodexRoot "thread-rag") "search-runs"
   AllowAllThreads = [bool]$AllowAllThreads
-  DisposableSearchChat = $true
+  NotebookRole = $NotebookRole
+  ConversationPolicy = if ($NotebookRole -eq "retrieval") { "dedicated-retrieval-disposable-v1" } else { "persistent-cli-chat-v1" }
+  RejectUntrackedSources = $true
+  DisposableSearchChat = $NotebookRole -eq "retrieval"
   ThreadIds = $cleanThreadIds
 }
 $outputParent = Split-Path -Parent $Output
@@ -51,7 +69,7 @@ if ($Register) {
   $registryPath = Join-Path (Join-Path $CodexRoot "thread-rag") "registry.json"
   $registry = if (Test-Path -LiteralPath $registryPath) { Get-Content -Raw -LiteralPath $registryPath | ConvertFrom-Json } else { [pscustomobject]@{ SchemaVersion = 1; Configs = @() } }
   $entries = @($registry.Configs | Where-Object { [string]$_.Device -ne $Device -and [string]$_.ConfigPath -ne $resolvedOutput })
-  $entries += [pscustomobject]@{ Device = $Device; ConfigPath = $resolvedOutput; Profile = $Profile; UpdatedAt = (Get-Date).ToUniversalTime().ToString("o") }
+  $entries += [pscustomobject]@{ Device = $Device; ConfigPath = $resolvedOutput; Profile = $Profile; NotebookRole = $NotebookRole; UpdatedAt = (Get-Date).ToUniversalTime().ToString("o") }
   $registry = [ordered]@{ SchemaVersion = 1; Configs = $entries }
   $registryTemporary = "$registryPath.$PID.tmp"
   $registry | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $registryTemporary -Encoding UTF8

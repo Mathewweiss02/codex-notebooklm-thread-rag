@@ -3,10 +3,12 @@ param(
   [ValidateSet("list", "check", "login-work", "login-personal", "master-login-work", "master-login-personal", "refresh-work", "refresh-personal", "refresh-all", "verify-work", "verify-personal", "lock-work", "lock-personal", "lock-all", "switch-work", "switch-personal", "doctor-work", "doctor-personal")]
   [string] $Action,
   [string] $Account,
+  [ValidateSet("chromium", "chrome", "msedge")] [string] $Browser = "chromium",
   [string] $NotebookLmCli
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "notebooklm_auth_helpers.ps1")
 
 if (-not $NotebookLmCli) {
   $codexRoot = $env:CODEX_HOME
@@ -70,40 +72,43 @@ switch ($Action) {
     Invoke-NotebookLm -CliArgs @("profile", "list")
   }
   "check" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "check", "--test", "--passive")
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "check", "--test", "--passive")
+    $results = @(
+      Assert-NotebookLmAuthJson -NotebookLmCli $NotebookLmCli -Profile "work"
+      Assert-NotebookLmAuthJson -NotebookLmCli $NotebookLmCli -Profile "personal"
+    )
+    $results | Select-Object @{Name="Profile";Expression={$_.Payload.profile}}, Status, ExitCode
   }
   "login-work" {
     Require-Account
-    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", "chrome", "--fresh")
+    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", $Browser, "--fresh")
     Assert-ProfileAccount -Profile "work"
   }
   "login-personal" {
     Require-Account
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", "chrome", "--fresh")
+    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", $Browser, "--fresh")
     Assert-ProfileAccount -Profile "personal"
   }
   "master-login-work" {
     Require-Account
-    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", "chrome", "--fresh", "--master-token", "--account", $Account)
+    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--browser", $Browser, "--fresh", "--master-token", "--account", $Account)
     Assert-ProfileAccount -Profile "work"
     Protect-ProfileDirectory -Profile "work"
   }
   "master-login-personal" {
     Require-Account
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", "chrome", "--fresh", "--master-token", "--account", $Account)
+    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--browser", $Browser, "--fresh", "--master-token", "--account", $Account)
     Assert-ProfileAccount -Profile "personal"
     Protect-ProfileDirectory -Profile "personal"
   }
   "refresh-work" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--master-token-refresh")
+    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "refresh", "--verify")
   }
   "refresh-personal" {
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--master-token-refresh")
+    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "refresh", "--verify")
   }
   "refresh-all" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "login", "--master-token-refresh")
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "login", "--master-token-refresh")
+    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "refresh", "--verify")
+    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "refresh", "--verify")
   }
   "verify-work" {
     Assert-ProfileAccount -Profile "work"

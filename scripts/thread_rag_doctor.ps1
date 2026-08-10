@@ -2,10 +2,12 @@ param(
   [Parameter(Mandatory = $true)] [string] $Config,
   [switch] $Live,
   [switch] $RefreshAuth,
-  [string] $TaskName
+  [string] $TaskName,
+  [ValidateRange(1, 10080)] [int] $MaxRunnerAgeMinutes = 45
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "notebooklm_auth_helpers.ps1")
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
 $checks = @()
@@ -17,7 +19,7 @@ function Add-Check {
   if (-not $Passed) { $script:failed = $true }
 }
 
-foreach ($name in @("Device", "ProjectionRoot", "Profile", "NotebookId", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")) {
+foreach ($name in @("Device", "ProjectionRoot", "Profile", "NotebookId", "NotebookRole", "NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")) {
   Add-Check "config-$name" ([bool]$settings.$name) $(if ($settings.$name) { "present" } else { "missing" })
 }
 foreach ($name in @("NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript", "SyncScript")) {
@@ -26,6 +28,8 @@ foreach ($name in @("NodePath", "PythonPath", "NotebookLmCli", "ProjectionScript
 }
 $threadIds = @($settings.ThreadIds | Where-Object { $_ })
 Add-Check "scope-gate" ($threadIds.Count -gt 0 -or $settings.AllowAllThreads -eq $true) ("threads={0}; allowAll={1}" -f $threadIds.Count, [bool]$settings.AllowAllThreads)
+$conversationSafe = if ([string]$settings.NotebookRole -eq "retrieval") { $settings.DisposableSearchChat -eq $true } else { [string]$settings.NotebookRole -eq "chat" -and $settings.DisposableSearchChat -ne $true }
+Add-Check "conversation-policy" $conversationSafe ("role={0}; disposable={1}; policy={2}" -f [string]$settings.NotebookRole, [bool]$settings.DisposableSearchChat, [string]$settings.ConversationPolicy)
 
 $statePath = Join-Path ([string]$settings.ProjectionRoot) "state.json"
 Add-Check "projection-state" (Test-Path -LiteralPath $statePath) $statePath
@@ -39,7 +43,18 @@ $runnerStatePath = Join-Path ([string]$settings.ProjectionRoot) "runner_state.js
 Add-Check "runner-state" (Test-Path -LiteralPath $runnerStatePath) $runnerStatePath
 if (Test-Path -LiteralPath $runnerStatePath) {
   $runnerState = Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json
-  Add-Check "runner-last-success" ([bool]$runnerState.LastSuccessAt) ([string]$runnerState.LastSuccessAt)
+  $configuredMaxAge = if ($null -ne $settings.MaxRunnerAgeMinutes) { [int]$settings.MaxRunnerAgeMinutes } else { $MaxRunnerAgeMinutes }
+  try {
+    $lastSuccess = [DateTimeOffset]::Parse([string]$runnerState.LastSuccessAt).ToUniversalTime()
+    $ageMinutes = ([DateTimeOffset]::UtcNow - $lastSuccess).TotalMinutes
+    $runnerFresh = $ageMinutes -ge -5 -and $ageMinutes -le $configuredMaxAge
+    Add-Check "runner-last-success" $runnerFresh ("at={0}; ageMinutes={1:N1}; maxMinutes={2}" -f $lastSuccess.ToString("o"), $ageMinutes, $configuredMaxAge)
+  } catch {
+    Add-Check "runner-last-success" $false ("invalid timestamp: {0}" -f [string]$runnerState.LastSuccessAt)
+  }
+  if ($runnerState.LastStatus) {
+    Add-Check "runner-last-status" ([string]$runnerState.LastStatus -eq "ok") ("status={0}; attempt={1}" -f [string]$runnerState.LastStatus, [string]$runnerState.LastAttemptAt)
+  }
 }
 
 if (-not $TaskName) {
@@ -64,13 +79,15 @@ if ($TaskName) {
 }
 
 if ($RefreshAuth) {
-  & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) login --master-token-refresh | Out-Null
-  Add-Check "master-token-refresh" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
+  & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) auth refresh --verify | Out-Null
+  Add-Check "auth-refresh" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
 }
 if ($Live) {
-  & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) auth check --test --passive --json | Out-Null
-  Add-Check "live-auth-passive" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
-  & ([string]$settings.PythonPath) ([string]$settings.SyncScript) --state $statePath --profile ([string]$settings.Profile) --notebook-id ([string]$settings.NotebookId) --validate-only | Out-Null
+  $auth = Invoke-NotebookLmAuthJson -NotebookLmCli ([string]$settings.NotebookLmCli) -Profile ([string]$settings.Profile)
+  Add-Check "live-auth-passive" $auth.Passed $auth.Detail
+  $validateArgs = @(([string]$settings.SyncScript), "--state", $statePath, "--profile", ([string]$settings.Profile), "--notebook-id", ([string]$settings.NotebookId), "--validate-only")
+  if ($settings.RejectUntrackedSources -eq $true) { $validateArgs += "--reject-untracked-sources" }
+  & ([string]$settings.PythonPath) @validateArgs | Out-Null
   Add-Check "live-source-reconcile" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
 }
 

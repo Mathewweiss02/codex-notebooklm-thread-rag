@@ -28,6 +28,15 @@ def now_iso() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
+def normalized_expected_ids(case: dict[str, Any]) -> set[str]:
+    value = case["expectedThreadIds"]
+    return set(value if isinstance(value, list) else [value])
+
+
+def first_expected_rank(thread_ids: list[str], expected: set[str]) -> int | None:
+    return next((rank for rank, thread_id in enumerate(thread_ids, 1) if thread_id in expected), None)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raw-report", required=True, type=Path)
@@ -73,16 +82,28 @@ def main() -> int:
         started = datetime.now(UTC)
         try:
             ranked, verification = local_rerank_candidates(case["query"], semantic, node_path=args.node)
-            final_ids = [item["threadId"] for item in ranked if item.get("locallyVerified")]
-            expected = set(case["expectedThreadIds"] if isinstance(case["expectedThreadIds"], list) else [case["expectedThreadIds"]])
-            final_rank = next((rank for rank, thread_id in enumerate(final_ids, 1) if thread_id in expected), None)
+            final_ids = [item["threadId"] for item in ranked]
+            expected = normalized_expected_ids(case)
+            semantic_rank = first_expected_rank(thread_ids, expected)
+            final_rank = first_expected_rank(final_ids, expected)
             record = {
                 "name": case["name"],
                 "expectedThreadIds": sorted(expected),
                 "semanticCandidateThreadIds": thread_ids,
-                "semanticExpectedRank": raw_result.get("actualRank"),
-                "semanticPassedTop1": raw_result.get("passedTop1") is True,
+                "semanticExpectedRank": semantic_rank,
+                "semanticPassedTop1": semantic_rank == 1,
                 "hybridThreadIds": final_ids,
+                "hybridCandidates": [
+                    {
+                        "threadId": item["threadId"],
+                        "semanticRank": item.get("semanticRank"),
+                        "localRank": item.get("localRank"),
+                        "locallyVerified": item.get("locallyVerified"),
+                        "titleQueryOverlap": item.get("titleQueryOverlap"),
+                        "hybridScore": item.get("hybridScore"),
+                    }
+                    for item in ranked
+                ],
                 "hybridExpectedRank": final_rank,
                 "passedHybridTop1": bool(final_ids and final_ids[0] in expected),
                 "localVerification": verification,
@@ -91,7 +112,8 @@ def main() -> int:
             record = {
                 "name": case["name"],
                 "semanticCandidateThreadIds": thread_ids,
-                "semanticPassedTop1": raw_result.get("passedTop1") is True,
+                "semanticExpectedRank": first_expected_rank(thread_ids, normalized_expected_ids(case)),
+                "semanticPassedTop1": first_expected_rank(thread_ids, normalized_expected_ids(case)) == 1,
                 "passedHybridTop1": False,
                 "error": f"{type(error).__name__}: {error}",
             }

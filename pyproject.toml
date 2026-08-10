@@ -1,0 +1,15 @@
+[project]
+name = "codex-notebooklm-thread-rag"
+version = "0.1.0"
+description = "CLI-first, capacity-aware Codex task retrieval through NotebookLM with local authoritative reranking"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "notebooklm-py[browser,headless,mcp]==0.8.0",
+]
+
+[dependency-groups]
+audit = [
+    "pip-audit==2.10.1",
+]

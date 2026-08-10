@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { spawn, execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from "node:fs";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import {
   PROJECTION_POLICY_VERSION,
@@ -39,8 +39,9 @@ function parseArgs(argv) {
     hardMaxHours: 6,
     maxWords: 120_000,
     maxMessageChars: 100_000,
-    maxLineBytes: 4 * 1024 * 1024,
+    maxLineBytes: 8 * 1024 * 1024,
     threadManifest: null,
+    inventoryOut: null,
     includeSubagents: false,
     force: false,
     dryRun: false,
@@ -61,6 +62,7 @@ function parseArgs(argv) {
     else if (arg === "--max-message-chars") options.maxMessageChars = Number(argv[++index]);
     else if (arg === "--max-line-bytes") options.maxLineBytes = Number(argv[++index]);
     else if (arg === "--thread-manifest") options.threadManifest = resolve(argv[++index]);
+    else if (arg === "--inventory-out") options.inventoryOut = resolve(argv[++index]);
     else if (arg === "--include-subagents") options.includeSubagents = true;
     else if (arg === "--force") options.force = true;
     else if (arg === "--dry-run") options.dryRun = true;
@@ -88,8 +90,9 @@ Options:
   --hard-max-hours N     Reproject a still-active changed task after N hours (default: 6)
   --max-words N          Maximum words per source part (default: 120000)
   --max-message-chars N  Keep first/last content beyond this size (default: 100000)
-  --max-line-bytes N     Skip any JSONL line above this size (default: 4194304)
+  --max-line-bytes N     Skip any JSONL line above this size (default: 8388608)
   --thread-manifest FILE Use an explicit thread metadata fixture instead of app-server
+  --inventory-out FILE   Write visible task IDs/metadata and exit without projecting
   --include-subagents    Include hidden worker/review sessions (excluded by default)
   --force                Ignore quiet/unchanged gates
   --dry-run              Report candidates without reading or writing projections
@@ -238,6 +241,18 @@ async function main() {
   const run = { startedAt: now.toISOString(), deviceId: options.device, policyVersion: PROJECTION_POLICY_VERSION, dryRun: options.dryRun, counts: {}, tasks: [] };
   try {
     const threads = options.threadManifest ? listThreadsFromManifest(options) : await listThreads(client, options);
+    if (options.inventoryOut) {
+      mkdirSync(dirname(options.inventoryOut), { recursive: true });
+      atomicJson(options.inventoryOut, {
+        schemaVersion: 1,
+        generatedAt: now.toISOString(),
+        includeSubagents: options.includeSubagents,
+        threadCount: threads.length,
+        threads: threads.map((thread) => ({ id: thread.id, updatedAt: thread.updatedAt, archived: Boolean(thread.archived), source: thread.source || "unknown" })),
+      });
+      console.log(JSON.stringify({ inventory: options.inventoryOut, threadCount: threads.length }, null, 2));
+      return;
+    }
     run.counts.considered = threads.length;
     for (const thread of threads) {
       const previous = prior.threads?.[thread.id] || null;

@@ -10,7 +10,15 @@ Stop scheduled uploads. Run `doctor-*`, then recapture only the affected profile
 
 ## A scheduled task fails
 
-Inspect the newest JSON file under the configured projection root's `runs` directory. Correct the failing step, run the runner manually, then trigger the Scheduled Task once. Require exit code 0 before considering it healthy.
+Inspect the newest JSON file under the configured projection root's `runs` directory and `runner_state.json`. The doctor rejects stale timestamps and a latest `LastStatus` other than `ok`. Correct the failing step, run the runner manually, then trigger the Scheduled Task once. Require parsed JSON auth status `ok`, exit code 0, and strict source reconciliation before considering it healthy.
+
+## Automatic enrollment fails
+
+Do not add only the tasks that happen to fit. Run `notebooklm_thread_enroll.py` without `--apply`, inspect the staged-projection or source-budget failure, and either repair the task or create a new planned shard. The explicit scope is updated only after every newly visible task passes.
+
+## Retention reports unexpected candidates
+
+Leave `RetentionApply=false`. Confirm the state references current and previous lineage under the configured projection root. Retention refuses paths outside its guarded roots; never work around that guard with a broader root.
 
 ## Projection policy changes
 

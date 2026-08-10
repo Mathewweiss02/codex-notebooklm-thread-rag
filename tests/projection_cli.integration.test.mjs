@@ -19,6 +19,21 @@ async function runProjection(manifest, out) {
   return execFileAsync(process.execPath, [PROJECTOR, "--thread-manifest", manifest, "--out", out, "--device", "fixture-pc", "--quiet-minutes", "0", "--max-words", "35"], { windowsHide: true });
 }
 
+test("inventory mode discovers visible tasks without creating projection state", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-rag-inventory-"));
+  const manifest = join(root, "threads.json");
+  const out = join(root, "projection");
+  const inventory = join(root, "inventory.json");
+  const visible = { id: "visible-task", path: join(root, "unused.jsonl"), updatedAt: 100, source: "appServer" };
+  const hidden = { id: "hidden-task", path: join(root, "unused-hidden.jsonl"), updatedAt: 90, source: "subAgent" };
+  await writeFile(manifest, JSON.stringify({ threads: [visible, hidden] }), "utf8");
+
+  await execFileAsync(process.execPath, [PROJECTOR, "--thread-manifest", manifest, "--out", out, "--inventory-out", inventory], { windowsHide: true });
+  const report = JSON.parse(await readFile(inventory, "utf8"));
+  assert.deepEqual(report.threads.map((item) => item.id), [visible.id]);
+  await assert.rejects(readFile(join(out, "state.json"), "utf8"));
+});
+
 test("fixture projection survives compaction, splits deterministically, no-ops, and preserves old lineage on revision", async () => {
   const root = await mkdtemp(join(tmpdir(), "thread-rag-cli-"));
   const rollout = join(root, "rollout.jsonl");

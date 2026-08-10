@@ -15,13 +15,16 @@ try {
   Assert-True (Test-Path -LiteralPath (Join-Path $target "agents\openai.yaml")) "installed agent metadata is required"
   Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\notebooklm_thread_search.py")) "semantic search script is required"
   Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\thread_search.mjs")) "local fallback script is required"
+  Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\redaction_contract.json")) "shared redaction contract is required"
+  Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\notebooklm_thread_enroll.py")) "capacity-aware enrollment script is required"
+  Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\thread_rag_retention.py")) "bounded retention script is required"
 
   $second = (& $installer -CodexRoot $temporary) | ConvertFrom-Json
   Assert-True ($second.Status -eq "installed") "upgrade install must succeed"
   Assert-True ([bool]$second.Backup) "upgrade install must retain a rollback backup"
   Assert-True (Test-Path -LiteralPath $second.Backup) "rollback backup must exist outside the skills scan root"
   Assert-True (Test-Path -LiteralPath (Join-Path $temporary "thread-rag\installation.json")) "installation manifest is required"
-  [pscustomobject]@{ Status = "passed"; Checks = 7 } | ConvertTo-Json
+  [pscustomobject]@{ Status = "passed"; Checks = 10 } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

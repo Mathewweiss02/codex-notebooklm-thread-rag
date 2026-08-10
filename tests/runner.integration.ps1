@@ -16,7 +16,7 @@ try {
   $fail = Join-Path $temporary "fail.cmd"
   $signal = Join-Path $temporary "slow-started.txt"
   $slow = Join-Path $temporary "slow.cmd"
-  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@exit /b 0")
+  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@echo %*", "@exit /b 0")
   Set-Content -LiteralPath $fail -Encoding Ascii -Value @("@echo simulated failure 1>&2", "@exit /b 7")
   Set-Content -LiteralPath $slow -Encoding Ascii -Value @("@echo started>$signal", "@ping -n 3 127.0.0.1 >nul", "@exit /b 0")
 
@@ -36,9 +36,9 @@ try {
     HardMaxHours = 6
     MaxWords = 120000
     MaxMessageChars = 100000
-    MaxLineBytes = 4194304
+    MaxLineBytes = 8388608
     WaitTimeout = 5
-    RefreshMasterToken = $true
+    RefreshAuth = $true
     SwapOld = $true
     ReconcileHour = 0
     AllowAllThreads = $false
@@ -51,6 +51,13 @@ try {
   $run = Get-Content -Raw -LiteralPath $result.Run | ConvertFrom-Json
   Assert-True ($run.Steps.Count -ge 3) "normal run must execute auth, projection, and sync"
   Assert-True ((Test-Path -LiteralPath (Join-Path $root "runner_state.json"))) "runner checkpoint must be written"
+
+  $dryResult = (& $Runner -Config $configPath -DryRun) | ConvertFrom-Json
+  $dryRun = Get-Content -Raw -LiteralPath $dryResult.Run | ConvertFrom-Json
+  $dryProjection = @($dryRun.Steps | Where-Object Label -eq "projection")[0]
+  $drySync = @($dryRun.Steps | Where-Object Label -eq "sync")[0]
+  Assert-True ((@($dryProjection.OutputTail) -join " ") -notmatch "--dry-run") "runner dry-run must materialize local projection state"
+  Assert-True ((@($drySync.OutputTail) -join " ") -match "--dry-run") "runner dry-run must keep remote sync write-free"
 
   $reconcile = (& $Runner -Config $configPath -ReconcileOnly) | ConvertFrom-Json
   $reconcileRun = Get-Content -Raw -LiteralPath $reconcile.Run | ConvertFrom-Json
@@ -85,16 +92,18 @@ try {
   $runnerQuoted = '"' + $Runner + '"'
   $configQuoted = '"' + $slowPath + '"'
   $process = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File $runnerQuoted -Config $configQuoted"
-  $deadline = (Get-Date).AddSeconds(8)
+  # GitHub may run the push and pull-request workflows concurrently on the
+  # same Windows host pool, so process startup can exceed the local 8s budget.
+  $deadline = (Get-Date).AddSeconds(30)
   while (-not (Test-Path -LiteralPath $signal) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 100 }
   Assert-True (Test-Path -LiteralPath $signal) "slow runner must acquire mutex and signal"
   $overlap = (& $Runner -Config $slowPath) | ConvertFrom-Json
   Assert-True ($overlap.Status -eq "skipped-overlap") "second runner must skip while mutex is held"
-  $process.WaitForExit(20000) | Out-Null
+  $process.WaitForExit(60000) | Out-Null
   Assert-True ($process.ExitCode -eq 0) "first slow runner must finish successfully"
 
   $global:LASTEXITCODE = 0
-  [pscustomobject]@{ Status = "passed"; Checks = 8; TempRoot = $temporary } | ConvertTo-Json
+  [pscustomobject]@{ Status = "passed"; Checks = 10; TempRoot = $temporary } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

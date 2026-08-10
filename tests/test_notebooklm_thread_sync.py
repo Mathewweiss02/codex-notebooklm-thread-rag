@@ -36,7 +36,7 @@ class FakeSources:
         self.add_calls += 1
         if self.fail_add_number == self.add_calls:
             raise RuntimeError("simulated interrupted upload")
-        source = FakeSource(f"new-{self.add_calls}", kwargs["title"])
+        source = FakeSource(f"new-{len(self.items) + 1}", kwargs["title"])
         self.items.append(source)
         return source
 
@@ -151,6 +151,40 @@ class SyncTests(unittest.IsolatedAsyncioTestCase):
             }
             with self.assertRaisesRegex(ValueError, "oversized visible message"):
                 sync.validate_state(state)
+
+    def test_validate_state_rejects_cross_thread_title_and_source_reuse(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first = part(root / "one.md", "colliding title", "shared-source")
+            second = part(root / "two.md", "colliding title", "shared-source")
+            state = {
+                "policyVersion": sync.REQUIRED_POLICY,
+                "threads": {
+                    "one": {"threadId": "one", "policyVersion": sync.REQUIRED_POLICY, "stats": {}, "parts": [first]},
+                    "two": {"threadId": "two", "policyVersion": sync.REQUIRED_POLICY, "stats": {}, "parts": [second]},
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "Duplicate projected source title"):
+                sync.validate_state(state)
+
+            second["title"] = "unique title"
+            with self.assertRaisesRegex(ValueError, "assigned to multiple projected parts"):
+                sync.validate_state(state)
+
+    def test_known_lineage_includes_current_and_previous_sources_only(self):
+        state = {
+            "threads": {
+                "a": {
+                    "parts": [{"sourceId": "current"}, {"sourceId": None}],
+                    "previousSources": [{"sourceId": "previous"}],
+                }
+            }
+        }
+        self.assertEqual(sync.known_lineage_source_ids(state), {"current", "previous"})
+
+    def test_duplicate_live_source_ids_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Duplicate live source id"):
+            sync.source_index([FakeSource("same", "a"), FakeSource("same", "b")])
 
 
 if __name__ == "__main__":

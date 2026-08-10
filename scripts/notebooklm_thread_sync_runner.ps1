@@ -87,8 +87,19 @@ try {
   $runnerStatePath = Join-Path $root "runner_state.json"
   $runnerState = if (Test-Path -LiteralPath $runnerStatePath) { Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json } else { [pscustomobject]@{} }
 
-  if ($settings.RefreshMasterToken -ne $false) {
-    $run.Steps += Invoke-Checked -Executable ([string]$settings.NotebookLmCli) -Arguments @("-p", [string]$settings.Profile, "login", "--master-token-refresh") -Label "auth-refresh"
+  if (-not $ReconcileOnly -and $settings.AutoEnroll -eq $true) {
+    if (-not $settings.EnrollmentScript) { throw "AutoEnroll requires EnrollmentScript in config." }
+    $enrollmentArgs = @([string]$settings.EnrollmentScript, "--config", $configPath)
+    if (-not $DryRun) { $enrollmentArgs += "--apply" }
+    $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $enrollmentArgs -Label "auto-enroll"
+    $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
+    $threadIds = @($settings.ThreadIds | Where-Object { $_ })
+    if ($threadIds.Count -eq 0 -and $settings.AllowAllThreads -ne $true) { throw "Automatic enrollment left the explicit task scope empty." }
+  }
+
+  $refreshAuth = if ($null -ne $settings.RefreshAuth) { $settings.RefreshAuth -ne $false } elseif ($null -ne $settings.RefreshMasterToken) { $settings.RefreshMasterToken -ne $false } else { $true }
+  if ($refreshAuth) {
+    $run.Steps += Invoke-Checked -Executable ([string]$settings.NotebookLmCli) -Arguments @("-p", [string]$settings.Profile, "auth", "refresh", "--verify") -Label "auth-refresh"
   }
 
   $now = Get-Date
@@ -108,7 +119,8 @@ try {
       "--max-line-bytes", [string]$settings.MaxLineBytes
     )
     foreach ($threadId in $threadIds) { $projectionArgs += @("--thread", [string]$threadId) }
-    if ($DryRun) { $projectionArgs += "--dry-run" }
+    # Runner dry-run still materializes the sanitized local projection/state;
+    # only the NotebookLM sync step is remote-write-free.
     $run.Steps += Invoke-Checked -Executable ([string]$settings.NodePath) -Arguments $projectionArgs -Label "projection"
 
     $syncArgs = @(
@@ -119,6 +131,7 @@ try {
       "--wait-timeout", [string]$settings.WaitTimeout
     )
     if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
+    if ($settings.RejectUntrackedSources -eq $true) { $syncArgs += "--reject-untracked-sources" }
     if ($DryRun) { $syncArgs += "--dry-run" }
     $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label "sync"
   }
@@ -131,9 +144,24 @@ try {
       "--notebook-id", [string]$settings.NotebookId,
       "--validate-only"
     )
+    if ($settings.RejectUntrackedSources -eq $true) { $validateArgs += "--reject-untracked-sources" }
     $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $validateArgs -Label "nightly-reconcile"
     $runnerState | Add-Member -NotePropertyName LastReconcileDate -NotePropertyValue $today -Force
     $runnerState | Add-Member -NotePropertyName LastReconcileAt -NotePropertyValue ((Get-Date).ToUniversalTime().ToString("o")) -Force
+  }
+
+  if ($settings.RetentionEnabled -eq $true -and $settings.RetentionScript) {
+    $retentionArgs = @(
+      [string]$settings.RetentionScript,
+      "--root", $root,
+      "--projection-revisions", [string]$settings.ProjectionRevisions,
+      "--retention-days", [string]$settings.RetentionDays,
+      "--max-run-reports", [string]$settings.MaxRunReports,
+      "--max-search-reports", [string]$settings.MaxSearchReports
+    )
+    if ($settings.SearchReportsRoot) { $retentionArgs += @("--search-root", [string]$settings.SearchReportsRoot) }
+    if ($settings.RetentionApply -eq $true -and -not $DryRun) { $retentionArgs += "--apply" }
+    $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $retentionArgs -Label "retention"
   }
 
   $runnerState | Add-Member -NotePropertyName LastSuccessAt -NotePropertyValue ((Get-Date).ToUniversalTime().ToString("o")) -Force
@@ -145,6 +173,18 @@ try {
   throw
 } finally {
   $run.CompletedAt = (Get-Date).ToUniversalTime().ToString("o")
+  if ($run.Status -ne "skipped-overlap") {
+    $runnerStatePath = Join-Path ([string]$settings.ProjectionRoot) "runner_state.json"
+    $finalRunnerState = if (Test-Path -LiteralPath $runnerStatePath) { Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json } else { [pscustomobject]@{} }
+    $finalRunnerState | Add-Member -NotePropertyName LastAttemptAt -NotePropertyValue $run.CompletedAt -Force
+    $finalRunnerState | Add-Member -NotePropertyName LastStatus -NotePropertyValue $run.Status -Force
+    if ($run.Status -eq "error") {
+      $finalRunnerState | Add-Member -NotePropertyName LastError -NotePropertyValue ([string]$run.Error) -Force
+    } else {
+      $finalRunnerState.PSObject.Properties.Remove("LastError")
+    }
+    Write-AtomicJson -Path $runnerStatePath -Value $finalRunnerState
+  }
   $runsDir = Join-Path ([string]$settings.ProjectionRoot) "runs"
   $runPath = Join-Path $runsDir ("runner-{0}-{1}.json" -f (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssfffZ"), $PID)
   Write-AtomicJson -Path $runPath -Value $run

@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
+import tempfile
 import unittest
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -36,6 +39,35 @@ class SearchTests(unittest.TestCase):
         self.assertEqual([item["threadId"] for item in ranked], ["target", "unmatched"])
         self.assertFalse(ranked[1]["locallyVerified"])
 
+    def test_semantic_title_match_resists_generic_local_false_positive(self):
+        candidates = [
+            {"threadId": "target", "title": "Research data broker opt-outs", "citationRank": 1},
+            {"threadId": "decoy", "title": "Research OhMyCodex setup", "citationRank": 2},
+        ]
+        local = [{"id": "decoy", "score": 70, "coverage": {"thread": 1}}]
+        ranked = search.merge_local_ranking(
+            candidates,
+            local,
+            query="Find the research on removing my information from data brokers.",
+        )
+        self.assertEqual(ranked[0]["threadId"], "target")
+        self.assertFalse(ranked[0]["locallyVerified"])
+        self.assertGreater(ranked[0]["titleQueryOverlap"], ranked[1]["titleQueryOverlap"])
+
+    def test_title_and_local_evidence_can_recover_later_semantic_candidate(self):
+        candidates = [
+            {"threadId": "decoy", "title": "Audio direction", "citationRank": 1},
+            {"threadId": "target", "title": "Build game with image2three.js", "citationRank": 2},
+        ]
+        local = [{"id": "target", "score": 50, "coverage": {"thread": 0.6}}]
+        ranked = search.merge_local_ranking(
+            candidates,
+            local,
+            query="Find the game built from images with image2three.js.",
+        )
+        self.assertEqual(ranked[0]["threadId"], "target")
+        self.assertEqual(ranked[0]["semanticRank"], 2)
+
     def test_explicit_exact_title_cue_wins_over_content_near_duplicate(self):
         candidates = [
             {"threadId": "original", "title": "Pull ADS proxy audience"},
@@ -51,10 +83,50 @@ class SearchTests(unittest.TestCase):
         self.assertTrue(ranked[0]["exactTitleMatch"])
 
     def test_query_sanitization_removes_credential_shapes(self):
-        value, count = search.sanitize_query("Find AKIAABCDEFGHIJKLMNOP and token=supersecretvalue")
+        value, count = search.sanitize_query(
+            "Find AKIAABCDEFGHIJKLMNOP access_token=supersecretvalue\n"
+            "ghp_abcdefghijklmnopqrstuvwxyz1234\nCookie: SID=private-cookie-value\n"
+            "https://user:password@example.com?a=1&api_key=private-value\n"
+            "C:\\Users\\private-user\\Documents\\trace.txt"
+        )
         self.assertNotIn("AKIAABCDEFGHIJKLMNOP", value)
         self.assertNotIn("supersecretvalue", value)
-        self.assertGreaterEqual(count, 2)
+        self.assertNotIn("private-cookie-value", value)
+        self.assertNotIn("private-user", value)
+        self.assertNotIn("abcdefghijklmnopqrstuvwxyz1234", value)
+        self.assertGreaterEqual(count, 6)
+
+    def test_query_and_projection_share_remote_redaction_contract(self):
+        self.assertEqual(search.REMOTE_REDACTION_POLICY, "remote-notebooklm-secrets-redacted-v1")
+
+    def test_registered_chat_notebooks_are_not_automatic_search_targets(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            retrieval = root / "retrieval.json"
+            chat = root / "chat.json"
+            retrieval.write_text(json.dumps({"NotebookRole": "retrieval"}), encoding="utf-8")
+            chat.write_text(json.dumps({"NotebookRole": "chat"}), encoding="utf-8")
+            registry = root / "thread-rag" / "registry.json"
+            registry.parent.mkdir()
+            registry.write_text(json.dumps({"Configs": [{"ConfigPath": str(retrieval)}, {"ConfigPath": str(chat)}]}), encoding="utf-8")
+            self.assertEqual(search.discover_configs([], root), [retrieval.resolve()])
+
+    def test_state_source_id_collision_is_rejected_before_remote_search(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            state = {
+                "policyVersion": search.REQUIRED_POLICY,
+                "threads": {
+                    "a": {"revision": 1, "uploadRevision": 1, "parts": [{"part": 1, "sourceId": "shared", "title": "a"}]},
+                    "b": {"revision": 1, "uploadRevision": 1, "parts": [{"part": 1, "sourceId": "shared", "title": "b"}]},
+                },
+            }
+            (root / "state.json").write_text(json.dumps(state), encoding="utf-8")
+            (root / "runner_state.json").write_text(json.dumps({"LastSuccessAt": datetime.now(UTC).isoformat()}), encoding="utf-8")
+            config = root / "config.json"
+            config.write_text(json.dumps({"ProjectionRoot": str(root), "NotebookRole": "retrieval"}), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Duplicate projected source id"):
+                search.load_instance(config, 45, False)
 
 
 if __name__ == "__main__":
