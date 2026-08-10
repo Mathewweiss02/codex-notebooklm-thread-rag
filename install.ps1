@@ -10,6 +10,7 @@ $ErrorActionPreference = "Stop"
 $runtime = Join-Path $CodexRoot "runtimes\notebooklm-py-0.8.0"
 $pythonExe = Join-Path $runtime "Scripts\python.exe"
 $notebookLmExe = Join-Path $runtime "Scripts\notebooklm.exe"
+$notebookLmMcpExe = Join-Path $runtime "Scripts\notebooklm-mcp.exe"
 $uv = Get-Command uv -ErrorAction SilentlyContinue
 if (-not $uv) { throw "uv is required. Install uv, then rerun this script." }
 $node = Get-Command node -ErrorAction SilentlyContinue
@@ -21,6 +22,8 @@ if (-not (Test-Path -LiteralPath $pythonExe)) {
 }
 & $uv.Source pip install --python $pythonExe -r (Join-Path $PSScriptRoot "requirements.txt")
 if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed with code $LASTEXITCODE" }
+if (-not (Test-Path -LiteralPath $notebookLmExe)) { throw "NotebookLM CLI was not installed at $notebookLmExe" }
+if (-not (Test-Path -LiteralPath $notebookLmMcpExe)) { throw "NotebookLM MCP server was not installed at $notebookLmMcpExe" }
 
 if (-not $SkipTests) {
   & (Join-Path $PSScriptRoot "tests\run_all.ps1") -PythonPath $pythonExe -NodePath $node.Source | Out-Null
@@ -38,6 +41,9 @@ if (-not $SkipSkill) {
   Runtime = $runtime
   Python = $pythonExe
   NotebookLm = $notebookLmExe
+  NotebookLmMcp = $notebookLmMcpExe
+  Upstream = "https://github.com/teng-lin/notebooklm-py"
+  UpstreamVersion = "0.8.0"
   Skill = $skillResult.Target
   Next = "Authenticate a profile, create a bounded test notebook, then run New-SyncConfig.ps1."
 } | ConvertTo-Json

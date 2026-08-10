@@ -26,7 +26,8 @@ Require all applicable gates before expanding a pilot or publishing a release.
 
 - Each profile is bound to the intended account.
 - Passive live auth check passes.
-- Browserless master-token refresh passes without exposing values.
+- `auth refresh --verify` passes without exposing values.
+- For a profile that requires fully unattended recovery, browserless master-token re-mint also passes; document any Workspace profile that blocks master-token exchange.
 - Profile ACL contains only the intended user and `SYSTEM` full-control principals.
 
 ## Retrieval

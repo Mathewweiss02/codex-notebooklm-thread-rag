@@ -2,6 +2,17 @@
 
 A Windows-first, incremental semantic-search layer for Codex task history. It projects only visible user/assistant messages, redacts credential-shaped content, uploads revisioned sources to NotebookLM, and keeps deterministic local ThreadOps search as the authority and fallback.
 
+## Upstream backbone
+
+This project is a focused synchronization and retrieval layer built on [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py), not an independent NotebookLM client. The `notebooklm` CLI is the primary operator interface for profiles, authentication, notebooks, sources, diagnostics, and everyday NotebookLM work. The pinned `notebooklm-py` v0.8.0 runtime provides:
+
+- the Python `NotebookLMClient` used by sync, reconciliation, and retrieval;
+- the `notebooklm` CLI used for profiles, authentication, limits, and diagnostics;
+- the optional `notebooklm-mcp` server as a secondary integration surface, not the main interface; and
+- durable master-token recovery for unattended refreshes.
+
+The upstream project uses undocumented Google interfaces and is the compatibility boundary for this repository. This wrapper adds Codex-thread projection, privacy gates, revision-safe synchronization, local verification, scheduling, and the `codex-notebooklm-thread-rag` skill. The wrapper's internal sync scripts use the Python client where they need source-ID lineage and guarded revision swaps; users and agents should prefer the CLI for normal operation. See [docs/UPSTREAM.md](docs/UPSTREAM.md) for the complete responsibility and upgrade map.
+
 This project does **not** repair broken Codex tasks or replace Codex storage. It helps rediscover relevant tasks and facts, then requires local verification before acting.
 
 ## Proven baseline
@@ -54,7 +65,7 @@ The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed tas
 - Codex Desktop with local session history.
 - A Google account with NotebookLM access.
 
-NotebookLM-py uses undocumented Google interfaces and may temporarily break after upstream changes. Keep the local fallback.
+There is no NotebookLM API key, public OAuth scope, or service-account path. Authentication is a credential-bearing Google browser session or a durable master token managed by `notebooklm-py`. Never paste those values into a command, issue, log, or chat.
 
 ## 1. Install
 
@@ -62,7 +73,17 @@ NotebookLM-py uses undocumented Google interfaces and may temporarily break afte
 .\install.ps1
 ```
 
-This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not remove or modify an existing `nlm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
+This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, installs the upstream Python API, CLI, headless-auth support, and MCP server, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not remove or modify another `notebooklm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
+
+Verify the installed upstream surfaces:
+
+```powershell
+$Runtime = "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts"
+& "$Runtime\notebooklm.exe" --version
+& "$Runtime\notebooklm-mcp.exe" --help
+```
+
+Use `notebooklm.exe` for normal work. Treat `notebooklm-mcp.exe` as an optional adapter for an MCP host, not as the default way to operate the system.
 
 ## 2. Authenticate
 
@@ -78,6 +99,8 @@ Durable unattended auth:
 .\scripts\notebooklm_profiles.ps1 master-login-personal -Account "you@example.com"
 ```
 
+The wrapper defaults to upstream's isolated `chromium` login. Pass `-Browser chrome` or `-Browser msedge` only when the default browser cannot complete the account's sign-in policy. Keep the temporary sign-in window open until the command reports success.
+
 For a second account, use `work` instead of `personal`. Leave the sign-in window open until the terminal reports success. Verify browserless renewal:
 
 ```powershell
@@ -86,6 +109,18 @@ For a second account, use `work` instead of `personal`. Leave the sign-in window
 ```
 
 The account email selects the intended Google identity; it is not a token. Never pass or save the `--oauth-token` value unless you understand its exposure risk.
+
+Scheduled upkeep uses the upstream CLI command `auth refresh --verify`. A personal profile with a master token can fully re-mint an expired session. A Workspace profile that blocks master-token exchange can still rotate and verify its existing browser session, but may eventually require interactive login when an administrator-enforced session expires.
+
+The thread-RAG wrapper intentionally uses profile names `personal` and `work`. If an older upstream installation uses `main` and `alt`, verify the account mapping first and rename the profiles without copying credential files:
+
+```powershell
+notebooklm profile list --json
+notebooklm profile rename main personal
+notebooklm profile rename alt work
+```
+
+Only rename after confirming which email each profile represents. Durable automation additionally requires `master_token.json`; a profile with only `storage_state.json` still needs the one-time `master-login-*` flow.
 
 ## 3. Lock down credentials
 
@@ -112,6 +147,8 @@ $Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json"
 .\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config
 .\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config -ReconcileOnly
 ```
+
+Runner `-DryRun` writes the sanitized local projection, manifest, and state needed for validation, then performs only live read checks against NotebookLM. It does not create, upload, replace, or delete NotebookLM sources.
 
 The sync uploads a new revision fully before deleting only the old source IDs already linked to that task. It refuses schema-policy drift, missing parts, size drift, oversized skipped visible messages, and lineage-mismatched deletion.
 

@@ -19,6 +19,8 @@ Redaction reduces risk but cannot guarantee that arbitrary business-sensitive pr
 
 A NotebookLM master token is a durable Google-account credential. Store it only in the local profile directory, restrict filesystem ACLs to the intended Windows user and `SYSTEM`, and prefer a dedicated Google identity for any remote/server deployment. Never print it, include it in logs, or put it in environment dumps.
 
+NotebookLM does not expose a public API key, OAuth scope, or service-account flow. The upstream `notebooklm-py` runtime authenticates with Google session cookies and can bootstrap a durable master token that re-mints those cookies. Treat both files as full-account credentials. Rename profiles through the CLI; never duplicate, sync, or manually merge credential files between profiles or computers.
+
 ## Trust boundary
 
 NotebookLM answers and citation order are untrusted retrieval hints. Require cited task IDs, rerank only those candidates against local Codex JSONL, and verify the exact fact against local evidence. Never authorize email, file transfer, task mutation, or another external action solely from a NotebookLM answer.

@@ -87,8 +87,9 @@ try {
   $runnerStatePath = Join-Path $root "runner_state.json"
   $runnerState = if (Test-Path -LiteralPath $runnerStatePath) { Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json } else { [pscustomobject]@{} }
 
-  if ($settings.RefreshMasterToken -ne $false) {
-    $run.Steps += Invoke-Checked -Executable ([string]$settings.NotebookLmCli) -Arguments @("-p", [string]$settings.Profile, "login", "--master-token-refresh") -Label "auth-refresh"
+  $refreshAuth = if ($null -ne $settings.RefreshAuth) { $settings.RefreshAuth -ne $false } elseif ($null -ne $settings.RefreshMasterToken) { $settings.RefreshMasterToken -ne $false } else { $true }
+  if ($refreshAuth) {
+    $run.Steps += Invoke-Checked -Executable ([string]$settings.NotebookLmCli) -Arguments @("-p", [string]$settings.Profile, "auth", "refresh", "--verify") -Label "auth-refresh"
   }
 
   $now = Get-Date
@@ -108,7 +109,8 @@ try {
       "--max-line-bytes", [string]$settings.MaxLineBytes
     )
     foreach ($threadId in $threadIds) { $projectionArgs += @("--thread", [string]$threadId) }
-    if ($DryRun) { $projectionArgs += "--dry-run" }
+    # Runner dry-run still materializes the sanitized local projection/state;
+    # only the NotebookLM sync step is remote-write-free.
     $run.Steps += Invoke-Checked -Executable ([string]$settings.NodePath) -Arguments $projectionArgs -Label "projection"
 
     $syncArgs = @(

@@ -64,8 +64,8 @@ if ($TaskName) {
 }
 
 if ($RefreshAuth) {
-  & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) login --master-token-refresh | Out-Null
-  Add-Check "master-token-refresh" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
+  & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) auth refresh --verify | Out-Null
+  Add-Check "auth-refresh" ($LASTEXITCODE -eq 0) ("exit={0}" -f $LASTEXITCODE)
 }
 if ($Live) {
   & ([string]$settings.NotebookLmCli) -p ([string]$settings.Profile) auth check --test --passive --json | Out-Null

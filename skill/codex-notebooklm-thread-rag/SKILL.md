@@ -7,6 +7,10 @@ description: "Operate the installed Codex-to-NotebookLM thread retrieval system:
 
 Use NotebookLM as a semantic candidate finder and local Codex history as the authority. Never report a remembered fact or mutate a task solely from NotebookLM prose.
 
+## Upstream boundary
+
+This skill operates a wrapper around `teng-lin/notebooklm-py` v0.8.0. Treat the upstream `notebooklm` CLI as the primary operator interface. The package also supplies `NotebookLMClient`, the optional secondary `notebooklm-mcp` adapter, profile storage, and master-token recovery. This repository supplies sanitized Codex projection, guarded synchronization, local reranking/verification, scheduling, and recovery policy. Read `references/operations.md` before setup or auth work; use the CLI for general NotebookLM operations outside thread retrieval.
+
 ## Locate the installation
 
 Set the skill root without assuming the repository location:
@@ -43,7 +47,7 @@ Read `references/operations.md` for setup, synchronization, search, and recovery
 - Use `--fresh` for every interactive account capture.
 - Treat `master_token.json` as a durable Google credential. Never print, copy into chat, commit, or sync it.
 - Restrict profile ACLs to the intended Windows user and `SYSTEM`.
-- Use passive auth checks for health probes; use master-token refresh only when renewal is intended.
+- Use passive auth checks for health probes. Use `auth refresh --verify` only when renewal is intended; it rotates a valid browser session and can fall back to a master token when one exists.
 
 ## Failure behavior
 
