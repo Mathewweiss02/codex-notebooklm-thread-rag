@@ -2,13 +2,13 @@
 
 ## Current recommendation
 
-- Move the confirmed release-critical branch into implementation while keeping scale, freshness, and architecture alternatives in research.
+- Compare sticky shard ownership plus local-router fan-out, then measure 60/15/5-minute freshness profiles. The hardened single-notebook release lane is complete.
 
 ## Why
 
-- The immediate defects are concrete, reproducible, and have clear acceptance signals.
-- The broader architecture questions lack comparative evidence and should not block correctness fixes.
-- The benchmark is both a release gate and the evidence foundation for future architecture comparisons and radar scores.
+- The current release gates pass and the single-notebook deployment is healthy.
+- The 5x/10x experiment isolated assignment churn and fan-out as the scaling constraints.
+- The radar isolates freshness and multi-notebook scale as the weakest measured axes.
 
 ## Preconditions
 

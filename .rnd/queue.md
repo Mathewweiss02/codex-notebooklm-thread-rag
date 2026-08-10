@@ -2,20 +2,20 @@
 
 ## Current next item
 
-- ID: `rnd-001`
-- Title: Patch release-critical correctness and safety gaps
-- Status: `active`
-- Next lane: `implementation`
-- Reason: Selected because it is actionable now with score 38.5 and strong leverage/uncertainty reduction.
+- ID: `rnd-007`
+- Title: Compare local router plus NotebookLM fan-out
+- Status: `queued`
+- Next lane: `research`
+- Reason: Selected because it is actionable now with score 33.5 and strong leverage/uncertainty reduction.
 
 ## Queue table
 
 | Rank | Status | ID | Title | Type | Branch | Next lane | Score | Depends on | Blocked by |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | done | rnd-006 | Simulate 2x, 5x, and 10x corpus capacity | experiment | scale-architecture | research | 39.5 | rnd-003 | - |
-| 2 | active | rnd-001 | Patch release-critical correctness and safety gaps | implementation | release-safety | implementation | 38.5 | - | - |
+| 2 | done | rnd-001 | Patch release-critical correctness and safety gaps | implementation | release-safety | implementation | 38.5 | - | - |
 | 3 | done | rnd-002 | Run the 20+ case full-corpus semantic and hybrid benchmark | measurement | retrieval-quality | validation | 38.0 | rnd-001 | - |
-| 4 | queued | rnd-005 | Create the evidence-backed radar scorecard | synthesis | observability | validation | 37.5 | rnd-002 | - |
+| 4 | done | rnd-005 | Create the evidence-backed radar scorecard | synthesis | observability | validation | 37.5 | rnd-002 | - |
 | 5 | done | rnd-003 | Build capacity-aware automatic task enrollment | implementation | coverage-capacity | implementation | 35.5 | rnd-001 | - |
 | 6 | queued | rnd-007 | Compare local router plus NotebookLM fan-out | comparison | scale-architecture | research | 33.5 | rnd-002, rnd-006 | - |
 | 7 | queued | rnd-004 | Measure and optimize freshness profiles | experiment | freshness-throughput | research | 33.0 | rnd-001 | - |
