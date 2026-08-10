@@ -47,6 +47,8 @@ def validate_state(state: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(threads, dict) or not threads:
         raise ValueError("State contains no projected threads")
     validated: list[dict[str, Any]] = []
+    title_owners: dict[str, str] = {}
+    source_owners: dict[str, str] = {}
     for thread_id, thread in threads.items():
         if thread.get("policyVersion") != REQUIRED_POLICY:
             raise ValueError(f"Thread {thread_id} has the wrong projection policy")
@@ -56,13 +58,23 @@ def validate_state(state: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(parts, list) or not parts:
             raise ValueError(f"Thread {thread_id} has no source parts")
         for part in parts:
+            part_key = f"{thread_id}:p{part.get('part')}"
             file_path = Path(part.get("file") or "")
             if not file_path.is_file():
                 raise ValueError(f"Missing projected part for {thread_id}: {file_path}")
             if file_path.stat().st_size != int(part.get("bytes") or -1):
                 raise ValueError(f"Projected part size drift for {thread_id}: {file_path}")
-            if not part.get("title"):
+            title = str(part.get("title") or "")
+            if not title:
                 raise ValueError(f"Projected part lacks a source title for {thread_id}")
+            prior_title_owner = title_owners.setdefault(title, part_key)
+            if prior_title_owner != part_key:
+                raise ValueError(f"Duplicate projected source title across parts: {title!r}")
+            source_id = str(part.get("sourceId") or "")
+            if source_id:
+                prior_source_owner = source_owners.setdefault(source_id, part_key)
+                if prior_source_owner != part_key:
+                    raise ValueError("One live source id is assigned to multiple projected parts")
         validated.append(thread)
     return validated
 

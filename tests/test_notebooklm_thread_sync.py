@@ -152,6 +152,25 @@ class SyncTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(ValueError, "oversized visible message"):
                 sync.validate_state(state)
 
+    def test_validate_state_rejects_cross_thread_title_and_source_reuse(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            first = part(root / "one.md", "colliding title", "shared-source")
+            second = part(root / "two.md", "colliding title", "shared-source")
+            state = {
+                "policyVersion": sync.REQUIRED_POLICY,
+                "threads": {
+                    "one": {"threadId": "one", "policyVersion": sync.REQUIRED_POLICY, "stats": {}, "parts": [first]},
+                    "two": {"threadId": "two", "policyVersion": sync.REQUIRED_POLICY, "stats": {}, "parts": [second]},
+                },
+            }
+            with self.assertRaisesRegex(ValueError, "Duplicate projected source title"):
+                sync.validate_state(state)
+
+            second["title"] = "unique title"
+            with self.assertRaisesRegex(ValueError, "assigned to multiple projected parts"):
+                sync.validate_state(state)
+
 
 if __name__ == "__main__":
     unittest.main()

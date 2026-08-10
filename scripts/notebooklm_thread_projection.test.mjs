@@ -9,6 +9,7 @@ import {
   readVisibleMessages,
   renderThreadProjection,
   sanitizeSecrets,
+  sourceTitle,
 } from "./notebooklm_thread_projection_lib.mjs";
 
 function event(timestamp, role, text) {
@@ -115,6 +116,18 @@ test("default line ceiling accepts image-heavy visible messages while projecting
   assert.equal(visible.messages[0].text, "Keep this visible text.");
   assert.equal(visible.stats.overflowVisibleLines, 0);
   assert.equal(visible.stats.overflowLines, 0);
+});
+
+test("source titles stay unique when names and time-ordered id prefixes collide", () => {
+  const part = { part: 1, totalParts: 1 };
+  const first = { metadata: { deviceId: "ads-pc", title: "Repeated task", threadId: "019abcde-1111-7111-8111-111111111111" } };
+  const second = { metadata: { deviceId: "ads-pc", title: "Repeated task", threadId: "019abcde-2222-7222-8222-222222222222" } };
+  const long = { metadata: { deviceId: "ads-pc", title: "x".repeat(500), threadId: first.metadata.threadId } };
+
+  assert.notEqual(sourceTitle(first, 1, part), sourceTitle(second, 1, part));
+  assert.match(sourceTitle(first, 1, part), /\| [a-f0-9]{16} \| r0001 p1\/1$/);
+  assert.match(sourceTitle(long, 42, part), /\| [a-f0-9]{16} \| r0042 p1\/1$/);
+  assert.ok(sourceTitle(long, 42, part).length <= 190);
 });
 
 test("context-compaction records stay excluded while visible conversation history remains", async () => {

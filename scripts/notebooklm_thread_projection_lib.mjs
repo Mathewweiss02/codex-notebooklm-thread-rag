@@ -301,5 +301,9 @@ export function renderThreadProjection(thread, visible, options = {}) {
 export function sourceTitle(projection, revision, part) {
   const meta = projection.metadata;
   const suffix = `r${String(revision).padStart(4, "0")} p${part.part}/${part.totalParts}`;
-  return safeTitle(`Codex ${meta.deviceId} | ${meta.title} | ${meta.threadId.slice(0, 8)} | ${suffix}`, 190);
+  const identity = sha256(meta.threadId).slice(0, 16);
+  const prefix = `Codex ${safeTitle(meta.deviceId, 64)} | `;
+  const tail = ` | ${identity} | ${suffix}`;
+  const titleBudget = Math.max(1, 190 - prefix.length - tail.length);
+  return `${prefix}${safeTitle(meta.title, titleBudget)}${tail}`;
 }
