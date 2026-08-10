@@ -36,7 +36,7 @@ class FakeSources:
         self.add_calls += 1
         if self.fail_add_number == self.add_calls:
             raise RuntimeError("simulated interrupted upload")
-        source = FakeSource(f"new-{self.add_calls}", kwargs["title"])
+        source = FakeSource(f"new-{len(self.items) + 1}", kwargs["title"])
         self.items.append(source)
         return source
 
@@ -170,6 +170,21 @@ class SyncTests(unittest.IsolatedAsyncioTestCase):
             second["title"] = "unique title"
             with self.assertRaisesRegex(ValueError, "assigned to multiple projected parts"):
                 sync.validate_state(state)
+
+    def test_known_lineage_includes_current_and_previous_sources_only(self):
+        state = {
+            "threads": {
+                "a": {
+                    "parts": [{"sourceId": "current"}, {"sourceId": None}],
+                    "previousSources": [{"sourceId": "previous"}],
+                }
+            }
+        }
+        self.assertEqual(sync.known_lineage_source_ids(state), {"current", "previous"})
+
+    def test_duplicate_live_source_ids_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "Duplicate live source id"):
+            sync.source_index([FakeSource("same", "a"), FakeSource("same", "b")])
 
 
 if __name__ == "__main__":

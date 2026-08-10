@@ -42,9 +42,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threshold", type=float, default=0.95)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--limit", type=int)
+    parser.add_argument("--confirm-disposable-retrieval-notebook", action="store_true", help="Required acknowledgement because every case resets the notebook conversation")
+    parser.add_argument("--allow-untracked-sources", action="store_true", help="Allow sources that are not linked by the projection state")
     args = parser.parse_args()
     if not 0 <= args.threshold <= 1:
         parser.error("--threshold must be between 0 and 1")
+    if not args.confirm_disposable_retrieval_notebook:
+        parser.error("--confirm-disposable-retrieval-notebook is required")
     return args
 
 
@@ -55,7 +59,9 @@ def build_source_map(state: dict[str, Any]) -> dict[str, str]:
             source_id = part.get("sourceId")
             if not source_id:
                 raise ValueError(f"Thread {thread_id} has an unuploaded part")
-            output[source_id] = thread_id
+            owner = output.setdefault(source_id, thread_id)
+            if owner != thread_id:
+                raise ValueError("One live source id is assigned to multiple projected tasks")
     return output
 
 
@@ -100,6 +106,9 @@ async def main() -> int:
         missing = sorted(set(source_to_thread) - live_ids)
         if missing:
             raise ValueError(f"Live notebook is missing {len(missing)} state-linked sources")
+        extra = sorted(live_ids - set(source_to_thread))
+        if extra and not args.allow_untracked_sources:
+            raise ValueError(f"Dedicated retrieval notebook contains {len(extra)} untracked sources")
         for index, case in enumerate(cases, 1):
             await reset_sacrificial_chat(client, args.notebook_id)
             started = datetime.now(UTC)

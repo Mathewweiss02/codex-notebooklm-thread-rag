@@ -1,0 +1,51 @@
+{
+  "experimentId": "rnd-006",
+  "observedTasks": 130,
+  "observedParts": 132,
+  "sourceLimit": 300,
+  "rollingReserve": 60,
+  "budgets": {
+    "maxBroadcastFanOut": 3,
+    "maxRebalanceChurnPercent": 10
+  },
+  "scenarios": {
+    "1x": {
+      "tasks": 130,
+      "sourceParts": 132,
+      "shardLoads": [132],
+      "minimumHeadroom": 168,
+      "averageHeadroom": 168.0,
+      "broadcastFanOut": 1,
+      "rebalanceChurnPercent": 0
+    },
+    "2x": {
+      "tasks": 260,
+      "sourceParts": 264,
+      "shardLoads": [240, 24],
+      "minimumHeadroom": 60,
+      "averageHeadroom": 168.0,
+      "broadcastFanOut": 2,
+      "rebalanceChurnPercent": 9.23
+    },
+    "5x": {
+      "tasks": 650,
+      "sourceParts": 660,
+      "shardLoads": [240, 240, 180],
+      "minimumHeadroom": 60,
+      "averageHeadroom": 80.0,
+      "broadcastFanOut": 3,
+      "rebalanceChurnPercent": 64.62
+    },
+    "10x": {
+      "tasks": 1300,
+      "sourceParts": 1320,
+      "shardLoads": [240, 240, 240, 240, 240, 120],
+      "minimumHeadroom": 60,
+      "averageHeadroom": 80.0,
+      "broadcastFanOut": 6,
+      "rebalanceChurnPercent": 83.08
+    }
+  },
+  "result": "partially-supported",
+  "nextLane": "research-synthesis-and-decision"
+}

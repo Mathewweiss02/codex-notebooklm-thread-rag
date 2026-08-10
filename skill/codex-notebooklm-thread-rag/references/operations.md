@@ -77,13 +77,22 @@ Run one bounded sync and reconcile:
 & "$Skill\scripts\notebooklm_thread_sync_runner.ps1" -Config "CONFIG_PATH" -ReconcileOnly
 ```
 
+Normal runner passes automatically inventory newly visible tasks when `AutoEnroll=true`. Enrollment stage-projects unknown tasks in a temporary root, reads the live source limit, and updates the explicit allowlist only when every task fits both the steady-state reserve and immediate upload cap. Diagnose or apply it directly:
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_enroll.py" --config "CONFIG_PATH"
+& "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_enroll.py" --config "CONFIG_PATH" --apply
+```
+
+Use separate configs and projection roots for `NotebookRole=retrieval` and `NotebookRole=chat`. The retrieval notebook is disposable automation state. The chat notebook is the primary persistent CLI conversation surface and is never selected by automatic semantic search.
+
 ## Semantic discovery
 
 ```powershell
 & "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_search.py" "vague remembered description"
 ```
 
-The command discovers registered configs, refuses stale/unmonitored instances by default, verifies all state-linked sources live, resets only a notebook explicitly marked as disposable chat, and returns locally reranked candidate task IDs without answer text. Treat `--no-local-rerank` as a diagnostic switch only.
+The command discovers only registered retrieval configs, refuses stale/unmonitored instances by default, verifies all state-linked sources live, rejects unrelated extras in strict mode, resets only a notebook explicitly marked as disposable retrieval chat, and returns locally reranked candidate task IDs without answer text. Treat `--no-local-rerank` as a diagnostic switch only.
 
 Verify locally:
 
@@ -104,7 +113,17 @@ Benchmark a recorded live run without paying for another NotebookLM pass:
 & "$Skill\scripts\install_notebooklm_thread_sync_task.ps1" -Config "CONFIG_PATH" -TaskName "Codex NotebookLM Thread Sync - DEVICE" -Minutes 15
 ```
 
-The scheduler uses a per-config mutex, ignores overlapping starts, waits 60 minutes after recent task activity by default, applies a six-hour hard freshness ceiling to previously projected changing tasks, and performs daily source reconciliation.
+The scheduler uses a per-config mutex, ignores overlapping starts, has a 120-minute execution limit by default, waits 60 minutes after recent task activity, applies a six-hour hard freshness ceiling to previously projected changing tasks, and performs daily strict source reconciliation. A 60-minute quiet gate is eventual freshness, not real-time freshness.
+
+## Retention
+
+Retention is dry-run-first and exact-root constrained:
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\thread_rag_retention.py" --root "PROJECTION_ROOT" --search-root "SEARCH_RUNS_ROOT"
+```
+
+Review the report before `--apply` or setting `RetentionApply=true`. Current parts, previous lineage, and the configured revision floor remain protected.
 
 ## Recovery
 

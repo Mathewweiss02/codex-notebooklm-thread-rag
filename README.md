@@ -1,6 +1,6 @@
 # Codex NotebookLM Thread RAG
 
-A Windows-first, incremental semantic-search layer for Codex task history. It projects only visible user/assistant messages, redacts credential-shaped content, uploads revisioned sources to NotebookLM, and keeps deterministic local ThreadOps search as the authority and fallback.
+A Windows-first, incremental semantic-search layer for Codex task history. It projects only visible user/assistant messages, applies one shared remote-redaction contract, uploads revisioned sources to dedicated NotebookLM notebooks, and keeps deterministic local ThreadOps search as the authority and fallback. The `notebooklm` CLI is the primary human interface; Python is internal orchestration and MCP is optional.
 
 ## Upstream backbone
 
@@ -15,7 +15,7 @@ The upstream project uses undocumented Google interfaces and is the compatibilit
 
 This project does **not** repair broken Codex tasks or replace Codex storage. It helps rediscover relevant tasks and facts, then requires local verification before acting.
 
-## Proven baseline
+## Deployment and evidence baseline
 
 The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, forks, active/archive pairs, giant histories, unrelated titles, split sources, and close decoys:
 
@@ -27,7 +27,9 @@ The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, for
 - Both isolated auth profiles passed exact-account checks, passive live checks, browserless master-token renewal, and restricted-ACL tests.
 - The installed global skill completed a scheduled v4 refresh with exit code 0; all 20 unchanged tasks were skipped without duplicate uploads.
 
-A separate local-only full-corpus proof projected 312 tasks into 338 parts (54.18 MB) with the same privacy gates. The deterministic planner produced two bounded shards: 240 sources plus 60-source update headroom, and 98 sources plus 202-source headroom. That full corpus was deliberately not uploaded.
+The current ADS-PC deployment is newer and larger than that pilot: the Codex app-server currently exposes 130 visible tasks, all 130 are enrolled, and 132 unique sources are live and reconciled in NotebookLM with no missing or unrelated extras. The earlier 312-task/338-part result was a historical local filesystem scan, not today's visible app-server corpus and not the current deployment size.
+
+The current 130-task corpus passed a fresh saved 24-case evaluation on 2026-08-10: semantic candidate recall was 24/24 (100%), raw unique-candidate Top-1 was 23/24 (95.83%), and fused semantic/title/local Top-1 was 24/24 (100%). Two benchmark cases explicitly accept either of two sibling tasks with equivalent intent; the report preserves the complete citation and ranking evidence. The older 20-case result remains a historical regression baseline.
 
 These are machine-specific results. NotebookLM is the candidate finder; local Codex history remains the authority.
 
@@ -37,13 +39,15 @@ These are machine-specific results. NotebookLM is the candidate finder; local Co
 Codex session JSONL
         |
         v
-sanitized incremental projection
-        |  60-minute quiet gate / 6-hour hard ceiling
-        v
-NotebookLM revisioned sources
+sanitized incremental projection + capacity transaction
+        |  quiet gate / rolling source reserve
+        +------------------------------+
+        v                              v
+dedicated retrieval notebook          persistent CLI chat notebook
+(disposable automation chat)          (conversation is never reset by search)
         |
         v
-semantic candidate task IDs + citations
+cited semantic candidate task IDs
         |
         v
 candidate-only local reranking
@@ -54,7 +58,7 @@ local Codex evidence verification
         +--> deterministic ThreadOps search fallback
 ```
 
-The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed task normally waits until it has been quiet for 60 minutes; a previously projected task still changing for six hours becomes eligible at the hard ceiling.
+The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed task normally waits until it has been quiet for 60 minutes; a previously projected task still changing for six hours becomes eligible at the hard ceiling. With the default profile, “live” therefore means eventually available after quiescence, not real-time. Shorter 15- and 5-minute profiles are research experiments and must earn promotion through measured churn, reliability, and retrieval results.
 
 ## Requirements
 
@@ -73,7 +77,7 @@ There is no NotebookLM API key, public OAuth scope, or service-account path. Aut
 .\install.ps1
 ```
 
-This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, installs the upstream Python API, CLI, headless-auth support, and MCP server, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not remove or modify another `notebooklm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
+This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, synchronizes the complete hash-bearing `uv.lock` graph, installs the upstream Python API, CLI, headless-auth support, and MCP server, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not modify another `notebooklm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
 
 Verify the installed upstream surfaces:
 
@@ -126,23 +130,34 @@ Only rename after confirming which email each profile represents. Durable automa
 
 Profiles live under `%USERPROFILE%\.notebooklm\profiles`. Master tokens are durable Google credentials. Restrict the selected profile directory to the Windows user and `SYSTEM`, and never commit or sync it. See [SECURITY.md](SECURITY.md).
 
-## 4. Create a sacrificial notebook and config
+## 4. Create isolated retrieval and CLI chat notebooks
 
-Start with a small, disposable notebook and 20 varied task IDs. Create the notebook with the NotebookLM CLI, record its ID, then generate a stable registered configuration:
+Create notebooks through the NotebookLM CLI. Use a dedicated `retrieval` notebook for automated semantic searches; its conversation is intentionally disposable. If you want ongoing human CLI conversations over the same corpus, create a second `chat` notebook and a second config/projection root. Automated search ignores `chat` configs and can never reset their conversation history.
+
+Start with a bounded retrieval config:
 
 ```powershell
-.\New-SyncConfig.ps1 -Device "my-pc-eval" -NotebookId "NOTEBOOK_ID" -Profile personal -ThreadIds @(
+.\New-SyncConfig.ps1 -Device "my-pc-retrieval" -NotebookId "RETRIEVAL_NOTEBOOK_ID" -Profile personal -NotebookRole retrieval -ThreadIds @(
   "THREAD_ID_1",
   "THREAD_ID_2"
 )
 ```
 
-The config is written under `%USERPROFILE%\.codex\thread-rag\my-pc-eval\sync_config.json` and registered in `%USERPROFILE%\.codex\thread-rag\registry.json`. Empty task scope is rejected. `-AllowAllThreads` is an explicit high-risk opt-in that must wait for source-budget planning.
+For persistent CLI chat over the same task corpus, create the second config with the same initial IDs:
+
+```powershell
+.\New-SyncConfig.ps1 -Device "my-pc-chat" -NotebookId "CHAT_NOTEBOOK_ID" -Profile personal -NotebookRole chat -ThreadIds @(
+  "THREAD_ID_1",
+  "THREAD_ID_2"
+)
+```
+
+Each config has independent projection/source lineage. Empty task scope is rejected. `-AllowAllThreads` remains an explicit high-risk opt-in. The default safer path is `AutoEnroll=true`: every normal runner pass inventories visible tasks, stage-projects unknown tasks, reads the live NotebookLM limit, proves immediate and rolling-update headroom, and atomically extends the explicit allowlist. It refuses the whole enrollment when any task or capacity gate is unresolved.
 
 ## 5. Dry-run, upload, and reconcile
 
 ```powershell
-$Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json"
+$Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\sync_config.json"
 .\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config -DryRun
 .\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config
 .\scripts\notebooklm_thread_sync_runner.ps1 -Config $Config -ReconcileOnly
@@ -150,7 +165,14 @@ $Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json"
 
 Runner `-DryRun` writes the sanitized local projection, manifest, and state needed for validation, then performs only live read checks against NotebookLM. It does not create, upload, replace, or delete NotebookLM sources.
 
-The sync uploads a new revision fully before deleting only the old source IDs already linked to that task. It refuses schema-policy drift, missing parts, size drift, oversized skipped visible messages, and lineage-mismatched deletion.
+The sync uploads a new revision fully before deleting only the old source IDs already linked to that task. It refuses schema-policy drift, missing parts, size drift, oversized skipped visible messages, lineage-mismatched deletion, duplicate source identity, and unrelated sources in a dedicated notebook.
+
+Plan or apply enrollment manually when diagnosing capacity:
+
+```powershell
+& "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\notebooklm_thread_enroll.py --config $Config
+& "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\notebooklm_thread_enroll.py --config $Config --apply
+```
 
 ## 6. Benchmark retrieval
 
@@ -159,21 +181,22 @@ Create a local, gitignored `retrieval_cases.json` with vague remembered queries 
 ```powershell
 & "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" `
   .\scripts\notebooklm_thread_retrieval_benchmark.py `
-  --state "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\state.json" `
+  --state "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\state.json" `
   --cases .\retrieval_cases.json `
   --profile personal `
   --notebook-id NOTEBOOK_ID `
+  --confirm-disposable-retrieval-notebook `
   --threshold 0
 ```
 
-The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. Raw citation order is diagnostic. Measure the actual retrieval contract by reranking its recorded candidates locally:
+The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. Raw citation order is diagnostic. Measure the actual retrieval contract by fusing semantic rank, query-to-title overlap, and candidate-only local evidence:
 
 ```powershell
 & "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" `
   .\scripts\thread_rag_hybrid_benchmark.py `
   --raw-report "PATH_TO_RAW_REPORT" `
   --cases .\retrieval_cases.json `
-  --state "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\state.json" `
+  --state "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\state.json" `
   --out "PATH_TO_HYBRID_REPORT" `
   --threshold 0.95
 ```
@@ -184,12 +207,24 @@ Require 100% semantic candidate recall and at least 95% hybrid Top-1 before depe
 
 ```powershell
 .\scripts\install_notebooklm_thread_sync_task.ps1 `
-  -Config "$env:USERPROFILE\.codex\thread-rag\my-pc-eval\sync_config.json" `
+  -Config "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\sync_config.json" `
   -TaskName "Codex NotebookLM Thread Sync - my-pc" `
   -Minutes 15
 ```
 
-The task runs only while that Windows user has an interactive session. Runs are mutex-protected, and a nightly read-only reconciliation validates every state-linked source ID and title.
+The task runs only while that Windows user has an interactive session. Runs are mutex-protected, have a 120-minute execution limit by default, and perform a nightly read-only strict reconciliation. Install a separate scheduled task for a second `chat` config.
+
+## Retention
+
+Generated data is bounded. The runner plans retention by default and applies it only when `RetentionApply=true`. Current and previous source lineage are always protected; any path outside the configured projection root or explicit `search-runs` directory is rejected.
+
+```powershell
+& "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\thread_rag_retention.py `
+  --root "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval" `
+  --search-root "$env:USERPROFILE\.codex\thread-rag\search-runs"
+```
+
+Review the report before adding `--apply` or enabling scheduled application.
 
 ## Search contract
 
@@ -206,6 +241,10 @@ Keep `work` and `personal` profiles separate. Do not infer source limits from a 
 
 Use one stable device namespace and preferably one notebook per computer. Cross-device search can query both notebooks, while each machine retains independent provenance and credentials. See [docs/MULTI_DEVICE.md](docs/MULTI_DEVICE.md).
 
-## Current boundary
+## R&D and current boundary
 
-The 20-task pilot and two-shard full-corpus plan are proven. Full-corpus upload is intentionally not automatic: create and validate each notebook shard separately, preserve rolling-revision headroom, and promote in bounded batches with the same privacy, reconciliation, and retrieval gates.
+The current 130-task/132-source deployment is synchronized, strictly reconciled, and benchmark-proven at 100% semantic candidate recall and 100% hybrid Top-1 across 24 varied cases. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns.
+
+Scaling beyond one notebook remains an R&D boundary. A measured 2x/5x/10x simulation preserved complete-task locality and 60-source rolling headroom, but stateless replanning moved 64.62% of shared assignments at 5x and 83.08% at 10x; broadcast search reached six notebooks at 10x. Multi-notebook production therefore requires sticky shard ownership and a recall-gated local router, not repeated full replanning.
+
+The durable `.rnd` workspace maps 20 system factors and the broad experiment queue: accuracy, candidate recall, freshness, coverage, source capacity, conversation integrity, reliability, auth truth, source integrity, parsing, retention, observability, privacy modes, reproducibility, upstream resilience, multi-device behavior, CLI UX, cost, and maintainability. The eventual radar/spider chart is generated only from measured evidence; an unknown metric stays unknown rather than receiving an invented score.

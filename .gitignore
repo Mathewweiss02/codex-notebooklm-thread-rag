@@ -5,6 +5,11 @@ storage_state.json
 auth.json
 config.local.json
 *.local.json
+sync_config.json
+sync_config.previous.json
+registry.json
+shard_plan.json
+installation.json
 thread-rag/
 projections/
 runs/
@@ -21,6 +26,8 @@ __pycache__/
 *.py[cod]
 node_modules/
 .pytest_cache/
+.ruff_cache/
+.ty/
 
 # Editor / OS noise.
 .DS_Store

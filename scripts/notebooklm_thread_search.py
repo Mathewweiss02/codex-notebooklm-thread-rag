@@ -11,11 +11,18 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+if str(SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIR))
+
 from notebooklm import NotebookLMClient
+from redaction_contract import POLICY as REMOTE_REDACTION_POLICY
+from redaction_contract import sanitize_remote_text
 
 
 REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
@@ -40,22 +47,40 @@ def atomic_json(path: Path, value: dict[str, Any]) -> None:
 
 
 def sanitize_query(value: str) -> tuple[str, int]:
-    patterns = [
-        r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b",
-        r"\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{12,}\b",
-        r"\b(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{12,}",
-        r"\b(password|secret|(?:(?:access|refresh)[_ -]?)?token|api[_ -]?key)\s*[:=]\s*\S+",
-    ]
-    text = value
-    count = 0
-    for pattern in patterns:
-        text, replacements = re.subn(pattern, "[REDACTED]", text, flags=re.IGNORECASE)
-        count += replacements
-    return text, count
+    text, counts = sanitize_remote_text(value)
+    return text, sum(counts.values())
 
 
 def normalized_title(value: str | None) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^\w]+", " ", value or "", flags=re.UNICODE)).strip().casefold()
+
+
+TITLE_STOP_WORDS = {
+    "a", "an", "and", "app", "build", "check", "compare", "conversation", "define",
+    "did", "find", "for", "from", "in", "into", "locate", "my", "of", "on", "or",
+    "plan", "project", "research", "task", "the", "to", "verify", "was", "where", "which",
+    "with",
+}
+
+
+def normalized_concept_tokens(value: str | None) -> set[str]:
+    tokens: set[str] = set()
+    for token in normalized_title(value).split():
+        if len(token) > 3 and token.endswith("ies"):
+            token = f"{token[:-3]}y"
+        elif len(token) > 3 and token.endswith("s") and not token.endswith("ss"):
+            token = token[:-1]
+        if len(token) >= 2 and token not in TITLE_STOP_WORDS:
+            tokens.add(token)
+    return tokens
+
+
+def title_query_overlap(query: str | None, title: str | None) -> float:
+    title_tokens = normalized_concept_tokens(title)
+    if not title_tokens:
+        return 0.0
+    query_tokens = normalized_concept_tokens(query)
+    return round(len(title_tokens & query_tokens) / len(title_tokens), 4)
 
 
 def exact_title_cue(query: str) -> str | None:
@@ -102,17 +127,23 @@ def merge_local_ranking(
             "localCoverage": None,
             "locallyVerified": False,
         })
+    max_local_score = max((float(item.get("localScore") or 0) for item in output), default=0.0)
     title_cue = exact_title_cue(query or "")
-    if title_cue:
-        wanted = normalized_title(title_cue)
-        for item in output:
-            item["exactTitleMatch"] = normalized_title(item.get("title")) == wanted
-        if any(item["exactTitleMatch"] and item["locallyVerified"] for item in output):
-            output.sort(key=lambda item: (
-                not (item["exactTitleMatch"] and item["locallyVerified"]),
-                item.get("localRank") or 1_000_000,
-                item["semanticRank"],
-            ))
+    wanted = normalized_title(title_cue) if title_cue else None
+    for item in output:
+        semantic_score = 1.0 / max(1, int(item["semanticRank"]))
+        local_score = float(item.get("localScore") or 0)
+        normalized_local_score = local_score / max_local_score if max_local_score else 0.0
+        title_overlap = title_query_overlap(query, item.get("title"))
+        item["titleQueryOverlap"] = title_overlap
+        item["hybridScore"] = round(semantic_score + (1.1 * normalized_local_score) + (1.25 * title_overlap), 6)
+        item["exactTitleMatch"] = bool(wanted and normalized_title(item.get("title")) == wanted)
+    output.sort(key=lambda item: (
+        not item["exactTitleMatch"],
+        -item["hybridScore"],
+        item["semanticRank"],
+        item.get("localRank") or 1_000_000,
+    ))
     for final_rank, item in enumerate(output, 1):
         item["finalRank"] = final_rank
     return output
@@ -180,7 +211,16 @@ def discover_configs(explicit: list[Path], codex_root: Path) -> list[Path]:
         return [path.resolve() for path in explicit]
     registry_path = codex_root / "thread-rag" / "registry.json"
     registry = read_json(registry_path)
-    paths = [Path(item["ConfigPath"]).resolve() for item in registry.get("Configs", []) if item.get("ConfigPath")]
+    paths = []
+    for item in registry.get("Configs", []):
+        if not item.get("ConfigPath"):
+            continue
+        path = Path(item["ConfigPath"]).resolve()
+        role = str(item.get("NotebookRole") or "")
+        if not role and path.is_file():
+            role = str(read_json(path).get("NotebookRole") or "")
+        if role == "retrieval":
+            paths.append(path)
     if not paths:
         raise ValueError(f"No registered sync configurations: {registry_path}")
     return paths
@@ -194,6 +234,8 @@ def parse_time(value: str | None) -> datetime | None:
 
 def load_instance(config_path: Path, max_run_age_minutes: int, allow_unmonitored: bool) -> dict[str, Any]:
     config = read_json(config_path)
+    if str(config.get("NotebookRole") or "") != "retrieval":
+        raise ValueError(f"Automated retrieval requires NotebookRole=retrieval: {config_path}")
     root = Path(config["ProjectionRoot"])
     state_path = root / "state.json"
     state = read_json(state_path)
@@ -209,12 +251,22 @@ def load_instance(config_path: Path, max_run_age_minutes: int, allow_unmonitored
         if age > max_run_age_minutes:
             raise ValueError(f"Runner is stale for {config_path}: {age:.1f} minutes")
     source_to_thread: dict[str, str] = {}
+    title_to_part: dict[str, str] = {}
     for thread_id, thread in (state.get("threads") or {}).items():
         if thread.get("uploadRevision") != thread.get("revision"):
             continue
         for part in thread.get("parts") or []:
-            if part.get("sourceId"):
-                source_to_thread[part["sourceId"]] = thread_id
+            part_key = f"{thread_id}:p{part.get('part')}"
+            title = str(part.get("title") or "")
+            if title:
+                owner = title_to_part.setdefault(title, part_key)
+                if owner != part_key:
+                    raise ValueError(f"Duplicate projected source title in {state_path}")
+            source_id = str(part.get("sourceId") or "")
+            if source_id:
+                owner = source_to_thread.setdefault(source_id, thread_id)
+                if owner != thread_id:
+                    raise ValueError(f"Duplicate projected source id in {state_path}")
     if not source_to_thread:
         raise ValueError(f"No current uploaded sources in {state_path}")
     return {"configPath": config_path, "config": config, "statePath": state_path, "state": state, "lastSuccess": last_success, "sourceToThread": source_to_thread}
@@ -225,6 +277,9 @@ async def search_instance(instance: dict[str, Any], query: str, allow_followup: 
     profile = config["Profile"]
     notebook_id = config["NotebookId"]
     disposable = config.get("DisposableSearchChat") is True
+    notebook_role = str(config.get("NotebookRole") or "")
+    if disposable and notebook_role != "retrieval":
+        raise ValueError(f"Config {instance['configPath']} must declare NotebookRole=retrieval before automated chat deletion")
     if not disposable and not allow_followup:
         raise ValueError(f"Config {instance['configPath']} is not marked DisposableSearchChat=true")
     async with NotebookLMClient.from_storage(profile=profile, chat_timeout=240.0) as client:
@@ -233,6 +288,9 @@ async def search_instance(instance: dict[str, Any], query: str, allow_followup: 
         missing = expected_ids - live_ids
         if missing:
             raise ValueError(f"Notebook is missing {len(missing)} state-linked sources")
+        extra = live_ids - expected_ids
+        if config.get("RejectUntrackedSources") is True and extra:
+            raise ValueError(f"Dedicated retrieval notebook contains {len(extra)} untracked sources")
         if disposable:
             conversation_id = await client.chat.get_conversation_id(notebook_id)
             if conversation_id:
@@ -288,7 +346,7 @@ async def main() -> int:
         parser.error("--limit must be >= 1")
     safe_query, redactions = sanitize_query(args.query)
     query_hash = hashlib.sha256(safe_query.encode("utf-8")).hexdigest()
-    report: dict[str, Any] = {"startedAt": now_iso(), "querySha256": query_hash, "queryRedactions": redactions, "instances": [], "errors": []}
+    report: dict[str, Any] = {"startedAt": now_iso(), "querySha256": query_hash, "queryRedactions": redactions, "queryRedactionPolicy": REMOTE_REDACTION_POLICY, "instances": [], "errors": []}
     configs = discover_configs(args.config, args.codex_root)
     for config_path in configs:
         try:

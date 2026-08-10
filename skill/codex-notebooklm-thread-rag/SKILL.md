@@ -27,7 +27,7 @@ Read `references/operations.md` for setup, synchronization, search, and recovery
 
 1. Inspect Codex task metadata/title search first when the clue is exact.
 2. Run `scripts/thread_rag_doctor.ps1` against the registered configuration. Require a recent successful runner and reconciled live sources.
-3. Run `scripts/notebooklm_thread_search.py` with the user's remembered description. It requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination.
+3. Run `scripts/notebooklm_thread_search.py` with the user's remembered description. It requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `NotebookRole=retrieval` and `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination. Registered `NotebookRole=chat` configs are excluded from automated search so persistent CLI conversation history is never erased.
 4. Require `locallyVerified=true` on the selected candidate, then inspect bounded local evidence. Use `scripts/thread_search.mjs --thread ID` for focused verification and `scripts/thread_origin.mjs` when the user needs the original instruction rather than a later recap.
 5. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use the deterministic local search directly.
 6. Relay only relevant, credential-redacted evidence. Distinguish original request, later clarification, and downstream summary.
@@ -39,7 +39,9 @@ Read `references/operations.md` for setup, synchronization, search, and recovery
 3. Upload new revision parts fully and verify them live before deleting any previous source.
 4. Delete only source IDs recorded in that task's `previousSources` with an exact live title match.
 5. Run `--validate-only` reconciliation after changes.
-6. Keep `AllowAllThreads=false` until the source-budget planner produces bounded shards with rolling-update headroom.
+6. Keep `AllowAllThreads=false`. Use `notebooklm_thread_enroll.py` to stage-project newly visible tasks, query live source limits, prove rolling-update headroom, and atomically extend the explicit scope.
+7. Treat `RejectUntrackedSources=true` as mandatory for dedicated notebooks. Report extras; never delete them automatically.
+8. Apply retention only through `thread_rag_retention.py` after reviewing its dry-run report. Current and previous lineage must remain protected.
 
 ## Authentication boundary
 

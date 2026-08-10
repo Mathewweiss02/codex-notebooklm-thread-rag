@@ -1,6 +1,6 @@
 # Upstream notebooklm-py boundary
 
-This repository is a consumer and operational wrapper of [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py). It pins v0.8.0 in `requirements.txt` so upstream protocol or return-shape changes cannot silently alter synchronization behavior. The `notebooklm` CLI is the primary user and agent control surface.
+This repository is a consumer and operational wrapper of [teng-lin/notebooklm-py](https://github.com/teng-lin/notebooklm-py). It pins v0.8.0 in `pyproject.toml` and commits the complete hash-bearing `uv.lock` graph so upstream protocol, return-shape, or transitive dependency changes cannot silently alter synchronization behavior. The `notebooklm` CLI is the primary user and agent control surface.
 
 ## Responsibility map
 
@@ -39,12 +39,14 @@ The MCP server is installed so the capability is available, but it is not the ma
 ## Upgrade procedure
 
 1. Review the upstream release notes and migration guide.
-2. Update the exact version in `requirements.txt` and every versioned runtime path together.
+2. Use `uv add` to update the exact version in `pyproject.toml`/`uv.lock`, then update every versioned runtime path together.
 3. Install into a clean isolated Codex root.
 4. Run the complete offline suite.
 5. Run passive live checks for both profiles; do not refresh credentials during a diagnostic probe.
 6. Test `auth refresh --verify` for both profiles, plus browserless master-token renewal for every profile that requires fully unattended recovery.
 7. Run a bounded disposable-notebook projection, upload, reconciliation, and retrieval benchmark.
 8. Promote the new global skill only after all release gates pass.
+
+CI exports the locked runtime graph with hashes and audits it with `pip-audit`. GitHub Actions are pinned to immutable commits, and Dependabot waits seven days before proposing new dependency releases.
 
 Never point production synchronization at an unpinned checkout of upstream `main`.

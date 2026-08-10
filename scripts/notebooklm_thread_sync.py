@@ -92,6 +92,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--wait-timeout", type=float, default=300.0)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--validate-only", action="store_true", help="Validate state and live source lineage without uploads")
+    parser.add_argument("--reject-untracked-sources", action="store_true", help="Fail when the dedicated notebook contains a source outside known state lineage")
     args = parser.parse_args()
     if not args.notebook_id and not args.notebook_title:
         parser.error("use --notebook-id or --notebook-title")
@@ -133,11 +134,24 @@ def select_threads(threads: list[dict[str, Any]], args: argparse.Namespace) -> l
 
 
 def source_index(sources) -> tuple[dict[str, Any], dict[str, list[Any]]]:
-    by_id = {source.id: source for source in sources}
+    by_id: dict[str, Any] = {}
     by_title: dict[str, list[Any]] = {}
     for source in sources:
+        if source.id in by_id:
+            raise ValueError(f"Duplicate live source id: {source.id}")
+        by_id[source.id] = source
         by_title.setdefault(source.title or "", []).append(source)
     return by_id, by_title
+
+
+def known_lineage_source_ids(state: dict[str, Any]) -> set[str]:
+    source_ids: set[str] = set()
+    for thread in (state.get("threads") or {}).values():
+        for part in list(thread.get("parts") or []) + list(thread.get("previousSources") or []):
+            source_id = str(part.get("sourceId") or "")
+            if source_id:
+                source_ids.add(source_id)
+    return source_ids
 
 
 def planned_new_sources(threads: list[dict[str, Any]], by_title: dict[str, list[Any]]) -> int:
@@ -313,6 +327,15 @@ async def main() -> int:
         report["notebookTitle"] = notebook.title
         sources = await client.sources.list(notebook.id, strict=True)
         by_id, by_title = source_index(sources)
+        known_ids = known_lineage_source_ids(state)
+        untracked_ids = set(by_id) - known_ids
+        report["sourceReconcile"] = {
+            "live": len(by_id),
+            "knownLineage": len(set(by_id) & known_ids),
+            "untracked": len(untracked_ids),
+        }
+        if args.reject_untracked_sources and untracked_ids:
+            raise ValueError(f"Dedicated retrieval notebook contains {len(untracked_ids)} untracked sources")
         limits = await client.settings.get_account_limits()
         new_count = planned_new_sources(threads, by_title)
         ensure_source_capacity(len(sources), new_count, limits.source_limit)

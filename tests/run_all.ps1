@@ -36,6 +36,8 @@ foreach ($path in $parseTargets) {
 $steps += [pscustomobject]@{ Name = "powershell-parse"; Passed = $true; DurationMs = 0 }
 
 Invoke-Step "runner-integration" { & (Join-Path $repository "tests\runner.integration.ps1") -Runner (Join-Path $repository "scripts\notebooklm_thread_sync_runner.ps1") | Out-Null }
+Invoke-Step "doctor-integration" { & (Join-Path $repository "tests\doctor.integration.ps1") -Doctor (Join-Path $repository "scripts\thread_rag_doctor.ps1") | Out-Null }
+Invoke-Step "profile-auth-integration" { & (Join-Path $repository "tests\profile_auth.integration.ps1") -ProfileScript (Join-Path $repository "scripts\notebooklm_profiles.ps1") | Out-Null }
 Invoke-Step "profile-acl-integration" { & (Join-Path $repository "tests\profile_acl.integration.ps1") -ProfileScript (Join-Path $repository "scripts\notebooklm_profiles.ps1") | Out-Null }
 Invoke-Step "skill-install-integration" { & (Join-Path $repository "tests\install_skill.integration.ps1") -RepositoryRoot $repository | Out-Null }
 Invoke-Step "config-integration" { & (Join-Path $repository "tests\config.integration.ps1") -RepositoryRoot $repository | Out-Null }

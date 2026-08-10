@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "notebooklm_auth_helpers.ps1")
 
 if (-not $NotebookLmCli) {
   $codexRoot = $env:CODEX_HOME
@@ -71,8 +72,11 @@ switch ($Action) {
     Invoke-NotebookLm -CliArgs @("profile", "list")
   }
   "check" {
-    Invoke-NotebookLm -CliArgs @("-p", "work", "auth", "check", "--test", "--passive")
-    Invoke-NotebookLm -CliArgs @("-p", "personal", "auth", "check", "--test", "--passive")
+    $results = @(
+      Assert-NotebookLmAuthJson -NotebookLmCli $NotebookLmCli -Profile "work"
+      Assert-NotebookLmAuthJson -NotebookLmCli $NotebookLmCli -Profile "personal"
+    )
+    $results | Select-Object @{Name="Profile";Expression={$_.Payload.profile}}, Status, ExitCode
   }
   "login-work" {
     Require-Account

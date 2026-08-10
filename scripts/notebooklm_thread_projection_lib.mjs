@@ -1,28 +1,12 @@
 import { createHash } from "node:crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream, readFileSync } from "node:fs";
 import { basename } from "node:path";
 
 export const PROJECTION_POLICY_VERSION = "visible-messages-secrets-redacted-v4";
 
-const SECRET_PATTERNS = [
-  ["pem-private-key", /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g],
-  ["aws-access-key", /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g],
-  ["google-api-key", /\bAIza[0-9A-Za-z_-]{30,}\b/g],
-  ["openai-key", /\bsk-(?:proj-|svcacct-)?[A-Za-z0-9_-]{12,}\b/g],
-  ["github-token", /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b|\bgithub_pat_[A-Za-z0-9_]{20,}\b/g],
-  ["slack-token", /\bxox[baprs]-[A-Za-z0-9-]{12,}\b/g],
-  ["stripe-secret", /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{12,}\b/g],
-  ["jwt", /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g],
-  ["authorization", /\b(?:Authorization\s*:\s*)?(?:Bearer|Basic)\s+[A-Za-z0-9._~+/=-]{12,}/gi],
-  ["cookie-header", /\b(?:Cookie|Set-Cookie)\s*:\s*[^\r\n]{12,}/gi],
-  ["url-credential", /\bhttps?:\/\/([^\s:/?#]+):([^\s@/?#]+)@/gi],
-  ["user-home-path", /[A-Za-z]:[\\/]Users[\\/][^\\/\s"'<>\]\)]+(?:[\\/])?/gi],
-  ["unix-home-path", /\/(?:Users?|home)\/[^/\s"'<>\]\)]+(?:\/)?/gi],
-  ["query-secret", /([?&](?:access_token|auth_token|api_key|apikey|client_secret|refresh_token|signature|sig)=)[^&\s#]+/gi],
-  ["named-secret", /\b(password|passwd|pwd|secret|client[_ -]?secret|private[_ -]?key|refresh[_ -]?token|access[_ -]?token|auth[_ -]?token|api[_ -]?key|access[_ -]?key|session[_ -]?token)\s*[:=]\s*(?:["'][^"'\r\n]{6,}["']|[^\s,;\r\n]{6,})/gi],
-  ["data-url", /data:[A-Za-z0-9.+/-]+;base64,[A-Za-z0-9+/=\r\n]{80,}/g],
-  ["large-base64", /\b[A-Za-z0-9+/]{240,}={0,2}\b/g],
-];
+const REDACTION_CONTRACT = JSON.parse(readFileSync(new URL("./redaction_contract.json", import.meta.url), "utf8"));
+export const REMOTE_REDACTION_POLICY = REDACTION_CONTRACT.policy;
+const SECRET_PATTERNS = REDACTION_CONTRACT.patterns.map((entry) => [entry.label, new RegExp(entry.pattern, entry.flags)]);
 
 export function sha256(value) {
   return createHash("sha256").update(String(value ?? ""), "utf8").digest("hex");

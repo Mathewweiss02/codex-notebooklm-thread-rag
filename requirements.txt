@@ -1,1 +1,0 @@
-notebooklm-py[browser,headless,mcp]==0.8.0

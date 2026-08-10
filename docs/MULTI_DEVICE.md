@@ -13,7 +13,7 @@ On each computer:
 Recommended layout:
 
 - One stable `Device` value per computer.
-- One NotebookLM notebook per device during burn-in and normal operation.
+- One dedicated retrieval notebook per device during burn-in and normal operation, plus an optional independently synchronized CLI-chat notebook when persistent conversation history is required.
 - Separate `work` and `personal` auth profiles on each computer.
 - A 15-minute scheduler per device with a 60-minute quiet gate and six-hour hard ceiling.
 - Cross-notebook querying only after each device independently passes projection, reconciliation, and retrieval gates.
