@@ -92,12 +92,14 @@ try {
   $runnerQuoted = '"' + $Runner + '"'
   $configQuoted = '"' + $slowPath + '"'
   $process = Start-Process powershell.exe -WindowStyle Hidden -PassThru -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File $runnerQuoted -Config $configQuoted"
-  $deadline = (Get-Date).AddSeconds(8)
+  # GitHub may run the push and pull-request workflows concurrently on the
+  # same Windows host pool, so process startup can exceed the local 8s budget.
+  $deadline = (Get-Date).AddSeconds(30)
   while (-not (Test-Path -LiteralPath $signal) -and (Get-Date) -lt $deadline) { Start-Sleep -Milliseconds 100 }
   Assert-True (Test-Path -LiteralPath $signal) "slow runner must acquire mutex and signal"
   $overlap = (& $Runner -Config $slowPath) | ConvertFrom-Json
   Assert-True ($overlap.Status -eq "skipped-overlap") "second runner must skip while mutex is held"
-  $process.WaitForExit(20000) | Out-Null
+  $process.WaitForExit(60000) | Out-Null
   Assert-True ($process.ExitCode -eq 0) "first slow runner must finish successfully"
 
   $global:LASTEXITCODE = 0
