@@ -40,8 +40,8 @@ Whether the present NotebookLM semantic-candidate plus local deterministic reran
 - [x] Broad bottleneck discovery
 - [x] Initial experiment design
 - [x] Queue prioritization
-- [ ] Release-critical implementation and validation
-- [ ] Live 20+ case benchmark
-- [ ] Live migration and release
+- [x] Release-critical implementation and validation
+- [x] Live 20+ case benchmark
+- [x] Live migration and release
 - [ ] Wide architecture experiments
-- [ ] Evidence-backed radar scorecard iteration
+- [x] Evidence-backed radar scorecard iteration

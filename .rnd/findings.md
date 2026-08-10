@@ -15,7 +15,7 @@
 - Sync validation rejects missing expected sources but does not reject unrelated extras.
 - CI triggers once for push and once for pull request on the same branch update.
 - The top-level NotebookLM package is pinned, but the transitive environment is not locked or continuously audited.
-- Main has no branch protection, tags, or releases, and the README's historical corpus numbers are stale.
+- Protected `main` now requires strict `test-windows` status, pull requests, and resolved conversations; force pushes/deletion are disabled and `v0.1.0` is published.
 
 ## Suspected bottlenecks
 

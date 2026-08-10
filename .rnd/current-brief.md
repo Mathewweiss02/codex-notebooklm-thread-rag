@@ -13,18 +13,17 @@
 ## Queue status
 
 - Total items: 12
-- active: 1
-- done: 4
-- queued: 7
+- done: 6
+- queued: 6
 
 ## Next actionable item
 
-- ID: `rnd-001`
-- Title: Patch release-critical correctness and safety gaps
-- Branch: release-safety
-- Next lane: `implementation`
-- Reason: Selected because it is actionable now with score 38.5 and strong leverage/uncertainty reduction.
+- ID: `rnd-007`
+- Title: Compare local router plus NotebookLM fan-out
+- Branch: scale-architecture
+- Next lane: `research`
+- Reason: Selected because it is actionable now with score 33.5 and strong leverage/uncertainty reduction.
 
 ## Recommended next lane
 
-- Move the confirmed release-critical branch into implementation while keeping scale, freshness, and architecture alternatives in research.
+- Compare sticky shard ownership plus local-router fan-out, then measure 60/15/5-minute freshness profiles. The hardened single-notebook release lane is complete.
