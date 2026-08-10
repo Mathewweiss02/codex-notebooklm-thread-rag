@@ -39,7 +39,7 @@ function parseArgs(argv) {
     hardMaxHours: 6,
     maxWords: 120_000,
     maxMessageChars: 100_000,
-    maxLineBytes: 4 * 1024 * 1024,
+    maxLineBytes: 8 * 1024 * 1024,
     threadManifest: null,
     includeSubagents: false,
     force: false,
@@ -88,7 +88,7 @@ Options:
   --hard-max-hours N     Reproject a still-active changed task after N hours (default: 6)
   --max-words N          Maximum words per source part (default: 120000)
   --max-message-chars N  Keep first/last content beyond this size (default: 100000)
-  --max-line-bytes N     Skip any JSONL line above this size (default: 4194304)
+  --max-line-bytes N     Skip any JSONL line above this size (default: 8388608)
   --thread-manifest FILE Use an explicit thread metadata fixture instead of app-server
   --include-subagents    Include hidden worker/review sessions (excluded by default)
   --force                Ignore quiet/unchanged gates

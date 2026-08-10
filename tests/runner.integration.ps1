@@ -36,7 +36,7 @@ try {
     HardMaxHours = 6
     MaxWords = 120000
     MaxMessageChars = 100000
-    MaxLineBytes = 4194304
+    MaxLineBytes = 8388608
     WaitTimeout = 5
     RefreshAuth = $true
     SwapOld = $true

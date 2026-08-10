@@ -156,7 +156,7 @@ async function* boundedLines(file, maxLineBytes) {
 }
 
 export async function readVisibleMessages(file, options = {}) {
-  const maxLineBytes = options.maxLineBytes ?? 4 * 1024 * 1024;
+  const maxLineBytes = options.maxLineBytes ?? 8 * 1024 * 1024;
   const messages = [];
   const seen = new Set();
   const redactions = {};

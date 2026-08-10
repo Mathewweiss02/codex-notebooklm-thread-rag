@@ -92,6 +92,31 @@ test("oversized messages and lines are bounded and projection splits determinist
   assert.deepEqual(first.parts.map((part) => part.text), second.parts.map((part) => part.text));
 });
 
+test("default line ceiling accepts image-heavy visible messages while projecting text only", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "thread-projection-image-line-"));
+  const file = join(dir, "fixture.jsonl");
+  const record = {
+    timestamp: "2026-08-01T12:00:00Z",
+    type: "response_item",
+    payload: {
+      type: "message",
+      role: "user",
+      content: [
+        { type: "input_text", text: "Keep this visible text." },
+        { type: "input_image", image_url: `data:image/png;base64,${"A".repeat(4_500_000)}` },
+      ],
+    },
+  };
+  await writeFile(file, `${JSON.stringify(record)}\n`, "utf8");
+
+  const visible = await readVisibleMessages(file);
+
+  assert.equal(visible.messages.length, 1);
+  assert.equal(visible.messages[0].text, "Keep this visible text.");
+  assert.equal(visible.stats.overflowVisibleLines, 0);
+  assert.equal(visible.stats.overflowLines, 0);
+});
+
 test("context-compaction records stay excluded while visible conversation history remains", async () => {
   const dir = await mkdtemp(join(tmpdir(), "thread-projection-compaction-"));
   const file = join(dir, "fixture.jsonl");
