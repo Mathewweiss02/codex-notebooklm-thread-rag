@@ -18,6 +18,9 @@ manifest.json
 runner_state.json
 retrieval_cases.json
 retrieval-*.json
+*.private.json
+benchmark-runs/
+benchmark-evidence/
 
 # Local runtimes and caches.
 .venv/

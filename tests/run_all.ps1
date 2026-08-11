@@ -1,10 +1,12 @@
 param(
-  [string] $PythonPath = "python",
+  [string] $PythonPath,
   [string] $NodePath = "node"
 )
 
 $ErrorActionPreference = "Stop"
 $repository = Split-Path -Parent $PSScriptRoot
+$pinnedPython = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe"
+if (-not $PythonPath) { $PythonPath = if (Test-Path -LiteralPath $pinnedPython) { $pinnedPython } else { "python" } }
 $steps = @()
 
 function Invoke-Step {

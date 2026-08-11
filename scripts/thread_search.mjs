@@ -13,6 +13,7 @@ Options:
       --cwd-mode MODE       exact (default), prefix, or contains
       --after DATE          Keep matching messages on/after an ISO date
       --before DATE         Keep matching messages on/before an ISO date
+      --today               Search only the machine's current local calendar day
       --limit N             Return at most N threads (default: 10)
       --excerpts N          Evidence excerpts per result (default: 3)
       --window-days N       Event-cluster window (default: 4)
@@ -47,7 +48,19 @@ function positiveInteger(value, option) {
   return parsed;
 }
 
-export function parseArgs(argv) {
+export function localTodayBounds(now = new Date()) {
+  const start = new Date(now);
+  if (Number.isNaN(start.getTime())) throw new Error("Cannot calculate --today from an invalid clock value.");
+  start.setHours(0, 0, 0, 0);
+  const nextDay = new Date(start);
+  nextDay.setDate(nextDay.getDate() + 1);
+  return {
+    after: start.toISOString(),
+    before: new Date(nextDay.getTime() - 1).toISOString(),
+  };
+}
+
+export function parseArgs(argv, runtime = {}) {
   const options = {
     query: null,
     roots: [],
@@ -58,6 +71,7 @@ export function parseArgs(argv) {
     cwdMode: "exact",
     after: null,
     before: null,
+    today: false,
     limit: 10,
     excerpts: 3,
     windowDays: 4,
@@ -88,6 +102,8 @@ export function parseArgs(argv) {
     } else if (arg === "--before") {
       options.before = requiredValue(argv, index, arg);
       index += 1;
+    } else if (arg === "--today") {
+      options.today = true;
     } else if (arg === "--limit") {
       options.limit = positiveInteger(requiredValue(argv, index, arg), arg);
       index += 1;
@@ -132,6 +148,10 @@ export function parseArgs(argv) {
     } else {
       positional.push(arg);
     }
+  }
+  if (options.today) {
+    if (options.after || options.before) throw new Error("--today cannot be combined with --after or --before.");
+    Object.assign(options, localTodayBounds(runtime.now || new Date()));
   }
   if (!options.query && positional.length > 0) options.query = positional.join(" ");
   if (!options.includeCurrent && process.env.CODEX_THREAD_ID) options.excludeThreadIds.push(process.env.CODEX_THREAD_ID);

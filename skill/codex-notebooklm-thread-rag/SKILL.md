@@ -27,10 +27,11 @@ Read `references/operations.md` for setup, synchronization, search, and recovery
 
 1. Inspect Codex task metadata/title search first when the clue is exact.
 2. Run `scripts/thread_rag_doctor.ps1` against the registered configuration. Require a recent successful runner and reconciled live sources.
-3. Run `scripts/notebooklm_thread_search.py` with the user's remembered description. It requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `NotebookRole=retrieval` and `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination. Registered `NotebookRole=chat` configs are excluded from automated search so persistent CLI conversation history is never erased.
-4. Require `locallyVerified=true` on the selected candidate, then inspect bounded local evidence. Use `scripts/thread_search.mjs --thread ID` for focused verification and `scripts/thread_origin.mjs` when the user needs the original instruction rather than a later recap.
-5. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use the deterministic local search directly.
-6. Relay only relevant, credential-redacted evidence. Distinguish original request, later clarification, and downstream summary.
+3. Run `scripts/notebooklm_thread_search.py` with the user's remembered description. For an ordinary latency-sensitive lookup, pass `--fast`; do not silently retry if it fails. Use the balanced default only when the user requests higher confidence or the task justifies retry latency. The command requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `NotebookRole=retrieval` and `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination. Registered `NotebookRole=chat` configs are excluded from automated search so persistent CLI conversation history is never erased.
+4. For exact date/time questions, use `scripts/thread_search.mjs --today` or explicit `--after`/`--before` bounds first. Preserve its timestamped local evidence; use NotebookLM only when broader synthesis is materially useful.
+5. Require `locallyVerified=true` on the selected candidate, then inspect bounded local evidence. Use `scripts/thread_search.mjs --thread ID` for focused verification and `scripts/thread_origin.mjs` when the user needs the original instruction rather than a later recap.
+6. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use the deterministic local search directly.
+7. Relay only relevant, credential-redacted evidence. Distinguish original request, later clarification, and downstream summary.
 
 ## Synchronize safely
 

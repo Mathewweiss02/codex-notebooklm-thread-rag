@@ -89,15 +89,16 @@ Use separate configs and projection roots for `NotebookRole=retrieval` and `Note
 ## Semantic discovery
 
 ```powershell
-& "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_search.py" "vague remembered description"
+& "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_search.py" "vague remembered description" --fast
 ```
 
-The command discovers only registered retrieval configs, refuses stale/unmonitored instances by default, verifies all state-linked sources live, rejects unrelated extras in strict mode, resets only a notebook explicitly marked as disposable retrieval chat, and returns locally reranked candidate task IDs without answer text. Treat `--no-local-rerank` as a diagnostic switch only.
+The command discovers only registered retrieval configs, refuses stale/unmonitored instances by default, verifies all state-linked sources live, rejects unrelated extras in strict mode, resets only a notebook explicitly marked as disposable retrieval chat, and returns locally reranked candidate task IDs without answer text. `--fast` uses one semantic attempt and disables automatic 429/5xx transport retries; omit it when reliability warrants the balanced retry policy. Treat `--no-local-rerank` as a diagnostic switch only.
 
 Verify locally:
 
 ```powershell
 node "$Skill\scripts\thread_search.mjs" --query "same remembered clues" --thread "CANDIDATE_ID" --json
+node "$Skill\scripts\thread_search.mjs" --query "what was I doing" --today --json
 node "$Skill\scripts\thread_origin.mjs" --thread "THREAD_ID" --query "original instruction clues" --json
 ```
 

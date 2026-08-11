@@ -29,7 +29,13 @@ The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, for
 
 The current ADS-PC deployment is newer and larger than that pilot: the Codex app-server currently exposes 130 visible tasks, all 130 are enrolled, and 132 unique sources are live and reconciled in NotebookLM with no missing or unrelated extras. The earlier 312-task/338-part result was a historical local filesystem scan, not today's visible app-server corpus and not the current deployment size.
 
-The current 130-task corpus passed a fresh saved 24-case evaluation on 2026-08-10: semantic candidate recall was 24/24 (100%), raw unique-candidate Top-1 was 23/24 (95.83%), and fused semantic/title/local Top-1 was 24/24 (100%). Two benchmark cases explicitly accept either of two sibling tasks with equivalent intent; the report preserves the complete citation and ranking evidence. The older 20-case result remains a historical regression baseline.
+The current 130-task corpus passed a fresh saved 24-case evaluation on 2026-08-10: semantic candidate recall was 24/24 (100%), raw unique-candidate Top-1 was 23/24 (95.83%), and fused semantic/title/local Top-1 was 24/24 (100%). That suite is now classified as a frozen regression baseline, not proof of generalization.
+
+A broader governed evaluation added 40 visible development cases, 40 sealed holdout cases, negative/no-match queries, uncertainty intervals, immutable evidence, and a 12-case duplicate-title sibling slice. The first sealed holdout scored 30/32 semantic candidate recall, 24/32 hybrid Top-1, and 8/8 correct abstentions. Those honest results block a release-grade retrieval claim and motivate bounded semantic retry. The spent holdout is diagnostic only; a fresh sealed holdout and three consecutive frozen runs are required for promotion.
+
+With bounded fresh retry enabled only after an error or fewer than two unique citations, the latest frozen development run improved to 32/32 semantic candidate recall, 32/32 hybrid Top-1, and 8/8 correct abstentions. It required 15 retries across 40 cases and measured 65.95 seconds P50 / 147.62 seconds P95 remote latency. This is one passing run, not final release evidence; two more consecutive runs and a fresh unspent holdout remain required.
+
+The first fresh sealed holdout for that policy did not pass: semantic candidate recall was 32/32 (100%), but hybrid Top-1 was 30/32 (93.75%) and false-positive rate was 1/8 (12.5%). The holdout is preserved as immutable aggregate evidence and is not used for case-level tuning. This means the current bottleneck is acceptance/ranking generalization—especially negative rejection—not semantic candidate discovery. A new development-only rejection experiment and another independently authored sealed holdout are required before release claims.
 
 These are machine-specific results. NotebookLM is the candidate finder; local Codex history remains the authority.
 
@@ -48,6 +54,7 @@ dedicated retrieval notebook          persistent CLI chat notebook
         |
         v
 cited semantic candidate task IDs
+(bounded fresh retry on error/singleton)
         |
         v
 candidate-only local reranking
@@ -186,10 +193,11 @@ Create a local, gitignored `retrieval_cases.json` with vague remembered queries 
   --profile personal `
   --notebook-id NOTEBOOK_ID `
   --confirm-disposable-retrieval-notebook `
+  --max-semantic-attempts 2 `
   --threshold 0
 ```
 
-The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. Raw citation order is diagnostic. Measure the actual retrieval contract by fusing semantic rank, query-to-title overlap, and candidate-only local evidence:
+The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer text. It retries from a fresh disposable conversation only when an attempt errors or produces fewer than two unique cited tasks. Raw citation order and per-attempt evidence remain diagnostic. Measure the actual retrieval contract by fusing semantic rank, query-to-title overlap, and candidate-only local evidence:
 
 ```powershell
 & "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" `
@@ -201,7 +209,11 @@ The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer t
   --threshold 0.95
 ```
 
-Require 100% semantic candidate recall and at least 95% hybrid Top-1 before depending on semantic discovery.
+Private benchmark suites support `match` and `no_match` expectations, acceptable sibling IDs, development/holdout splits, corpus fingerprints, and separate query/label digests. Use `thread_rag_benchmark_audit.py` to seal a frozen suite, `thread_rag_benchmark_score.py` for holdout-safe scoring, and `thread_rag_benchmark_archive.py` to preserve immutable evidence outside operational retention. Private suites, seals, labels, queries, IDs, and reports are gitignored.
+
+Require 100% semantic candidate recall, at least 97.5% hybrid Top-1, at most 5% false-positive and false-negative rates, and three consecutive frozen runs. Do not tune on holdout case details or relabel hard cases after scoring.
+
+The experimental `notebooklm_thread_batch_benchmark.py` can measure 2/4/8 independently numbered questions in one disposable ask. It maps citations to each answer section, reranks each section locally, and stores no answer text. Do not treat prompt packing as production-ready from a small smoke test, and do not race concurrent null-conversation asks against one notebook: upstream intentionally serializes those asks and separate processes can race the server's mutable current conversation.
 
 ## 7. Schedule
 
@@ -235,6 +247,19 @@ Review the report before adding `--apply` or enabling scheduled application.
 5. If freshness, auth, reconciliation, citations, or identity is uncertain, use deterministic local ThreadOps content search.
 6. For original instructions, use provenance-aware origin recovery after task discovery.
 
+For a casual lookup where response time matters more than automatic recovery, pass `--fast`. That mode performs one semantic ask and disables the client's automatic HTTP 429/5xx retries. The balanced default retains up to two semantic attempts and transport retries for reliability.
+
+```powershell
+& "PYTHON_PATH" .\scripts\notebooklm_thread_search.py "remembered clues" --fast
+```
+
+Exact temporal questions should stay local. Message timestamps are already authoritative, and `--today` expands to the machine's current local calendar-day boundaries:
+
+```powershell
+node .\scripts\thread_search.mjs --query "what was I doing" --today
+node .\scripts\thread_search.mjs --query "when did I ask for the refactor" --after "2026-08-01" --before "2026-08-11"
+```
+
 ## Multiple accounts and devices
 
 Keep `work` and `personal` profiles separate. Do not infer source limits from a subscription label; query the live limits for each account because entitlements can change. In the initial test both profiles reported tier 2, 500 notebooks, and 300 sources per notebook.
@@ -243,7 +268,9 @@ Use one stable device namespace and preferably one notebook per computer. Cross-
 
 ## R&D and current boundary
 
-The current 130-task/132-source deployment is synchronized, strictly reconciled, and benchmark-proven at 100% semantic candidate recall and 100% hybrid Top-1 across 24 varied cases. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns.
+The current 130-task/132-source deployment is synchronized and strictly reconciled. Its frozen 24-case regression remains 100%, while the broader first sealed holdout is 93.75% semantic candidate recall and 75% hybrid Top-1; the latter is the governing generalization signal. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns.
+
+A four-question prompt-packing smoke reached 4/4 per-question candidate recall and 3/4 raw/hybrid Top-1 in about 53 seconds end to end, versus about 285 seconds for four individual cached asks. That is a promising roughly 5.4x throughput result, not a promotion: the sample is tiny and one related-candidate ranking remained wrong. Isolated notebook replicas are the next safe true-parallel topology, but require explicit provisioning approval and their own quality/throttling gate.
 
 Scaling beyond one notebook remains an R&D boundary. A measured 2x/5x/10x simulation preserved complete-task locality and 60-source rolling headroom, but stateless replanning moved 64.62% of shared assignments at 5x and 83.08% at 10x; broadcast search reached six notebooks at 10x. Multi-notebook production therefore requires sticky shard ownership and a recall-gated local router, not repeated full replanning.
 

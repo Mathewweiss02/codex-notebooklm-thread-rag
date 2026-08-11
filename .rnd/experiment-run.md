@@ -6,33 +6,30 @@
 
 ## Chosen experiment
 
-- ID: `rnd-006`
-- Title: Simulate 2x, 5x, and 10x corpus capacity
-- Why now: highest-priority actionable experiment with score 39.5
+- ID: `rnd-013`
+- Title: Prove benchmark integrity before recursive optimization
+- Why now: highest-priority actionable experiment with score 41.5
 
 ## Hypothesis
 
-- Deterministic sharding preserves complete-task locality and update headroom at larger scale.
+- A versioned suite with frozen regression, visible development, adversarial, negative/no-match, temporal/freshness, and sealed holdout cases can distinguish genuine retrieval improvement from benchmark memorization or label drift.
 
 ## Variable
 
-- Corpus multiplier and part distribution
+- Evaluation split, query stratum, acceptable-answer set, abstention policy, and holdout exposure
 
 ## Metric or evidence
 
-- Shard count, fan-out, headroom, rebalance churn
+- Case/schema integrity, semantic candidate recall, hybrid Top-1, false-positive rate, false-negative rate, Wilson confidence intervals, latency percentiles, and three-run stability
 
 ## Method
 
-- Replicate the observed 130-task/132-part distribution at 1x, 2x, 5x, and 10x.
-- Run the production first-fit planner with a 300-source limit and 60-source rolling reserve.
-- Measure shard count, shard loads, minimum/average headroom, broadcast fan-out, and the percentage of shared task assignments that move between scale steps.
-- Treat complete-task locality and minimum headroom as hard safety constraints.
+- Freeze the existing 24 cases as regression-only; create independently adjudicated development and sealed-holdout manifests; hash every frozen input and label artifact; run visible cases for diagnosis but reveal holdout aggregates only; preserve immutable raw reports and an adjudication ledger; reject any change that targets case IDs or weakens non-retrieval gates.
 
 ## Stop condition
 
-- Escalate architecture when broadcast fan-out exceeds three notebooks or when more than 10% of existing task assignments move during a scale step.
+- Do not optimize production retrieval until the suite passes integrity audit. Stop for user review after three honest experiment rounds without statistically meaningful improvement, or immediately on holdout leakage, post-score relabeling, dropped hard cases, unsafe live behavior, rate-limit risk, or a safety/CI/chat/reconciliation regression.
 
 ## Recommended next lane
 
-- `research-synthesis-and-decision`: compare sticky shard assignment and local-router fan-out strategies because the current stateless replan crosses the churn budget at 5x.
+- `validation`
