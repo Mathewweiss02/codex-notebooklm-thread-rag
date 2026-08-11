@@ -224,7 +224,7 @@ The experimental `notebooklm_thread_batch_benchmark.py` can measure 2/4/8 indepe
   -Minutes 15
 ```
 
-The task runs only while that Windows user has an interactive session. Runs are mutex-protected, have a 120-minute execution limit by default, and perform a nightly read-only strict reconciliation. Install a separate scheduled task for a second `chat` config.
+The task runs only while that Windows user has an interactive session. Its top-level action uses the configured runtime's `pythonw.exe`, then creates the PowerShell runner with Windows' `CREATE_NO_WINDOW` flag. This keeps the 15-minute sync invisible without weakening exit-code reporting or overlap tracking; do not replace it with a direct `powershell.exe` action or rely on Task Scheduler's unrelated `Hidden` UI setting. Runs are mutex-protected, have a 120-minute execution limit by default, and perform a nightly read-only strict reconciliation. Install a separate scheduled task for a second `chat` config.
 
 ## Retention
 

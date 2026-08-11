@@ -73,6 +73,11 @@ if ($TaskName) {
     $taskInfo = Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction Stop
     $schedulerHealthy = $taskInfo.LastTaskResult -eq 0 -and [string]$task.State -ne "Disabled"
     Add-Check "scheduled-task" $schedulerHealthy ("name={0}; state={1}; lastResult={2}; next={3}" -f $TaskName, $task.State, $taskInfo.LastTaskResult, $taskInfo.NextRunTime)
+    $matchingAction = @($task.Actions | Where-Object { [string]$_.Arguments -like "*$configPath*" } | Select-Object -First 1)
+    $actionExecutable = if ($matchingAction.Count) { [string]$matchingAction[0].Execute } else { "" }
+    $actionArguments = if ($matchingAction.Count) { [string]$matchingAction[0].Arguments } else { "" }
+    $consoleFree = $matchingAction.Count -eq 1 -and (Split-Path -Leaf $actionExecutable) -like "pythonw*.exe" -and $actionArguments -like "*notebooklm_thread_sync_hidden.pyw*"
+    Add-Check "scheduled-task-console-free" $consoleFree ("execute={0}; launcher={1}" -f $actionExecutable, $(if ($actionArguments -like "*notebooklm_thread_sync_hidden.pyw*") { "present" } else { "missing" }))
   } catch {
     Add-Check "scheduled-task" $false $_.Exception.Message
   }

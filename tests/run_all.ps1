@@ -21,7 +21,7 @@ function Invoke-Step {
 $nodeTests = @(Get-ChildItem -Recurse -File -LiteralPath $repository | Where-Object { $_.Name -like "*.test.mjs" } | ForEach-Object FullName)
 Invoke-Step "node-tests" { & $NodePath --test @nodeTests }
 Invoke-Step "python-tests" { & $PythonPath -m unittest discover -s (Join-Path $repository "tests") -p "test_*.py" -v }
-$pythonScripts = @(Get-ChildItem -File -LiteralPath (Join-Path $repository "scripts") -Filter "*.py" | ForEach-Object FullName)
+$pythonScripts = @(Get-ChildItem -File -LiteralPath (Join-Path $repository "scripts") | Where-Object { $_.Extension -in @(".py", ".pyw") } | ForEach-Object FullName)
 Invoke-Step "python-compile" { & $PythonPath -m py_compile @pythonScripts }
 
 $parseTargets = @(
@@ -43,5 +43,6 @@ Invoke-Step "profile-auth-integration" { & (Join-Path $repository "tests\profile
 Invoke-Step "profile-acl-integration" { & (Join-Path $repository "tests\profile_acl.integration.ps1") -ProfileScript (Join-Path $repository "scripts\notebooklm_profiles.ps1") | Out-Null }
 Invoke-Step "skill-install-integration" { & (Join-Path $repository "tests\install_skill.integration.ps1") -RepositoryRoot $repository | Out-Null }
 Invoke-Step "config-integration" { & (Join-Path $repository "tests\config.integration.ps1") -RepositoryRoot $repository | Out-Null }
+Invoke-Step "task-scheduler-integration" { & (Join-Path $repository "tests\task_scheduler.integration.ps1") -RepositoryRoot $repository -PythonPath $PythonPath | Out-Null }
 
 [pscustomobject]@{ Status = "passed"; TestFiles = $nodeTests.Count; PythonScripts = $pythonScripts.Count; Steps = $steps } | ConvertTo-Json -Depth 6

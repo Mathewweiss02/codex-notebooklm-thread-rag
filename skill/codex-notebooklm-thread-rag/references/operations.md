@@ -114,7 +114,7 @@ Benchmark a recorded live run without paying for another NotebookLM pass:
 & "$Skill\scripts\install_notebooklm_thread_sync_task.ps1" -Config "CONFIG_PATH" -TaskName "Codex NotebookLM Thread Sync - DEVICE" -Minutes 15
 ```
 
-The scheduler uses a per-config mutex, ignores overlapping starts, has a 120-minute execution limit by default, waits 60 minutes after recent task activity, applies a six-hour hard freshness ceiling to previously projected changing tasks, and performs daily strict source reconciliation. A 60-minute quiet gate is eventual freshness, not real-time freshness.
+The scheduler uses the configured runtime's `pythonw.exe` plus Windows' `CREATE_NO_WINDOW` process flag, so recurring syncs do not open or flash a terminal. Task Scheduler's `Hidden` setting only controls whether the task appears in its own UI and is not a substitute for the console-free launcher. The scheduler uses a per-config mutex, ignores overlapping starts, preserves the runner's exit code, has a 120-minute execution limit by default, waits 60 minutes after recent task activity, applies a six-hour hard freshness ceiling to previously projected changing tasks, and performs daily strict source reconciliation. A 60-minute quiet gate is eventual freshness, not real-time freshness.
 
 ## Retention
 
