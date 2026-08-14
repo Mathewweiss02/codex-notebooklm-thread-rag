@@ -97,7 +97,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass;
   the observation boundary must restart after the updated skill is installed.
 - The resource-aware retrieval soak monitor has now started at the first
-  post-install normal run: 1 eligible run, 0.0 observed hours, zero failures,
+  post-install normal run: 2 eligible runs, 0.265 observed hours, zero failures,
   and zero missing-resource reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a

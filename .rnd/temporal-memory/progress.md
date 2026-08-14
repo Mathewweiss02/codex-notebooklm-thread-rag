@@ -290,7 +290,7 @@ explicit replica approval.
 - The retrieval scheduler produced the first post-install normal report with
   eight resource samples and status `ok`.
 - Started the retained resource-aware monitor from that run. It is honestly
-  `open` at 1 eligible run and 0.0 observed hours; both PERF-011 and OPS-005
+  `open` at 2 eligible runs and 0.265 observed hours; both PERF-011 and OPS-005
   remain pending until the complete 168-hour window is clean.
 - The persistent-chat task separately completed its first post-install normal
   run with resource telemetry. It is not counted toward the retrieval soak,

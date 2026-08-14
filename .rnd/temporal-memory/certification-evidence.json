@@ -1134,8 +1134,8 @@
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
       "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
-      "executedAt": "2026-08-14T13:33:09Z",
-      "resultDigest": "632e86107785623183898e48f5fd979e728722024e6afacfb837552bc7ce7665"
+      "executedAt": "2026-08-14T13:47:56Z",
+      "resultDigest": "ebdedbe832083caa90b3a055add146a087ac9ba19876de7ed9e26a58f3e5880f"
     },
     "PERF-012": {
       "status": "pass",
@@ -1343,8 +1343,8 @@
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
       "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
-      "executedAt": "2026-08-14T13:33:09Z",
-      "resultDigest": "632e86107785623183898e48f5fd979e728722024e6afacfb837552bc7ce7665"
+      "executedAt": "2026-08-14T13:47:56Z",
+      "resultDigest": "ebdedbe832083caa90b3a055add146a087ac9ba19876de7ed9e26a58f3e5880f"
     },
     "OPS-006": {
       "status": "pending",
