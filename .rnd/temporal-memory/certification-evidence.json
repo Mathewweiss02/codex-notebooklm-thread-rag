@@ -1507,13 +1507,14 @@
       "scenario": "Committed-revision proof",
       "testLevel": "Release gate",
       "evidence": [
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
         ".rnd/temporal-memory/full-gate-run.json"
       ],
-      "notes": "Full local repository gate passed on committed revision b5fb53a; current-commit GitHub CI and final release audit remain required, so this row remains covered rather than certified.",
-      "executedAt": "2026-08-14T15:33:29Z",
-      "resultDigest": "c22d4b22c4059af44d6f314777dc76d545eb848ed5b06be244843c8432f7a7c9"
+      "notes": "Current committed revision 9f1c544 passed the full local repository gate with 11/11 steps; current-commit GitHub CI and final release audit remain required, so this row remains covered.",
+      "executedAt": "2026-08-14T15:54:04Z",
+      "resultDigest": "5ed38a2db85c9909d3cda3415dc583e8903baf01cae0204f187cc8adb2c3e044"
     }
   },
-  "updatedAt": "2026-08-14T15:37:26Z"
+  "updatedAt": "2026-08-14T15:54:04Z"
 }
