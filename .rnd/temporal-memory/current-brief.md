@@ -129,6 +129,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
   recall and 30/32 hybrid Top-1, with a higher latency tail, so the default
   minimum remains two. This is retained as negative experiment evidence, not
   as a release result.
+- A separate max-three-attempt experiment was intentionally bounded to a
+  30-minute process budget. It completed 18/40 cases before the budget ended,
+  so it has no quality score; the observed tail confirms that a third remote
+  attempt is not suitable as the default UX. The partial run was not promoted
+  or mixed into the frozen benchmark evidence.
 
 ## Certification principle
 

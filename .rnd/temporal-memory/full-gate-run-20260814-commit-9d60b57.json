@@ -1,0 +1,23 @@
+{
+  "Status": "passed",
+  "GeneratedAtUtc": "2026-08-14T18:44:53.5599343Z",
+  "CommitSha": "9d60b57cea336c164145761b42ad72b7a1d0a97f",
+  "PowerShell": "5.1.26100.9168",
+  "PythonRuntime": "pinned-notebooklm-py-0.8.0",
+  "NodeRuntime": "node",
+  "TestFiles": 7,
+  "PythonScripts": 37,
+  "Steps": [
+    {"Name": "node-tests", "Passed": true, "DurationMs": 6239},
+    {"Name": "python-tests", "Passed": true, "DurationMs": 46261},
+    {"Name": "python-compile", "Passed": true, "DurationMs": 547},
+    {"Name": "powershell-parse", "Passed": true, "DurationMs": 0},
+    {"Name": "runner-integration", "Passed": true, "DurationMs": 12325},
+    {"Name": "doctor-integration", "Passed": true, "DurationMs": 4404},
+    {"Name": "profile-auth-integration", "Passed": true, "DurationMs": 191},
+    {"Name": "profile-acl-integration", "Passed": true, "DurationMs": 332},
+    {"Name": "skill-install-integration", "Passed": true, "DurationMs": 1193},
+    {"Name": "config-integration", "Passed": true, "DurationMs": 919},
+    {"Name": "task-scheduler-integration", "Passed": true, "DurationMs": 3672}
+  ]
+}

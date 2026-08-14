@@ -130,3 +130,13 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
 - The experiment used the same disposable retrieval notebook and preserved
   raw remote, combined, hybrid, false-positive, and latency measurements. It
   did not consume the sealed holdout or create replicas.
+
+## Live max-three-attempt experiment — 2026-08-14
+
+- A separate run with the default two-candidate stop and three permitted
+  semantic attempts was bounded at 30 minutes. It completed 18 of 40 cases
+  before the command budget ended and therefore has no valid quality score.
+- The partial run was cleaned up after the timeout: only its verified parent
+  and child benchmark processes were terminated, with no other Python or Node
+  process targeted. The result remains private, incomplete evidence and does
+  not alter the default two-attempt policy.

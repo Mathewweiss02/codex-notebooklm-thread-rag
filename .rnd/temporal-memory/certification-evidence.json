@@ -1508,14 +1508,15 @@
       "testLevel": "Release gate",
       "evidence": [
         ".rnd/temporal-memory/full-gate-run-20260814-commit-88979b7.json",
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-9d60b57.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
         ".rnd/temporal-memory/full-gate-run.json"
       ],
-      "notes": "Current committed revision 88979b7 passed the full local repository gate with 11/11 steps; current-commit GitHub CI and final release audit remain required, so this row remains covered.",
-      "executedAt": "2026-08-14T15:55:59Z",
-      "resultDigest": "68a75226e004c7b8401cc24b14b4c31e36c5f7db0382440d689e6d6399aab364"
+      "notes": "Committed revision 9d60b57 passed the full local repository gate with 11/11 steps, 48 Node tests, and 202 Python tests; current-commit GitHub CI and final release audit remain required, so this row remains covered.",
+      "executedAt": "2026-08-14T18:44:53Z",
+      "resultDigest": "b64710d7187a8df2c6d921ddf6e4f3f940d88f3c2fda344581b781346ca5a3e9"
     }
   },
-  "updatedAt": "2026-08-14T15:57:08Z"
+  "updatedAt": "2026-08-14T18:45:59Z"
 }
