@@ -1407,10 +1407,10 @@
       "evidence": [
         ".rnd/temporal-memory/full-gate-run.json"
       ],
-      "notes": "Local full gate passed on the retained current revision; GitHub CI for the branch and final release audit remain required, so this row is covered rather than certified.",
-      "executedAt": "2026-08-14T14:05:20.2552491Z",
-      "resultDigest": "cb2adf143c385cb7a29edbbd76e66b9c16d7d6f230c4a7f13a4696c6f7409f57"
+      "notes": "Full local repository gate passed on the committed revision; branch GitHub CI and final release audit remain required, so this row is covered rather than certified.",
+      "executedAt": "2026-08-14T14:07:38.5339069Z",
+      "resultDigest": "be82ac9dfafeac7b4d722e991b8dad6fad741b829cd9d295b1d0e2f02c0ccf9b"
     }
   },
-  "updatedAt": "2026-08-14T14:05:39Z"
+  "updatedAt": "2026-08-14T14:07:46Z"
 }
