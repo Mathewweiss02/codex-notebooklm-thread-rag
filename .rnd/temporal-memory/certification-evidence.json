@@ -1267,9 +1267,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak restarted at the current installed skill boundary: 1 eligible post-install normal run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-14T14:44:19.9208479Z",
-      "resultDigest": "E4D6AE4165A9A199FCB12D1D0B421A14571983F5852EEBB32992B4DBDCABC0DF"
+      "notes": "Resource-aware retrieval soak currently has 6 eligible post-install runs, 0 failures, 0 malformed runs, 0 missing-resource reports, and 1.044 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T15:57:07Z",
+      "resultDigest": "073e326a738f088fe80ae0cd4e559a4836a8fad17bff10c8df40a5fa16ae924d"
     },
     "PERF-012": {
       "status": "pass",
@@ -1498,9 +1498,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak restarted at the current installed skill boundary: 1 eligible post-install normal run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-14T14:44:19.9208479Z",
-      "resultDigest": "E4D6AE4165A9A199FCB12D1D0B421A14571983F5852EEBB32992B4DBDCABC0DF"
+      "notes": "Resource-aware retrieval soak currently has 6 eligible post-install runs, 0 failures, 0 malformed runs, 0 missing-resource reports, and 1.044 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T15:57:07Z",
+      "resultDigest": "073e326a738f088fe80ae0cd4e559a4836a8fad17bff10c8df40a5fa16ae924d"
     },
     "OPS-006": {
       "status": "covered",
@@ -1517,5 +1517,5 @@
       "resultDigest": "68a75226e004c7b8401cc24b14b4c31e36c5f7db0382440d689e6d6399aab364"
     }
   },
-  "updatedAt": "2026-08-14T15:56:00Z"
+  "updatedAt": "2026-08-14T15:57:08Z"
 }
