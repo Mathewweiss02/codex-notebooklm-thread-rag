@@ -35,7 +35,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 43 Node tests and 152 Python tests, plus
+- The full repository gate passed 43 Node tests and 154 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -70,7 +70,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 43 Node tests and 152 Python tests, plus
+- The full repository gate now passes 43 Node tests and 154 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 43 retained passes, 79 covered
   rows, and 11 pending release evidence. The local-certification packet now

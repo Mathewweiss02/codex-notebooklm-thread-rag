@@ -81,7 +81,7 @@ The baseline, contracts, ADR evidence, synthetic extractor/oracle parity, crash-
   events, zero quarantines, matching handoff/index digests, and both
   retrieval (40/40) and persistent-chat (27/27) doctors passing. Source and
   installed script parity is exact at 56/56 files. The full repository gate is
-  now 43 Node and 152 Python tests plus operational integrations.
+  now 43 Node and 154 Python tests plus operational integrations.
 - A scheduled run using an older installed skill briefly reverted the live
   derived index to schema v1 after a source refresh. Installing the current
   skill and rerunning the refresh recovered the state to schema v2 with 145
