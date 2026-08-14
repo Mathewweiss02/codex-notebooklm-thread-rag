@@ -251,7 +251,7 @@ explicit replica approval.
   output. The report records the tested commit, runtime labels, step timings,
   and pass status without repository paths, prompts, answers, credentials, or
   NotebookLM identifiers.
-- Ran the complete gate at commit `17966abe58b582662d3067ecf471d93e57eeac57`;
+- Ran the complete gate at commit `ff2758e46f38a2ec9e35e3f28d40c8f2167ad744`;
   43 Node tests, 152 Python tests, compilation, parsing, runner, doctor,
   auth/ACL, installation, configuration, and scheduler integrations all
   passed. Retained report: `full-gate-run.json`.
