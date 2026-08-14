@@ -101,6 +101,33 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(result["attemptsUsed"], 1)
         self.assertEqual(context.chat.ask_count, 1)
 
+    def test_disposable_reset_requires_retrieval_role_and_is_explicit(self):
+        class ConversationChat(FakeChat):
+            def __init__(self):
+                super().__init__([[
+                    SimpleNamespace(source_id="source-a", citation_number=1),
+                    SimpleNamespace(source_id="source-b", citation_number=2),
+                ]])
+                self.deleted: list[tuple[str, str]] = []
+
+            async def get_conversation_id(self, notebook_id):
+                return f"conversation-for-{notebook_id}"
+
+            async def delete_conversation(self, notebook_id, conversation_id):
+                self.deleted.append((notebook_id, conversation_id))
+
+        context = FakeClientContext([])
+        context.chat = ConversationChat()
+        with patch.object(search.NotebookLMClient, "from_storage", return_value=context):
+            result = asyncio.run(search.search_instance(self.retry_instance(), "query", False, 5, 1))
+        self.assertEqual(result["attemptsUsed"], 1)
+        self.assertEqual(context.chat.deleted, [("notebook", "conversation-for-notebook")])
+
+        unsafe = self.retry_instance()
+        unsafe["config"] = {**unsafe["config"], "NotebookRole": "chat"}
+        with self.assertRaisesRegex(ValueError, "NotebookRole=retrieval"):
+            asyncio.run(search.search_instance(unsafe, "query", False, 5, 1))
+
     def test_fast_transport_disables_library_retries(self):
         context = FakeClientContext([[
             SimpleNamespace(source_id="source-a", citation_number=1),
@@ -119,6 +146,26 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(result["transportMaxRetries"], 0)
         self.assertEqual(factory.call_args.kwargs["rate_limit_max_retries"], 0)
         self.assertEqual(factory.call_args.kwargs["server_error_max_retries"], 0)
+
+    def test_search_diagnostics_expose_attempt_retry_and_verification_state(self):
+        context = FakeClientContext([[
+            SimpleNamespace(source_id="source-a", citation_number=1),
+            SimpleNamespace(source_id="source-b", citation_number=2),
+        ]])
+        with patch.object(search.NotebookLMClient, "from_storage", return_value=context):
+            result = asyncio.run(search.search_instance(
+                self.retry_instance(),
+                "query",
+                False,
+                5,
+                max_semantic_attempts=1,
+                transport_max_retries=0,
+            ))
+        self.assertEqual(result["attemptsUsed"], 1)
+        self.assertEqual(result["maxSemanticAttempts"], 1)
+        self.assertEqual(result["transportMaxRetries"], 0)
+        self.assertIn("referenceCounts", result)
+        self.assertIn("answerSha256", result)
 
     def run_local_fallback_case(self, failure: Exception):
         node = shutil.which("node")

@@ -37,7 +37,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 47 Node tests and 164 Python tests, plus
+- The full repository gate passed 48 Node tests and 200 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -60,7 +60,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   seven-day gate is correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
-  refresh completed successfully with 16,282 temporal events and source
+  refresh completed successfully with 16,301 temporal events and source
   references, 145 path-free thread metadata records, zero quarantines, nine
   allowed non-visible overflow lines, and matching index/handoff digests.
 - Schema version 1 was migrated in place to schema version 2 and the migration
@@ -72,17 +72,18 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 47 Node tests and 164 Python tests, plus
+- The full repository gate now passes 48 Node tests and 200 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The certification ledger contains 133 rows: 70 retained passes, 55 covered
-  rows, and 8 pending release evidence. The local-certification packet now
-  retains 63 focused cases: 62 promoted exact deterministic edge cases,
-  including local fallback across remote failure classes, bounded Windows
-  file-lock retry, process-kill recovery, schema migration,
-  overlapping-refresh serialization, paired rollback, derived-index
-  removal/rebuild, query-error redaction, ambiguous-time disclosure, and
-  redaction-policy mismatch/rebuild behavior, plus one covered adaptive
-  rate-limit mock. The live rate-limit canary remains open.
+- The certification ledger contains 133 rows: 117 retained passes, 8 covered
+  rows, and 8 pending release evidence. Versioned local-certification packets
+  retain 101 focused deterministic cases, including local fallback across
+  remote failure classes, bounded Windows file-lock retry, process-kill
+  recovery, schema migration, overlapping-refresh serialization, paired
+  rollback, derived-index removal/rebuild, query-error redaction,
+  ambiguous-time disclosure, cross-runtime redaction parity, and explicit
+  local performance gates. The remaining covered rows are the post-install
+  resource soak and committed-revision/CI release proof; the pending rows are
+  the live isolated-concurrency and rate-limit canaries.
   The 145-thread
   incremental benchmark also passes
   no-change P95 92.998 ms and one-thread-append P95 479.113 ms against the
@@ -94,6 +95,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   integrity and freshness. The persistent chat doctor passed 27/27 checks.
 - Source/installed script parity is exact at 63/63 files after installation;
   no raw path metadata is present in the temporal handoff.
+- The current-corpus performance packet passed cold rebuild, warm day, cold day,
+  and complete week-context gates: P95 values were approximately 4.54 s,
+  358 ms, 786 ms, and 2.32 s respectively; the week pack included 1,182/1,182
+  events at its explicit large-period budget.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.

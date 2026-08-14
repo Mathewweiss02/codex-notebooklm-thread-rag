@@ -40,6 +40,13 @@ class TemporalSkillRoutingTests(unittest.TestCase):
             if "thread_temporal_cli.py" in expected:
                 self.assertNotIn("notebooklm_thread_search.py", expected)
 
+    def test_exact_period_question_stays_local_without_remote_latency(self) -> None:
+        routing = json.loads(ROUTING.read_text(encoding="utf-8"))
+        exact_case = next(case for case in routing["coldStartCases"] if case["prompt"] == "What was I doing yesterday?")
+        self.assertEqual(exact_case["expectedRoute"], "thread_temporal_cli.py recap")
+        self.assertIn("broad temporal requests route to local temporal CLI before semantic search", routing["invariants"])
+        self.assertNotIn("notebooklm_thread_search.py", exact_case["expectedRoute"])
+
 
 if __name__ == "__main__":
     unittest.main()

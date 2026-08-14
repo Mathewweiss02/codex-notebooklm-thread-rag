@@ -389,6 +389,14 @@ async def run_queries(
 ) -> dict[str, Any]:
     if not cases:
         return {"caseCount": 0, "runs": runs, "results": [], "summary": {}}
+    notebook_owners: dict[str, int] = {}
+    for replica in replicas:
+        notebook_id = str(replica.notebook_id or "")
+        if not notebook_id:
+            raise RampError("isolated replica is missing a notebook identity")
+        prior = notebook_owners.setdefault(notebook_id, replica.ordinal)
+        if prior != replica.ordinal:
+            raise RampError("query wave contains duplicate notebook identities")
     global_source_owners: dict[str, int] = {}
     for replica in replicas:
         for source_id in replica.source_to_thread:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from threading import Lock
+from threading import Event, Lock
 import time
 import unittest
 from pathlib import Path
@@ -150,6 +150,20 @@ class TemporalExecutorTests(unittest.TestCase):
         with self.assertRaises(ExecutorError) as caught:
             execute_bounded([1, 2, 3], operation, policy=ExecutorPolicy())
         self.assertEqual(caught.exception.code, "EXECUTION_FAILED")
+
+    def test_global_cancellation_stops_before_the_next_request(self) -> None:
+        cancel_event = Event()
+        observed: list[int] = []
+
+        def operation(value: int) -> int:
+            observed.append(value)
+            cancel_event.set()
+            return value
+
+        with self.assertRaises(ExecutorError) as caught:
+            execute_bounded([1, 2], operation, policy=ExecutorPolicy(), cancel_event=cancel_event)
+        self.assertEqual(caught.exception.code, "CANCELLED")
+        self.assertEqual(observed, [1])
 
     def test_checkpoint_failure_is_explicit(self) -> None:
         def checkpoint(_index: int, _value: int) -> None:

@@ -278,6 +278,36 @@ test("workspace, date, and archive filters remain deterministic", async () => {
   }
 });
 
+test("current thread inclusion is excluded by default and explicit when requested", async () => {
+  const fixture = await makeFixture();
+  const previous = process.env.CODEX_THREAD_ID;
+  process.env.CODEX_THREAD_ID = fixture.currentId;
+  try {
+    const defaultOptions = parseArgs([
+      "--query", "Find the AWS suppression file from Mike and Michelle uploaded through VendorData SFTP",
+      "--root", fixture.root,
+      "--no-hydrate",
+    ]);
+    assert.deepEqual(defaultOptions.excludeThreadIds, [fixture.currentId]);
+    const defaultReport = await searchThreads(defaultOptions);
+    assert.ok(!defaultReport.results.some((result) => result.id === fixture.currentId));
+
+    const explicitOptions = parseArgs([
+      "--query", "Find the AWS suppression file from Mike and Michelle uploaded through VendorData SFTP",
+      "--root", fixture.root,
+      "--no-hydrate",
+      "--include-current",
+    ]);
+    assert.deepEqual(explicitOptions.excludeThreadIds, []);
+    const explicitReport = await searchThreads(explicitOptions);
+    assert.ok(explicitReport.results.some((result) => result.id === fixture.currentId));
+  } finally {
+    if (previous === undefined) delete process.env.CODEX_THREAD_ID;
+    else process.env.CODEX_THREAD_ID = previous;
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
 test("redaction covers common credential shapes", () => {
   const bearer = ["Bear", "er"].join("");
   const redacted = redactSensitiveText(`${bearer} abcdefghijklmnop token=supersecret ${FAKE_AWS_KEY} ${FAKE_OPENAI_KEY}`);

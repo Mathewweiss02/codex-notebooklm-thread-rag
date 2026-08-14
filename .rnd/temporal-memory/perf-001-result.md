@@ -26,3 +26,14 @@ Accept PERF-001 as a baseline. Do not optimize the local index prematurely.
 The next quality-of-life improvement is an explicit adaptive/large-period
 context mode or guided drill-down, not hidden truncation or a larger default
 that could overload downstream NotebookLM prompts.
+
+## Current-corpus certification refresh
+
+The aggregate-only packet `local-performance-certification-20260814-v3.json`
+re-ran the row-specific gates against the installed 16,301-event temporal
+index. Cold rebuild P95 was approximately 4.54 seconds; warm exact-day
+selection was 358 ms; cold CLI exact-day selection was 786 ms; and an explicit
+large-period week pack completed in 2.32 seconds with 1,182/1,182 events
+included. An earlier one-megabyte budget run honestly degraded at 1,162/1,182
+events, so the final packet uses a documented two-megabyte large-period budget
+rather than treating truncation as success.

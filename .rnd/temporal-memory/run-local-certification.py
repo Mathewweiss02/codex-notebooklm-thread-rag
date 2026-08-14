@@ -33,7 +33,98 @@ def repo_root() -> Path:
 
 def cases(node: str) -> list[dict[str, object]]:
     extract = "tests/thread_temporal_extract.test.mjs"
+    powershell = shutil.which("powershell") or "powershell"
     return [
+        {
+            "id": "TIME-001",
+            "label": "today local midnight to capture",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_001_today_is_local_midnight_to_capture"],
+        },
+        {
+            "id": "TIME-002",
+            "label": "yesterday calendar day",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_002_yesterday_is_a_calendar_day"],
+        },
+        {
+            "id": "TIME-003",
+            "label": "past 24 hours rolling window",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_003_past_24_hours_is_rolling"],
+        },
+        {
+            "id": "TIME-004",
+            "label": "past 7 days rolling window",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_004_past_7_days_is_explicitly_rolling"],
+        },
+        {
+            "id": "TIME-005",
+            "label": "last configured calendar week",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_005_last_week_uses_monday_calendar_boundary"],
+        },
+        {
+            "id": "TIME-006",
+            "label": "week to date capture bound",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_006_week_to_date_stops_at_capture"],
+        },
+        {
+            "id": "TIME-007",
+            "label": "explicit local date",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_007_explicit_date_is_one_local_day"],
+        },
+        {
+            "id": "TIME-008",
+            "label": "explicit half-open timestamp range",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_008_explicit_timestamp_range_is_half_open"],
+        },
+        {
+            "id": "TIME-009",
+            "label": "adjacent midnight ranges do not overlap",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_009_adjacent_midnight_ranges_do_not_overlap"],
+        },
+        {
+            "id": "TIME-010",
+            "label": "end-of-day millisecond",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_010_end_of_day_millisecond_is_retained"],
+        },
+        {
+            "id": "TIME-011",
+            "label": "DST spring gap",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_011_spring_gap_is_rejected"],
+        },
+        {
+            "id": "TIME-012",
+            "label": "DST fall overlap",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_012_fall_overlap_requires_offset"],
+        },
+        {
+            "id": "TIME-013",
+            "label": "leap day",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_013_leap_day_is_a_valid_local_day"],
+        },
+        {
+            "id": "TIME-014",
+            "label": "month and year boundary",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_014_month_year_boundary_advances_to_next_year"],
+        },
+        {
+            "id": "TIME-015",
+            "label": "timezone override",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_015_timezone_override_changes_grouping_not_instant_contract"],
+        },
+        {
+            "id": "TIME-016",
+            "label": "invalid natural phrase",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_016_invalid_natural_phrase_fails_closed"],
+        },
+        {
+            "id": "TIME-017",
+            "label": "safe default period",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_017_missing_period_has_a_safe_find_default"],
+        },
+        {
+            "id": "TIME-018",
+            "label": "future period disclosure",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalRangeCertificationTests.test_time_018_future_period_is_explicitly_empty_unless_time_advances"],
+        },
         {"id": "IDX-001", "label": "new session visible-message inventory", "command": [node, "--test", "--test-name-pattern", "indexes every visible message in a new session exactly once", extract]},
         {
             "id": "IDX-002",
@@ -141,6 +232,11 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_subset_uses_full_thread_history_and_budget_omissions_are_explicit"],
         },
         {
+            "id": "CTX-020",
+            "label": "current thread inclusion is explicit",
+            "command": [node, "--test", "--test-name-pattern", "current thread inclusion is excluded by default and explicit when requested", "scripts/thread_search.test.mjs"],
+        },
+        {
             "id": "CTX-017",
             "label": "period comparison keeps evidence separate",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_cli.TemporalCliTests.test_when_recap_find_and_compare_share_one_resolved_contract"],
@@ -176,6 +272,21 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_registered_chat_notebooks_are_not_automatic_search_targets"],
         },
         {
+            "id": "NLM-003",
+            "label": "split thread source parts are all current",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_split_thread_parts_are_all_current_and_unique"],
+        },
+        {
+            "id": "NLM-015",
+            "label": "disposable retrieval reset policy",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_disposable_reset_requires_retrieval_role_and_is_explicit"],
+        },
+        {
+            "id": "NLM-016",
+            "label": "exact period routes to local authority",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_skill_routing.TemporalSkillRoutingTests.test_exact_period_question_stays_local_without_remote_latency"],
+        },
+        {
             "id": "PAR-005",
             "label": "missing packed section degrades independently",
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_pack_benchmark.TemporalPromptPackTests.test_missing_heading_and_out_of_scope_reference_degrade"],
@@ -186,9 +297,34 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_pack_benchmark.TemporalPromptPackTests.test_marker_first_mapping_survives_drifted_offsets"],
         },
         {
+            "id": "PAR-006",
+            "label": "reordered or duplicate headings do not create false sections",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_pack_benchmark.TemporalPromptPackTests.test_heading_parser_rejects_duplicate_or_out_of_range_questions"],
+        },
+        {
+            "id": "PAR-008",
+            "label": "shared conversation concurrency is rejected",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_unsafe_shared_conversation_concurrency_is_rejected"],
+        },
+        {
             "id": "PAR-017",
             "label": "one child failure is explicit and non-partial",
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_failure_does_not_return_a_partial_success"],
+        },
+        {
+            "id": "PAR-018",
+            "label": "global cancellation stops before the next request",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_global_cancellation_stops_before_the_next_request"],
+        },
+        {
+            "id": "PAR-020",
+            "label": "cross-question citations do not count as expected hits",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_batch_benchmark.BatchBenchmarkTests.test_cross_question_citations_do_not_count_as_expected_hits"],
+        },
+        {
+            "id": "PAR-021",
+            "label": "duplicate notebook identity is rejected before query",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_isolated_ramp.IsolatedRampTests.test_query_waves_reject_duplicate_notebook_identity_before_remote_use"],
         },
         {
             "id": "NLM-007",
@@ -261,6 +397,21 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [node, "--test", "--test-name-pattern", "fixture projection survives compaction", "tests/projection_cli.integration.test.mjs"],
         },
         {
+            "id": "SEC-001",
+            "label": "shared Python and projection redaction contract",
+            "command": [sys.executable, "-m", "unittest", "tests.test_redaction_contract.RedactionContractTests.test_python_and_projection_sanitizers_share_the_same_secret_contract"],
+        },
+        {
+            "id": "SEC-003",
+            "label": "profile database ACL",
+            "command": [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/profile_acl.integration.ps1", "-ProfileScript", "scripts/notebooklm_profiles.ps1"],
+        },
+        {
+            "id": "SEC-004",
+            "label": "runner report secret exclusion",
+            "command": [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/runner.integration.ps1", "-Runner", "scripts/notebooklm_thread_sync_runner.ps1"],
+        },
+        {
             "id": "SEC-006",
             "label": "bounded retention keeps recovery floor",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_rag_retention.RetentionTests.test_plan_and_apply_preserve_current_and_previous_lineage"],
@@ -281,6 +432,46 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_cli.TemporalCliTests.test_ambiguous_local_time_is_disclosed_instead_of_guessed"],
         },
         {
+            "id": "UX-001",
+            "label": "fresh installation contains the current skill surface",
+            "command": [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/install_skill.integration.ps1", "-RepositoryRoot", str(repo_root())],
+        },
+        {
+            "id": "UX-002",
+            "label": "nontechnical yesterday phrasing routes locally",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_skill_routing.TemporalSkillRoutingTests.test_exact_period_question_stays_local_without_remote_latency"],
+        },
+        {
+            "id": "UX-004",
+            "label": "empty period is honest and machine-readable",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalContextCertificationTests.test_ux_004_empty_period_is_honest_and_machine_readable"],
+        },
+        {
+            "id": "UX-005",
+            "label": "degraded remote uses local fallback",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_remote_outage_uses_real_local_fallback"],
+        },
+        {
+            "id": "UX-006",
+            "label": "diagnostics expose mode range coverage retry and verification",
+            "command": [sys.executable, "-m", "unittest", "tests.test_temporal_certification_cases.TemporalContextCertificationTests.test_ux_006_diagnostics_expose_mode_range_coverage_and_verification", "tests.test_notebooklm_thread_search.SearchTests.test_search_diagnostics_expose_attempt_retry_and_verification_state"],
+        },
+        {
+            "id": "OPS-001",
+            "label": "console-free scheduler launcher and overlap behavior",
+            "command": [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/task_scheduler.integration.ps1", "-RepositoryRoot", str(repo_root()), "-PythonPath", sys.executable],
+        },
+        {
+            "id": "OPS-002",
+            "label": "doctor detects stale runner and auth JSON error",
+            "command": [powershell, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tests/doctor.integration.ps1", "-Doctor", "scripts/thread_rag_doctor.ps1"],
+        },
+        {
+            "id": "OPS-003",
+            "label": "derived index rebuild restores state",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_corruption_fails_closed_until_explicit_rebuild"],
+        },
+        {
             "id": "OPS-004",
             "label": "digest-paired rollback rehearsal",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_rollback.TemporalRollbackTests.test_restores_verified_previous_pair_without_touching_canonical_marker", "tests.test_thread_temporal_rollback.TemporalRollbackTests.test_mismatched_previous_pair_fails_closed_without_mutation"],
@@ -291,6 +482,7 @@ def cases(node: str) -> list[dict[str, object]]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path(".rnd/temporal-memory/local-certification-run.json"))
+    parser.add_argument("--replace", action="store_true", help="allow overwriting an existing retained result file")
     args = parser.parse_args(argv)
     root = repo_root()
     node = shutil.which("node")
@@ -331,6 +523,8 @@ def main(argv: list[str] | None = None) -> int:
         "cases": results,
     }
     output = (root / args.out).resolve() if not args.out.is_absolute() else args.out.resolve()
+    if output.exists() and not args.replace:
+        raise SystemExit(f"refusing to overwrite retained evidence: {output}; choose a new --out path or pass --replace")
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps({"status": payload["status"], "caseCount": payload["caseCount"], "passedCaseCount": payload["passedCaseCount"], "out": str(output)}))

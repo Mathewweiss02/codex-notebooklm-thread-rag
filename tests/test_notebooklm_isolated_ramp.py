@@ -200,6 +200,28 @@ class IsolatedRampTests(unittest.TestCase):
             self.assertEqual(result["summary"]["sourceScopeFailures"], 0)
             self.assertEqual(result["summary"]["crossTalkReferenceCount"], 0)
 
+    def test_query_waves_reject_duplicate_notebook_identity_before_remote_use(self) -> None:
+        class FakeClient:
+            def __init__(self) -> None:
+                self.chat = SimpleNamespace()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "zero").mkdir()
+            state = self.make_state(root / "zero")
+            state["threads"]["thread-one"]["parts"][0]["sourceId"] = "source-0"
+            state_path = root / "zero" / "state.json"
+            state_path.write_text(json.dumps(state), encoding="utf-8")
+            from notebooklm_isolated_ramp import Replica
+
+            replicas = [
+                Replica(0, "same-notebook", state_path, {"source-0": "thread-one"}, frozenset({"thread-one-p1"}), "a" * 64, True),
+                Replica(1, "same-notebook", state_path, {"source-0": "thread-one"}, frozenset({"thread-one-p1"}), "a" * 64, True),
+            ]
+            cases = [{"caseId": "case-0", "query": "query", "expectedThreadIds": ["thread-one"], "expectation": "match"}]
+            with self.assertRaisesRegex(RampError, "duplicate notebook identities"):
+                asyncio.run(run_queries(FakeClient(), replicas, cases, runs=1, node_path=None, timeout_seconds=1))
+
 
 if __name__ == "__main__":
     unittest.main()

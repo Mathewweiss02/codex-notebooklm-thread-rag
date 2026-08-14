@@ -29,6 +29,23 @@ class BatchBenchmarkTests(unittest.TestCase):
         self.assertEqual([item.source_id for item in mapped[1]], ["source-a"])
         self.assertEqual([item.source_id for item in mapped[2]], ["source-b"])
 
+    def test_cross_question_citations_do_not_count_as_expected_hits(self) -> None:
+        answer = "## Q1\nFirst answer [2].\n## Q2\nSecond answer [1].\n"
+        refs = [
+            SimpleNamespace(source_id="source-a", citation_number=1, answer_start_char=0),
+            SimpleNamespace(source_id="source-b", citation_number=2, answer_start_char=0),
+        ]
+        mapped, unmapped = map_references_to_sections(answer, refs, 2)
+        self.assertEqual(unmapped, 0)
+        source_to_thread = {"source-a": "thread-a", "source-b": "thread-b"}
+        mapped_threads = {
+            question: unique_threads(references, source_to_thread)
+            for question, references in mapped.items()
+        }
+        self.assertEqual(mapped_threads, {1: ["thread-b"], 2: ["thread-a"]})
+        self.assertFalse(set(mapped_threads[1]).intersection({"thread-a"}))
+        self.assertFalse(set(mapped_threads[2]).intersection({"thread-b"}))
+
     def test_missing_answer_offset_falls_back_to_citation_marker(self) -> None:
         answer = "## Q1\nFirst [1].\n## Q2\nSecond [2].\n"
         refs = [SimpleNamespace(source_id="source-b", citation_number=2, answer_start_char=None)]

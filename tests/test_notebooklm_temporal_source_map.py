@@ -81,6 +81,34 @@ class NotebookLMTemporalSourceMapTests(unittest.TestCase):
         self.assertEqual(result["problems"][0]["code"], "THREAD_NOT_ENROLLED")
         self.assertEqual(result["coverage"]["mappedPartCount"], 0)
 
+    def test_split_thread_parts_are_all_current_and_unique(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config, _ = self.make_fixture(root)
+            projection = root / "projection"
+            second_file = projection / "thread-a-p2.md"
+            second_file.write_text("second sanitized projected source\n", encoding="utf-8")
+            second_digest = hashlib.sha256(second_file.read_bytes()).hexdigest()
+            state_path = projection / "state.json"
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+            state["threads"]["thread-a"]["parts"].append({
+                "part": 2,
+                "totalParts": 2,
+                "file": str(second_file),
+                "title": "Thread A revision 2 part 2",
+                "sha256": second_digest,
+                "sourceId": "source-a-2",
+                "status": "ready",
+            })
+            state["threads"]["thread-a"]["parts"][0]["totalParts"] = 2
+            state_path.write_text(json.dumps(state), encoding="utf-8")
+            result = source_map.map_sources(config, ["thread-a"])
+
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["coverage"]["mappedPartCount"], 2)
+        self.assertEqual([item["part"] for item in result["mapping"]], [1, 2])
+        self.assertEqual(len({item["sourceId"] for item in result["mapping"]}), 2)
+
     def test_projection_digest_drift_degrades_before_remote_use(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             config, source_file = self.make_fixture(Path(temporary))

@@ -1,0 +1,95 @@
+{
+  "contractVersion": "temporal-local-performance-certification-v1",
+  "status": "pass",
+  "generatedAtUtc": "2026-08-14T15:26:50Z",
+  "runtime": {
+    "python": "pinned-runtime",
+    "node": "node",
+    "timezone": "America/New_York",
+    "nowUtc": "2026-08-14T12:00:00.000Z"
+  },
+  "corpus": {
+    "eventCount": 16301,
+    "quarantineCount": 0
+  },
+  "thresholds": {
+    "warmDayP95Ms": 500,
+    "coldDayP95Ms": 2000,
+    "weekContextP95Ms": 3000,
+    "weekMustBeComplete": true
+  },
+  "cases": {
+    "PERF-001": {
+      "status": "pass",
+      "measurement": {
+        "runCount": 5,
+        "passedCount": 5,
+        "p50Ms": 4516.17,
+        "p95Ms": 4543.97,
+        "minMs": 4483.343,
+        "maxMs": 4543.97,
+        "coverage": {
+          "eventCount": 16301,
+          "quarantineCount": 0
+        },
+        "resultDigest": "341193612c933d5f65b6abcceb68162a65c9346c0f1d2627a049b5b61216a1b7"
+      }
+    },
+    "PERF-004": {
+      "status": "pass",
+      "measurement": {
+        "runCount": 5,
+        "passedCount": 5,
+        "p50Ms": 353.622,
+        "p95Ms": 357.997,
+        "minMs": 347.731,
+        "maxMs": 357.997,
+        "coverage": {
+          "canonicalEventCount": 220,
+          "includedEventCount": 43,
+          "omittedEventCount": 177,
+          "segmentCount": 6
+        },
+        "resultDigest": "9fe265d6058a30b4369dd1f5f274e844d6b0b748adc069dee434dfb9aaaafe35"
+      }
+    },
+    "PERF-005": {
+      "status": "pass",
+      "measurement": {
+        "runCount": 5,
+        "passedCount": 5,
+        "p50Ms": 776.641,
+        "p95Ms": 785.8,
+        "minMs": 765.911,
+        "maxMs": 785.8,
+        "coverage": {
+          "canonicalEventCount": 220,
+          "includedEventCount": 43,
+          "omittedEventCount": 177,
+          "segmentCount": 6
+        },
+        "resultDigest": "9fe265d6058a30b4369dd1f5f274e844d6b0b748adc069dee434dfb9aaaafe35"
+      }
+    },
+    "PERF-006": {
+      "status": "pass",
+      "measurement": {
+        "runCount": 5,
+        "passedCount": 5,
+        "p50Ms": 2296.468,
+        "p95Ms": 2320.949,
+        "minMs": 2277.134,
+        "maxMs": 2320.949,
+        "coverage": {
+          "canonicalEventCount": 1182,
+          "includedEventCount": 1182,
+          "omittedEventCount": 0,
+          "segmentCount": 25
+        },
+        "resultDigest": "7ac86f481cd0f1eba0ae9bb1111807f6e341d89fcd732ca3e6284b371415d3cd"
+      }
+    }
+  },
+  "evidencePolicy": "aggregate-only; no message text, identifiers, prompts, answers, or local source paths",
+  "resultDigest": "cbbdf47f1bf10641f28e33cccc78a4bb5eae7f76cd32855b109a69106c30b3bb"
+}
