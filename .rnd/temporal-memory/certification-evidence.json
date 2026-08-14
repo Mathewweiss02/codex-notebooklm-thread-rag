@@ -1499,12 +1499,13 @@
       "scenario": "Committed-revision proof",
       "testLevel": "Release gate",
       "evidence": [
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
         ".rnd/temporal-memory/full-gate-run.json"
       ],
-      "notes": "Full local repository gate passed on the current committed executable revision; GitHub CI and final release audit remain required, so this row is covered rather than certified.",
-      "executedAt": "2026-08-14T14:46:31.6079790Z",
-      "resultDigest": "44EE0BF899CF65ADF0454E04A95EFE74C359190CF5F1DFB49361B25664FDDFF9"
+      "notes": "Full local repository gate passed on committed revision b5fb53a; current-commit GitHub CI and final release audit remain required, so this row remains covered rather than certified.",
+      "executedAt": "2026-08-14T15:33:29Z",
+      "resultDigest": "c22d4b22c4059af44d6f314777dc76d545eb848ed5b06be244843c8432f7a7c9"
     }
   },
-  "updatedAt": "2026-08-14T15:27:09Z"
+  "updatedAt": "2026-08-14T15:33:30Z"
 }
