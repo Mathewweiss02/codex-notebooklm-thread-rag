@@ -23,8 +23,8 @@ The same system must retain the existing semantic task-finding capability and ad
 
 This is the starting point for the remaining work, not a certification claim:
 
-- The latest full repository gate is green at 43 Node tests and 154 Python tests, with compilation, PowerShell parsing, runner, doctor, auth/ACL, install, configuration, and scheduler integration checks passing.
-- The local exact-certification packet contains 36 focused cases: 35 promoted exact cases plus one covered rate-limit mock. The 133-row matrix currently records 43 `pass`, 79 `covered`, 11 `pending`, and zero `fail` or `blocked` rows. Covered rows remain distinct from retained passes; release is still open.
+- The latest full repository gate is green at 47 Node tests and 156 Python tests, with compilation, PowerShell parsing, runner, doctor, auth/ACL, install, configuration, and scheduler integration checks passing.
+- The local exact-certification packet contains 63 focused cases: 62 promoted exact cases plus one covered rate-limit mock. The 133-row matrix currently records 70 `pass`, 53 `covered`, 10 `pending`, and zero `fail` or `blocked` rows. Covered rows remain distinct from retained passes; release is still open.
 - The live temporal index contains 16,175 events, 16,175 source references, 145 path-free thread metadata records, and zero quarantines at the latest no-op verification. Current source-map verification covers 145 requested threads across 147 ready source parts with no missing, mismatched, stale, or untracked source findings.
 - The timing-only post-boundary monitor has 10 eligible runs and about 2.249 observed hours; the resource-aware retrieval monitor has 2 eligible runs, 0.265 observed hours, zero failures, and zero missing-resource reports. The 168-hour soak gate is open.
 - NotebookLM transport and source-scope checks have passed in the canary lane, but the local claim verifier intentionally promoted zero of four remote answers because citation evidence did not match. Simulated remote outage, expired-auth, HTTP 429/503, and timeout paths now return locally verified fallback candidates. Local evidence remains authoritative.

@@ -42,6 +42,18 @@ async function runExtractor(manifest, out, extra = []) {
   return execFileAsync(process.execPath, [EXTRACTOR, "--thread-manifest", manifest, "--out", out, ...extra], { windowsHide: true });
 }
 
+async function readRecords(out) {
+  return (await readFile(out, "utf8")).trim().split(/\r?\n/).map((line) => JSON.parse(line));
+}
+
+function trailerOf(records) {
+  return records.find((record) => record.recordType === "trailer");
+}
+
+function eventsOf(records) {
+  return records.filter((record) => record.recordType === "event");
+}
+
 test("emits parity-ready events and quarantine records atomically", async () => {
   const root = await mkdtemp(join(tmpdir(), "thread-temporal-extract-"));
   try {
@@ -78,6 +90,94 @@ test("emits parity-ready events and quarantine records atomically", async () => 
     assert.equal(events[0].timestampUtc, "2026-08-12T04:00:00.000Z");
     assert.equal(events[0].eventId, events[1].eventId);
     assert.ok(records.every((record) => !JSON.stringify(record).includes(root)));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("indexes every visible message in a new session exactly once", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-temporal-extract-new-session-"));
+  try {
+    const manifest = await makeManifest(root, [{
+      id: "new-session",
+      lines: [
+        message("2026-08-12T04:00:00Z", "user", "first visible message"),
+        message("2026-08-12T04:01:00Z", "assistant", "second visible message"),
+      ],
+    }]);
+    const out = join(root, "handoff.jsonl");
+    await runExtractor(manifest, out);
+    const records = await readRecords(out);
+    const events = eventsOf(records);
+    assert.equal(events.length, 2);
+    assert.deepEqual(events.map((record) => record.text), ["first visible message", "second visible message"]);
+    assert.equal(trailerOf(records).eventCount, 2);
+    assert.equal(trailerOf(records).quarantineCount, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("keeps tool and reasoning payloads out of visible temporal events", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-temporal-extract-hidden-payloads-"));
+  try {
+    const hiddenTool = JSON.stringify({ type: "response_item", payload: { type: "function_call", name: "search", arguments: "private" } });
+    const hiddenReasoning = JSON.stringify({ type: "response_item", payload: { type: "reasoning", summary: "private chain" } });
+    const manifest = await makeManifest(root, [{
+      id: "hidden-payload-thread",
+      lines: [hiddenTool, hiddenReasoning, message("2026-08-12T04:00:00Z", "user", "visible only")],
+    }]);
+    const out = join(root, "handoff.jsonl");
+    await runExtractor(manifest, out);
+    const records = await readRecords(out);
+    const events = eventsOf(records);
+    assert.equal(events.length, 1);
+    assert.equal(events[0].text, "visible only");
+    assert.equal(trailerOf(records).eventCount, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("quarantines missing and invalid timestamps without assigning a day", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-temporal-extract-timestamp-quarantine-"));
+  try {
+    const manifest = await makeManifest(root, [{
+      id: "timestamp-quarantine-thread",
+      lines: [
+        message(undefined, "user", "missing timestamp"),
+        message("not-a-timestamp", "assistant", "invalid timestamp"),
+      ],
+    }]);
+    const out = join(root, "handoff.jsonl");
+    await runExtractor(manifest, out);
+    const records = await readRecords(out);
+    assert.equal(eventsOf(records).length, 0);
+    assert.deepEqual(records.filter((record) => record.recordType === "quarantine").map((record) => record.reason), ["missing-timestamp", "invalid-timestamp"]);
+    assert.equal(trailerOf(records).quarantineCount, 2);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("preserves canonical identity when a thread moves from active to archive", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-temporal-extract-archive-move-"));
+  try {
+    const manifest = join(root, "manifest.json");
+    const source = join(root, "session.jsonl");
+    await writeFile(source, `${message("2026-08-12T04:00:00Z", "user", "stable thread identity")}\n`, "utf8");
+    await writeFile(manifest, JSON.stringify({ threads: [{ id: "moving-thread", path: "session.jsonl", updatedAt: 1786507200, archived: false }] }), "utf8");
+    const activeOut = join(root, "active.jsonl");
+    await runExtractor(manifest, activeOut);
+    const activeEvent = eventsOf(await readRecords(activeOut))[0];
+
+    await writeFile(manifest, JSON.stringify({ threads: [{ id: "moving-thread", path: "session.jsonl", updatedAt: 1786507201, archived: true }] }), "utf8");
+    const archiveOut = join(root, "archive.jsonl");
+    await runExtractor(manifest, archiveOut);
+    const archiveEvent = eventsOf(await readRecords(archiveOut))[0];
+    assert.equal(archiveEvent.eventId, activeEvent.eventId);
+    assert.equal(archiveEvent.threadId, activeEvent.threadId);
+    assert.equal(archiveEvent.sourceRef.sourceKind, "archive");
   } finally {
     await rm(root, { recursive: true, force: true });
   }

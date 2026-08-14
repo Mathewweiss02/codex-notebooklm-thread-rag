@@ -185,54 +185,64 @@
       "executedAt": "2026-08-14T09:59:25Z"
     },
     "IDX-001": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "New session",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-002": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Unchanged rerun",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-003": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Appended messages",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-004": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Active → archived move",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-005": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Active/archive duplicate",
       "testLevel": "Unit + replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-006": {
       "status": "pass",
@@ -241,9 +251,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-007": {
       "status": "pass",
@@ -252,9 +262,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-008": {
       "status": "pass",
@@ -263,9 +273,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-009": {
       "status": "pass",
@@ -274,29 +284,33 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-010": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Tool/reasoning payload",
       "testLevel": "Security regression",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-011": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Duplicate message",
       "testLevel": "Property",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-012": {
       "status": "pass",
@@ -305,29 +319,33 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-013": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Missing timestamp",
       "testLevel": "Unit",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-014": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Invalid timestamp",
       "testLevel": "Fuzz",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-015": {
       "status": "pass",
@@ -336,9 +354,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-016": {
       "status": "pass",
@@ -347,19 +365,21 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-017": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Oversized visible line",
       "testLevel": "Regression",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/thread_temporal_extract.test.mjs"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:26Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-018": {
       "status": "pass",
@@ -368,9 +388,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-019": {
       "status": "pass",
@@ -379,9 +399,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-020": {
       "status": "pass",
@@ -390,9 +410,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-021": {
       "status": "pass",
@@ -401,9 +421,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-022": {
       "status": "pass",
@@ -412,9 +432,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-023": {
       "status": "pass",
@@ -423,9 +443,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-024": {
       "status": "pass",
@@ -434,9 +454,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "IDX-025": {
       "status": "pass",
@@ -445,19 +465,21 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-001": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Empty period",
       "testLevel": "E2E",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-002": {
       "status": "covered",
@@ -470,14 +492,16 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "CTX-003": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "One thread, many messages",
       "testLevel": "Replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-004": {
       "status": "covered",
@@ -490,24 +514,28 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "CTX-005": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "One thread crosses midnight",
       "testLevel": "Replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-006": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Multiple sessions in one thread/day",
       "testLevel": "Unit + replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-007": {
       "status": "covered",
@@ -520,24 +548,28 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "CTX-008": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Giant thread",
       "testLevel": "Scale replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-009": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Giant day/week",
       "testLevel": "Scale replay",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-010": {
       "status": "covered",
@@ -556,9 +588,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-012": {
       "status": "pass",
@@ -567,9 +599,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-013": {
       "status": "pass",
@@ -578,9 +610,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-014": {
       "status": "pass",
@@ -589,9 +621,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-015": {
       "status": "pass",
@@ -600,9 +632,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-016": {
       "status": "covered",
@@ -615,34 +647,40 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "CTX-017": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Compare periods",
       "testLevel": "E2E",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-018": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Drill-down",
       "testLevel": "E2E",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-019": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Context budget exhausted",
       "testLevel": "Property",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_thread_temporal_context.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:27Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "CTX-020": {
       "status": "covered",
@@ -655,24 +693,28 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "NLM-001": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "All selected threads mapped",
       "testLevel": "Live + fixture",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_source_map.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:49Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-002": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Missing mapped thread",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_source_map.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:49Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-003": {
       "status": "covered",
@@ -685,14 +727,16 @@
       "executedAt": "2026-08-14T09:59:49Z"
     },
     "NLM-004": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Previous revision present",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_source_map.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:49Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-005": {
       "status": "pass",
@@ -701,19 +745,21 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-006": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Untracked extra source",
       "testLevel": "Regression",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_source_map.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:49Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-007": {
       "status": "pass",
@@ -722,9 +768,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-008": {
       "status": "pass",
@@ -733,9 +779,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-009": {
       "status": "pass",
@@ -744,9 +790,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-010": {
       "status": "pass",
@@ -755,9 +801,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-011": {
       "status": "pass",
@@ -766,9 +812,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-012": {
       "status": "pass",
@@ -777,9 +823,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-013": {
       "status": "pass",
@@ -788,19 +834,21 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-014": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Persistent chat notebook",
       "testLevel": "Regression",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_source_map.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:49Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "NLM-015": {
       "status": "covered",
@@ -863,14 +911,16 @@
       "executedAt": "2026-08-14T09:59:50Z"
     },
     "PAR-005": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Missing section",
       "testLevel": "Parser test",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "PAR-006": {
       "status": "covered",
@@ -883,14 +933,16 @@
       "executedAt": "2026-08-14T09:59:50Z"
     },
     "PAR-007": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Citation offset drift",
       "testLevel": "Regression",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "PAR-008": {
       "status": "covered",
@@ -959,14 +1011,16 @@
       "notes": "No retained row-specific execution result yet."
     },
     "PAR-017": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "One child failure",
       "testLevel": "Integration",
       "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "PAR-018": {
       "status": "covered",
@@ -1016,9 +1070,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "PERF-001": {
       "status": "covered",
@@ -1165,9 +1219,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "SEC-003": {
       "status": "covered",
@@ -1196,9 +1250,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "SEC-006": {
       "status": "pass",
@@ -1207,9 +1261,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "SEC-007": {
       "status": "pass",
@@ -1218,9 +1272,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "SEC-008": {
       "status": "pass",
@@ -1260,9 +1314,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "UX-004": {
       "status": "covered",
@@ -1331,9 +1385,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic packet passed after rate-limit controller addition; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Exact focused deterministic case command passed; evidence is row-mapped and contains aggregate digests only; no live NotebookLM, replica, or soak claim.",
+      "executedAt": "2026-08-14T14:00:52Z",
+      "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "OPS-005": {
       "status": "pending",
@@ -1347,16 +1401,16 @@
       "resultDigest": "ebdedbe832083caa90b3a055add146a087ac9ba19876de7ed9e26a58f3e5880f"
     },
     "OPS-006": {
-      "status": "pending",
+      "status": "covered",
       "scenario": "Committed-revision proof",
       "testLevel": "Release gate",
       "evidence": [
         ".rnd/temporal-memory/full-gate-run.json"
       ],
-      "notes": "Current committed revision has a retained aggregate full-gate report; current-revision GitHub CI and final evidence-hash audit remain required.",
-      "executedAt": "2026-08-14T13:36:54Z",
-      "resultDigest": "901da74b01c6aa647e9656f901b03f49b85421ac4cfed5c472f499e8182d6a14"
+      "notes": "Local full gate passed on the retained current revision; GitHub CI for the branch and final release audit remain required, so this row is covered rather than certified.",
+      "executedAt": "2026-08-14T14:05:20.2552491Z",
+      "resultDigest": "cb2adf143c385cb7a29edbbd76e66b9c16d7d6f230c4a7f13a4696c6f7409f57"
     }
   },
-  "updatedAt": "2026-08-14T13:03:09Z"
+  "updatedAt": "2026-08-14T14:05:39Z"
 }

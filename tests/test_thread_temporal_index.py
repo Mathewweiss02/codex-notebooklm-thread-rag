@@ -92,6 +92,46 @@ class TemporalIndexTests(unittest.TestCase):
             self.assertTrue(no_op["noOp"])
             self.assertFalse(no_op["changed"])
 
+    def test_unchanged_handoff_is_an_exact_incremental_no_op(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            records = [
+                event("thread-a", "2026-08-12T04:00:00.000Z", "stable", "active", "file-a", 1),
+                event("thread-a", "2026-08-12T05:00:00.000Z", "state", "active", "file-a", 2),
+            ]
+            write_handoff(handoff, records)
+            index.build_index(handoff, database, rebuild=True)
+            before = index.verify_database(database)
+            result = index.build_index(handoff, database)
+            after = index.verify_database(database)
+
+            self.assertTrue(result["noOp"])
+            self.assertFalse(result["changed"])
+            self.assertEqual(after["eventDigest"], before["eventDigest"])
+            self.assertEqual(after["eventCount"], before["eventCount"])
+
+    def test_active_to_archive_move_keeps_one_canonical_event_and_thread(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            record = event("moving-thread", "2026-08-12T04:00:00.000Z", "stable identity", "active", "active-file", 1)
+            write_handoff(handoff, [record], manifest_digest="active-manifest")
+            index.build_index(handoff, database, rebuild=True)
+
+            archived = event("moving-thread", "2026-08-12T04:00:00.000Z", "stable identity", "archive", "archive-file", 1)
+            write_handoff(handoff, [archived], manifest_digest="archive-manifest")
+            result = index.build_index(handoff, database)
+            rows = index.query_events(database, "2026-08-12T00:00:00.000Z", "2026-08-13T00:00:00.000Z")
+
+            self.assertTrue(result["changed"])
+            self.assertEqual(result["eventCount"], 1)
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]["threadId"], "moving-thread")
+            self.assertEqual(rows[0]["sourceRef"]["sourceKind"], "archive")
+
     def test_incremental_update_removes_stale_events_and_retains_last_good_on_bad_handoff(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

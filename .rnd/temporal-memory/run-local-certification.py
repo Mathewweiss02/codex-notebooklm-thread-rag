@@ -34,6 +34,27 @@ def repo_root() -> Path:
 def cases(node: str) -> list[dict[str, object]]:
     extract = "tests/thread_temporal_extract.test.mjs"
     return [
+        {"id": "IDX-001", "label": "new session visible-message inventory", "command": [node, "--test", "--test-name-pattern", "indexes every visible message in a new session exactly once", extract]},
+        {
+            "id": "IDX-002",
+            "label": "unchanged incremental no-op",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_unchanged_handoff_is_an_exact_incremental_no_op"],
+        },
+        {
+            "id": "IDX-003",
+            "label": "appended canonical events",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_incremental_update_removes_stale_events_and_retains_last_good_on_bad_handoff"],
+        },
+        {"id": "IDX-004", "label": "active to archive move", "command": [node, "--test", "--test-name-pattern", "preserves canonical identity when a thread moves from active to archive", extract]},
+        {
+            "id": "IDX-005",
+            "label": "active/archive duplicate canonicalization",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_build_deduplicates_lineage_and_queries_half_open_ranges"],
+        },
+        {"id": "IDX-010", "label": "tool and reasoning payload exclusion", "command": [node, "--test", "--test-name-pattern", "keeps tool and reasoning payloads out of visible temporal events", extract]},
+        {"id": "IDX-011", "label": "duplicate message identity", "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_build_deduplicates_lineage_and_queries_half_open_ranges" ]},
+        {"id": "IDX-013", "label": "missing timestamp quarantine", "command": [node, "--test", "--test-name-pattern", "quarantines missing and invalid timestamps without assigning a day", extract]},
+        {"id": "IDX-014", "label": "invalid timestamp quarantine", "command": [node, "--test", "--test-name-pattern", "quarantines missing and invalid timestamps without assigning a day", extract]},
         {"id": "IDX-006", "label": "resumed old thread", "command": [node, "--test", "--test-name-pattern", "resumed old thread", extract]},
         {"id": "IDX-007", "label": "forked thread identity", "command": [node, "--test", "--test-name-pattern", "forked thread identity", extract]},
         {"id": "IDX-008", "label": "subagent policy", "command": [node, "--test", "--test-name-pattern", "excludes subagent sources", extract]},
@@ -43,6 +64,7 @@ def cases(node: str) -> list[dict[str, object]]:
         {"id": "IDX-016", "label": "partial final line", "command": [node, "--test", "--test-name-pattern", "malformed and partial lines", extract]},
         {"id": "IDX-018", "label": "Unicode and bidi", "command": [node, "--test", "--test-name-pattern", "malformed and partial lines", extract]},
         {"id": "IDX-019", "label": "transient Windows file lock retry", "command": [node, "--test", "--test-name-pattern", "transient Windows file lock", extract]},
+        {"id": "IDX-017", "label": "oversized visible line", "command": [node, "--test", "--test-name-pattern", "blocks an oversized visible line instead of publishing a partial handoff", extract]},
         {
             "id": "IDX-020",
             "label": "concurrent index writers",
@@ -79,9 +101,94 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_refresh.TemporalRefreshTests.test_overlapping_refreshes_serialize_and_leave_paired_verified_state"],
         },
         {
+            "id": "CTX-001",
+            "label": "empty period is explicit",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_drill_down_is_a_scoped_evidence_pack_and_equal_range_is_empty"],
+        },
+        {
+            "id": "CTX-003",
+            "label": "one thread many messages is chronological and exhaustive",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_full_pack_is_exhaustive_and_keeps_cross_midnight_segment"],
+        },
+        {
+            "id": "CTX-005",
+            "label": "cross-midnight activity retains local-day membership",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_full_pack_is_exhaustive_and_keeps_cross_midnight_segment"],
+        },
+        {
+            "id": "CTX-006",
+            "label": "activity segmentation is reproducible",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_full_pack_is_exhaustive_and_keeps_cross_midnight_segment"],
+        },
+        {
+            "id": "CTX-008",
+            "label": "giant-thread budget disclosure",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_subset_uses_full_thread_history_and_budget_omissions_are_explicit"],
+        },
+        {
+            "id": "CTX-009",
+            "label": "giant-period budget disclosure",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_subset_uses_full_thread_history_and_budget_omissions_are_explicit"],
+        },
+        {
+            "id": "CTX-018",
+            "label": "scoped drill-down preserves parent segment",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_drill_down_is_a_scoped_evidence_pack_and_equal_range_is_empty"],
+        },
+        {
+            "id": "CTX-019",
+            "label": "context budget omissions are explicit",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_subset_uses_full_thread_history_and_budget_omissions_are_explicit"],
+        },
+        {
+            "id": "CTX-017",
+            "label": "period comparison keeps evidence separate",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_cli.TemporalCliTests.test_when_recap_find_and_compare_share_one_resolved_contract"],
+        },
+        {
             "id": "NLM-005",
             "label": "stale projection blocks remote use",
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_projection_digest_drift_degrades_before_remote_use"],
+        },
+        {
+            "id": "NLM-001",
+            "label": "current ready source maps",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_current_ready_part_maps_without_previous_lineage"],
+        },
+        {
+            "id": "NLM-002",
+            "label": "missing mapped thread degrades",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_missing_thread_degrades_and_strict_boundary_is_available"],
+        },
+        {
+            "id": "NLM-004",
+            "label": "previous source lineage remains non-current",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_live_mapping_rejects_untracked_sources_but_allows_previous_lineage"],
+        },
+        {
+            "id": "NLM-006",
+            "label": "untracked extra source is rejected",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_source_map.NotebookLMTemporalSourceMapTests.test_live_mapping_rejects_untracked_sources_but_allows_previous_lineage"],
+        },
+        {
+            "id": "NLM-014",
+            "label": "persistent chat notebook is excluded from search targets",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_registered_chat_notebooks_are_not_automatic_search_targets"],
+        },
+        {
+            "id": "PAR-005",
+            "label": "missing packed section degrades independently",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_pack_benchmark.TemporalPromptPackTests.test_missing_heading_and_out_of_scope_reference_degrade"],
+        },
+        {
+            "id": "PAR-007",
+            "label": "citation offset drift uses marker-first mapping",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_pack_benchmark.TemporalPromptPackTests.test_marker_first_mapping_survives_drifted_offsets"],
+        },
+        {
+            "id": "PAR-017",
+            "label": "one child failure is explicit and non-partial",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_failure_does_not_return_a_partial_success"],
         },
         {
             "id": "NLM-007",

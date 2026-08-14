@@ -21,6 +21,7 @@ retrieval-*.json
 *.private.json
 benchmark-runs/
 benchmark-evidence/
+.ci/
 
 # Local runtimes and caches.
 .venv/
