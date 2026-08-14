@@ -292,3 +292,12 @@ explicit replica approval.
 - Started the retained resource-aware monitor from that run. It is honestly
   `open` at 1 eligible run and 0.0 observed hours; both PERF-011 and OPS-005
   remain pending until the complete 168-hour window is clean.
+
+## 2026-08-14 — CI evidence binding
+
+- Updated Windows CI to retain an aggregate full-gate report and fail if its
+  commit SHA does not equal the checked-out GitHub revision. This closes the
+  prior “green but stale evidence” ambiguity without adding private artifacts.
+- Reran the local full gate at commit `3147358077b55c3fbbba7a5093212839635f1e18`:
+  43 Node tests, 154 Python tests, compilation, parsing, runner, doctor,
+  auth/ACL, installation, configuration, and scheduler integrations passed.
