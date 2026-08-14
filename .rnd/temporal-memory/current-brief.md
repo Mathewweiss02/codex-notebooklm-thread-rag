@@ -81,9 +81,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
   recovery, schema migration, overlapping-refresh serialization, paired
   rollback, derived-index removal/rebuild, query-error redaction,
   ambiguous-time disclosure, cross-runtime redaction parity, and explicit
-  local performance gates. The remaining covered rows are the post-install
-  resource soak and committed-revision/CI release proof; the pending rows are
-  the live isolated-concurrency and rate-limit canaries.
+  local performance gates. The eight covered rows now have explicit aggregate
+  evidence for packed sizes 1/2/4/8 and the adaptive rate-limit mock, while
+  the post-install resource soak and committed-revision/CI release proof remain
+  open. The pending rows are the live explicit-conversation and isolated-
+  concurrency experiments.
   The 145-thread
   incremental benchmark also passes
   no-change P95 92.998 ms and one-thread-append P95 479.113 ms against the

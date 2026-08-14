@@ -929,40 +929,48 @@
       "scenario": "One question baseline",
       "testLevel": "Live benchmark",
       "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
     },
     "PAR-002": {
       "status": "covered",
       "scenario": "Pack size 2",
       "testLevel": "Live benchmark",
       "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
     },
     "PAR-003": {
       "status": "covered",
       "scenario": "Pack size 4",
       "testLevel": "Live benchmark",
       "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
     },
     "PAR-004": {
       "status": "covered",
       "scenario": "Pack size 8",
       "testLevel": "Gated live benchmark",
       "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
         "tests/test_notebooklm_temporal_executor.py"
       ],
-      "notes": "No retained row-specific execution result yet.",
-      "executedAt": "2026-08-14T09:59:50Z"
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
     },
     "PAR-005": {
       "status": "pass",
@@ -1507,5 +1515,5 @@
       "resultDigest": "c22d4b22c4059af44d6f314777dc76d545eb848ed5b06be244843c8432f7a7c9"
     }
   },
-  "updatedAt": "2026-08-14T15:33:30Z"
+  "updatedAt": "2026-08-14T15:37:26Z"
 }
