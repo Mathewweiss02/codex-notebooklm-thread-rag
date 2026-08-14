@@ -139,6 +139,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
   eight negative cases. The final behavior therefore fails closed for an
   unverified remote result; explicit local fallback remains limited to remote
   failure or no-candidate paths.
+- A source-scoped R&D probe used local candidates for one known development
+  miss. Scoping NotebookLM to five candidates still placed the expected task at
+  citation rank 7; scoping to two improved it to rank 2, but neither produced
+  Top-1 and both took about 65–87 seconds. Source scoping remains a synthesis
+  experiment, not a promoted retrieval fix.
 
 ## Certification principle
 

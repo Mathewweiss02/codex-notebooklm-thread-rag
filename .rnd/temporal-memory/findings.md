@@ -151,3 +151,14 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
 - The implementation therefore fails closed when remote candidates exist but
   local authority cannot accept them. Deterministic local fallback remains
   available for remote outage, auth, timeout, or empty-semantic paths only.
+
+## Source-scoped retrieval probe — 2026-08-14
+
+- For one known development miss, the local fallback candidate set was used to
+  select NotebookLM sources without changing the query or benchmark labels.
+  Five selected sources yielded the expected thread at citation rank 7; two
+  selected sources improved it to rank 2. Neither was Top-1, and observed
+  latency was approximately 64.9 and 86.6 seconds.
+- The result supports source scoping as a bounded synthesis tool, not as proof
+  that local-first source selection fixes global retrieval. No production
+  routing or release gate was changed.
