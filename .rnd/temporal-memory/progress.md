@@ -271,3 +271,12 @@ explicit replica approval.
   The release soak boundary must be re-established from this installed
   revision; PERF-011 and OPS-005 remain pending until the new reports show a
   clean wall-clock window.
+
+## 2026-08-14 — resource-aware soak monitor
+
+- Added `--require-resource` to the release monitor. It validates aggregate
+  sample count, working-set peak, private-memory peak, handle peak, and CPU
+  delta, and fails closed when any eligible report is missing those fields.
+- Added passing and failing unit coverage for the resource requirement. The
+  previous timing-only monitor remains available for historical diagnostics;
+  it is not sufficient for the final resource-aware soak.

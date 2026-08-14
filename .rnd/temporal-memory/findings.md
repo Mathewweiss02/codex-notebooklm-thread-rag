@@ -102,3 +102,6 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   processor-time samples around each child step. This improves leak/orphan
   detection without retaining child output or sensitive process metadata; the
   wall-clock gate must be re-established from the installed revision.
+- The release monitor now has an explicit `--require-resource` mode that
+  fails closed when any eligible run lacks valid aggregate resource fields.
+  Timing-only history cannot accidentally satisfy the resource-aware soak.

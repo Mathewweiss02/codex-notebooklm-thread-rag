@@ -13,6 +13,14 @@ from typing import Any
 
 CONTRACT = "temporal-release-monitor-v1"
 REQUIRED_STEPS = {"projection", "temporal-refresh", "sync", "retention"}
+REQUIRED_RESOURCE_FIELDS = {
+    "SampleCount",
+    "Available",
+    "WorkingSetPeakBytes",
+    "PrivateBytesPeak",
+    "HandleCountPeak",
+    "ProcessorTimeDeltaMs",
+}
 
 
 def parse_time(value: Any) -> datetime | None:
@@ -40,6 +48,23 @@ def read_reports(runs_root: Path) -> list[dict[str, Any]]:
     return reports
 
 
+def has_resource_evidence(report: dict[str, Any]) -> bool:
+    resource = report.get("Resource")
+    if not isinstance(resource, dict) or not REQUIRED_RESOURCE_FIELDS.issubset(resource):
+        return False
+    try:
+        return (
+            resource["Available"] is True
+            and int(resource["SampleCount"]) >= 2
+            and int(resource["WorkingSetPeakBytes"]) >= 0
+            and int(resource["PrivateBytesPeak"]) >= 0
+            and int(resource["HandleCountPeak"]) >= 0
+            and float(resource["ProcessorTimeDeltaMs"]) >= 0
+        )
+    except (TypeError, ValueError):
+        return False
+
+
 def evaluate(
     reports: list[dict[str, Any]],
     *,
@@ -47,6 +72,7 @@ def evaluate(
     start_at: datetime | None = None,
     minimum_hours: float = 168.0,
     max_gap_hours: float = 2.0,
+    require_resource: bool = False,
 ) -> dict[str, Any]:
     if minimum_hours <= 0 or max_gap_hours <= 0:
         raise ValueError("soak thresholds must be positive")
@@ -78,11 +104,14 @@ def evaluate(
             "skippedNonproductionRunCount": skipped_nonproduction,
             "maxGapHours": None,
             "missingStepRunCount": 0,
+            "missingResourceRunCount": 0,
+            "resourceRequired": require_resource,
         }
     first = usable[0][0]
     last = usable[-1][0]
     failed = 0
     missing_steps = 0
+    missing_resource = 0
     gaps: list[float] = []
     for index, (completed, report) in enumerate(usable):
         if str(report.get("Status") or "").casefold() != "ok":
@@ -90,12 +119,20 @@ def evaluate(
         labels = {str(step.get("Label")) for step in report.get("Steps") or [] if isinstance(step, dict)}
         if not REQUIRED_STEPS.issubset(labels):
             missing_steps += 1
+        if require_resource and not has_resource_evidence(report):
+            missing_resource += 1
         if index:
             gaps.append((completed - usable[index - 1][0]).total_seconds() / 3600)
     observed_hours = max(0.0, (last - first).total_seconds() / 3600)
     max_gap = max(gaps) if gaps else 0.0
     sufficient_window = observed_hours >= minimum_hours
-    clean = failed == 0 and malformed == 0 and missing_steps == 0 and max_gap <= max_gap_hours
+    clean = (
+        failed == 0
+        and malformed == 0
+        and missing_steps == 0
+        and (not require_resource or missing_resource == 0)
+        and max_gap <= max_gap_hours
+    )
     status = "pass" if sufficient_window and clean else ("fail" if not clean else "open")
     return {
         "contractVersion": CONTRACT,
@@ -110,6 +147,8 @@ def evaluate(
         "malformedRunCount": malformed,
         "skippedNonproductionRunCount": skipped_nonproduction,
         "missingStepRunCount": missing_steps,
+        "missingResourceRunCount": missing_resource,
+        "resourceRequired": require_resource,
         "maxGapHours": round(max_gap, 3),
         "maxGapHoursAllowed": max_gap_hours,
         "requiredSteps": sorted(REQUIRED_STEPS),
@@ -130,6 +169,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--minimum-hours", type=float, default=168.0)
     parser.add_argument("--max-gap-hours", type=float, default=2.0)
     parser.add_argument("--start-at", help="ignore reports completed before this UTC timestamp")
+    parser.add_argument("--require-resource", action="store_true", help="require aggregate resource evidence in every eligible run")
     args = parser.parse_args(argv)
     try:
         start_at = parse_time(args.start_at) if args.start_at else None
@@ -140,6 +180,7 @@ def main(argv: list[str] | None = None) -> int:
             start_at=start_at,
             minimum_hours=args.minimum_hours,
             max_gap_hours=args.max_gap_hours,
+            require_resource=args.require_resource,
         )
         write_json(args.out.resolve(), result)
         print(json.dumps({"status": result["status"], "eligibleRunCount": result["eligibleRunCount"], "observedHours": result["observedHours"], "out": str(args.out.resolve())}, separators=(",", ":")))

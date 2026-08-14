@@ -23,6 +23,10 @@ fourteen-day observation window after any release-blocking defect. Retain only
 aggregate status, timing, resource, freshness, and digest evidence. Do not
 reset the persistent chat notebook or create replica notebooks during soak.
 
+After the updated runner is installed, evaluate the new observation boundary
+with `thread_temporal_release_monitor.py --require-resource`; this is separate
+from the earlier timing-only monitor and must not inherit its start boundary.
+
 ## Pass criteria
 
 - Every required cycle succeeds or fails with an expected stable code.

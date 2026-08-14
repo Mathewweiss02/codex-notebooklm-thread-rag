@@ -12,9 +12,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import thread_temporal_release_monitor as monitor  # noqa: E402
 
 
-def report(at: datetime, status: str = "ok", missing: bool = False) -> dict[str, object]:
+def report(at: datetime, status: str = "ok", missing: bool = False, resource: bool = False) -> dict[str, object]:
     labels = ["projection", "sync", "retention"] if missing else ["projection", "temporal-refresh", "sync", "retention"]
-    return {"CompletedAt": at.isoformat().replace("+00:00", "Z"), "Status": status, "Steps": [{"Label": label} for label in labels]}
+    value: dict[str, object] = {
+        "CompletedAt": at.isoformat().replace("+00:00", "Z"),
+        "Status": status,
+        "Steps": [{"Label": label} for label in labels],
+    }
+    if resource:
+        value["Resource"] = {
+            "SampleCount": 3,
+            "Available": True,
+            "WorkingSetPeakBytes": 100,
+            "PrivateBytesPeak": 200,
+            "HandleCountPeak": 10,
+            "ProcessorTimeDeltaMs": 1.0,
+        }
+    return value
 
 
 class TemporalReleaseMonitorTests(unittest.TestCase):
@@ -52,6 +66,27 @@ class TemporalReleaseMonitorTests(unittest.TestCase):
         self.assertEqual(result["status"], "fail")
         self.assertEqual(result["failedRunCount"], 1)
         self.assertEqual(result["missingStepRunCount"], 1)
+
+    def test_resource_requirement_fails_closed_without_aggregate_samples(self) -> None:
+        start = datetime(2026, 8, 1, tzinfo=UTC)
+        result = monitor.evaluate(
+            [report(start), report(start + timedelta(hours=170))],
+            now=start + timedelta(hours=171),
+            require_resource=True,
+        )
+        self.assertEqual(result["status"], "fail")
+        self.assertEqual(result["missingResourceRunCount"], 2)
+
+    def test_resource_requirement_passes_with_valid_aggregate_samples(self) -> None:
+        start = datetime(2026, 8, 1, tzinfo=UTC)
+        result = monitor.evaluate(
+            [report(start + timedelta(hours=3 * index), resource=True) for index in range(57)],
+            now=start + timedelta(hours=171),
+            max_gap_hours=3,
+            require_resource=True,
+        )
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["missingResourceRunCount"], 0)
 
 
 if __name__ == "__main__":
