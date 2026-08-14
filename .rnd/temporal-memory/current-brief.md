@@ -37,7 +37,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 47 Node tests and 156 Python tests, plus
+- The full repository gate passed 47 Node tests and 162 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -60,7 +60,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   seven-day gate is correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
-  refresh completed successfully with 16,175 temporal events and source
+  refresh completed successfully with 16,279 temporal events and source
   references, 145 path-free thread metadata records, zero quarantines, nine
   allowed non-visible overflow lines, and matching index/handoff digests.
 - Schema version 1 was migrated in place to schema version 2 and the migration
@@ -72,7 +72,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 47 Node tests and 156 Python tests, plus
+- The full repository gate now passes 47 Node tests and 162 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 70 retained passes, 55 covered
   rows, and 8 pending release evidence. The local-certification packet now
@@ -92,15 +92,14 @@ mapping. Treat packing and parallelism as separate experimental branches.
   and no pack size is promoted as a certified quality default.
 - The installed retrieval doctor passed 40/40 checks, including temporal
   integrity and freshness. The persistent chat doctor passed 27/27 checks.
-- Source/installed script parity is exact at 56/56 files after installation;
+- Source/installed script parity is exact at 63/63 files after installation;
   no raw path metadata is present in the temporal handoff.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
-  is implementation readiness for the idle/resource soak, not a soak pass;
-  the observation boundary must restart after the updated skill is installed.
-- The resource-aware retrieval soak monitor has now recorded 3 eligible
-  post-install runs, 0.505 observed hours, zero failures, and zero
-  missing-resource reports. The 168-hour gate is open.
+  is implementation readiness for the idle/resource soak, not a soak pass.
+- The resource-aware retrieval soak monitor restarted at the current installed
+  skill boundary with 1 eligible post-install run, 0.0 observed hours, zero
+  failures, and zero missing-resource reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
   health/observability signal only and is intentionally excluded from the

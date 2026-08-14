@@ -1,27 +1,27 @@
 ﻿{
     "Status":  "passed",
-    "GeneratedAtUtc":  "2026-08-14T14:09:18.2981827Z",
-    "CommitSha":  "d11f550d8b0592dd31134f64da5a84c1a38e4b92",
+    "GeneratedAtUtc":  "2026-08-14T14:31:16.6097492Z",
+    "CommitSha":  "0ad83f3ab5d0b7ab81070702feb01cf1764edd8c",
     "PowerShell":  "5.1.26100.9168",
     "PythonRuntime":  "pinned-notebooklm-py-0.8.0",
     "NodeRuntime":  "node",
     "TestFiles":  7,
-    "PythonScripts":  36,
+    "PythonScripts":  37,
     "Steps":  [
                   {
                       "Name":  "node-tests",
                       "Passed":  true,
-                      "DurationMs":  6172
+                      "DurationMs":  6771
                   },
                   {
                       "Name":  "python-tests",
                       "Passed":  true,
-                      "DurationMs":  29477
+                      "DurationMs":  31166
                   },
                   {
                       "Name":  "python-compile",
                       "Passed":  true,
-                      "DurationMs":  540
+                      "DurationMs":  567
                   },
                   {
                       "Name":  "powershell-parse",
@@ -31,37 +31,37 @@
                   {
                       "Name":  "runner-integration",
                       "Passed":  true,
-                      "DurationMs":  11863
+                      "DurationMs":  12137
                   },
                   {
                       "Name":  "doctor-integration",
                       "Passed":  true,
-                      "DurationMs":  4136
+                      "DurationMs":  4521
                   },
                   {
                       "Name":  "profile-auth-integration",
                       "Passed":  true,
-                      "DurationMs":  181
+                      "DurationMs":  197
                   },
                   {
                       "Name":  "profile-acl-integration",
                       "Passed":  true,
-                      "DurationMs":  288
+                      "DurationMs":  298
                   },
                   {
                       "Name":  "skill-install-integration",
                       "Passed":  true,
-                      "DurationMs":  923
+                      "DurationMs":  1079
                   },
                   {
                       "Name":  "config-integration",
                       "Passed":  true,
-                      "DurationMs":  786
+                      "DurationMs":  827
                   },
                   {
                       "Name":  "task-scheduler-integration",
                       "Passed":  true,
-                      "DurationMs":  3575
+                      "DurationMs":  3591
                   }
               ]
 }
