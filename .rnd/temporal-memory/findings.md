@@ -63,7 +63,7 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   auth, HTTP 429/503, and timeout failures each return a locally verified
   candidate. The fallback is reported as degraded/local evidence and is never
   counted as raw remote retrieval quality.
-- The live soak is not complete: seven eligible runs and roughly 1.434 hours are evidence of a healthy beginning, not a seven-day certification result.
+- The live soak is not complete: 10 eligible runs and roughly 2.249 hours are evidence of a healthy beginning, not a seven-day certification result.
 
 ## New implementation findings — 2026-08-14
 
@@ -88,3 +88,8 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   derived index. Installing the current skill and rerunning the refresh fixed
   it. Source/installed parity and committed-revision proof are therefore
   release gates, not documentation niceties.
+- The executor now has an explicit adaptive rate-limit controller: classified
+  rate-limit errors consume a bounded event budget, honor bounded
+  `Retry-After`, apply exponential backoff, and fail closed when the budget is
+  exhausted. Deterministic fake-clock burst tests pass; this is covered mock
+  evidence only until a live canary observes the real upstream behavior.

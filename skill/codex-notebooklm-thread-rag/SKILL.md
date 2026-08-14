@@ -78,4 +78,6 @@ provenance, not independent factual claims.
 - Remote outage, expired auth, timeout, HTTP 429, and HTTP 5xx failures may use
   the deterministic local fallback. Label that result as local/degraded; never
   count it as raw remote retrieval quality.
+- Any isolated-replica executor must use an explicit rate-limit classifier and
+  the bounded adaptive limiter; a mock backoff result is not a live canary.
 - Never delete raw Codex sessions, source emails/files, unrelated NotebookLM sources, or auth profiles as part of recovery.

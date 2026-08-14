@@ -11,8 +11,9 @@ from __future__ import annotations
 
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from threading import Event
-from typing import Callable, Generic, Iterable, TypeVar
+from threading import Event, Lock
+import time
+from typing import Callable, Iterable, TypeVar
 
 
 T = TypeVar("T")
@@ -23,6 +24,71 @@ class ExecutorError(RuntimeError):
     def __init__(self, code: str, message: str):
         super().__init__(f"{code}: {message}")
         self.code = code
+
+
+class AdaptiveRateLimiter:
+    """Thread-safe bounded backoff state for explicitly classified rate limits.
+
+    The limiter is transport-neutral. Callers must classify rate-limit errors;
+    ordinary failures never consume the rate-limit budget. ``clock`` and
+    ``sleep`` are injectable so burst behavior can be tested without waiting.
+    """
+
+    def __init__(
+        self,
+        *,
+        base_delay_seconds: float = 1.0,
+        max_delay_seconds: float = 30.0,
+        max_rate_limit_events: int = 3,
+        clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], None] = time.sleep,
+    ) -> None:
+        if base_delay_seconds <= 0 or max_delay_seconds <= 0 or base_delay_seconds > max_delay_seconds:
+            raise ValueError("rate-limit delays must be positive and ordered")
+        if max_rate_limit_events < 1:
+            raise ValueError("rate-limit event budget must be positive")
+        self._base_delay = float(base_delay_seconds)
+        self._max_delay = float(max_delay_seconds)
+        self._max_events = int(max_rate_limit_events)
+        self._clock = clock
+        self._sleep = sleep
+        self._lock = Lock()
+        self._next_allowed = 0.0
+        self._events = 0
+        self._backoff_seconds = 0.0
+
+    def acquire(self) -> None:
+        with self._lock:
+            wait_seconds = max(0.0, self._next_allowed - self._clock())
+        if wait_seconds:
+            self._sleep(wait_seconds)
+
+    def record_rate_limit(self, retry_after_seconds: float | None = None) -> float:
+        with self._lock:
+            if self._events >= self._max_events:
+                raise ExecutorError("RATE_LIMIT_BUDGET_EXCEEDED", "rate-limit backoff budget exhausted")
+            self._events += 1
+            exponential = min(self._max_delay, self._base_delay * (2 ** (self._events - 1)))
+            requested = 0.0 if retry_after_seconds is None else float(retry_after_seconds)
+            if requested < 0:
+                raise ExecutorError("INVALID_RETRY_AFTER", "retry-after delay must not be negative")
+            delay = min(self._max_delay, max(exponential, requested))
+            self._next_allowed = max(self._next_allowed, self._clock() + delay)
+            self._backoff_seconds += delay
+            return delay
+
+    def record_success(self) -> None:
+        with self._lock:
+            self._next_allowed = min(self._next_allowed, self._clock())
+
+    def snapshot(self) -> dict[str, float | int]:
+        with self._lock:
+            return {
+                "rateLimitEvents": self._events,
+                "backoffSeconds": round(self._backoff_seconds, 6),
+                "maxRateLimitEvents": self._max_events,
+                "maxDelaySeconds": self._max_delay,
+            }
 
 
 @dataclass(frozen=True)
@@ -78,6 +144,9 @@ def execute_bounded(
     cancel_event: Event | None = None,
     on_result: Callable[[int, R], None] | None = None,
     retryable: Callable[[Exception], bool] | None = None,
+    rate_limiter: AdaptiveRateLimiter | None = None,
+    rate_limit_classifier: Callable[[Exception], bool] | None = None,
+    retry_after: Callable[[Exception], float | None] | None = None,
 ) -> list[R]:
     """Execute all items or raise; never silently returns a partial batch.
 
@@ -87,6 +156,8 @@ def execute_bounded(
     """
 
     validate_policy(policy)
+    if rate_limiter is not None and rate_limit_classifier is None:
+        raise ExecutorError("RATE_LIMIT_CLASSIFIER_REQUIRED", "rate-limit handling requires an explicit classifier")
     values = list(items)
     if not values:
         return []
@@ -98,8 +169,22 @@ def execute_bounded(
     def invoke(index: int) -> R:
         if cancel_event and cancel_event.is_set():
             raise ExecutorError("CANCELLED", "execution cancelled")
+
+        def attempt() -> R:
+            if rate_limiter is not None:
+                rate_limiter.acquire()
+            try:
+                result = operation(values[index])
+            except Exception as exc:
+                if rate_limiter is not None and rate_limit_classifier is not None and rate_limit_classifier(exc):
+                    rate_limiter.record_rate_limit(retry_after(exc) if retry_after else None)
+                raise
+            if rate_limiter is not None:
+                rate_limiter.record_success()
+            return result
+
         return run_with_retries(
-            lambda: operation(values[index]),
+            attempt,
             max_retries=policy.max_retries,
             retryable=retryable,
         )

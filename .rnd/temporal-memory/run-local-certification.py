@@ -119,6 +119,11 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_timeout_uses_real_local_fallback"],
         },
         {
+            "id": "PAR-019",
+            "label": "bounded adaptive rate-limit mock",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_rate_limiter_applies_bounded_retry_after_backoff", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_rate_limiter_budget_fails_closed", "tests.test_notebooklm_temporal_executor.TemporalExecutorTests.test_executor_rate_limit_burst_is_bounded_and_retried"],
+        },
+        {
             "id": "CTX-011",
             "label": "heuristic user intent extraction with provenance",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_signals_are_conservative_and_point_only_to_included_evidence"],

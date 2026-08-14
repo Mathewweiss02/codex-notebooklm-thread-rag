@@ -35,7 +35,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 43 Node tests and 148 Python tests, plus
+- The full repository gate passed 43 Node tests and 152 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -53,8 +53,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - REL-001 initially found a stale handoff representing 140 threads and 15,990
   events while the current projection state had 144 threads and about 16,050
   events.
-- The wall-clock release monitor is active from the post-REL-001 boundary: 7
-  eligible runs, 0 failed or malformed runs, and 1.434 observed hours. The
+- The wall-clock release monitor is active from the post-REL-001 boundary: 10
+  eligible runs, 0 failed or malformed runs, and 2.249 observed hours. The
   seven-day gate is correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
@@ -70,15 +70,17 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 43 Node tests and 148 Python tests, plus
+- The full repository gate now passes 43 Node tests and 152 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The certification ledger contains 133 rows: 43 retained passes, 78 covered
-  rows, and 12 pending release evidence. The local-certification packet now
-  promotes 35 exact deterministic edge cases, including local fallback across
-  remote failure classes, bounded Windows file-lock retry, process-kill
-  recovery, schema migration, overlapping-refresh serialization, paired
-  rollback, derived-index removal/rebuild, query-error redaction,
-  ambiguous-time disclosure, and redaction-policy mismatch/rebuild behavior.
+- The certification ledger contains 133 rows: 43 retained passes, 79 covered
+  rows, and 11 pending release evidence. The local-certification packet now
+  retains 36 focused cases: 35 promoted exact deterministic edge cases,
+  including local fallback across remote failure classes, bounded Windows
+  file-lock retry, process-kill recovery, schema migration,
+  overlapping-refresh serialization, paired rollback, derived-index
+  removal/rebuild, query-error redaction, ambiguous-time disclosure, and
+  redaction-policy mismatch/rebuild behavior, plus one covered adaptive
+  rate-limit mock. The live rate-limit canary remains open.
   The 145-thread
   incremental benchmark also passes
   no-change P95 92.998 ms and one-thread-append P95 479.113 ms against the

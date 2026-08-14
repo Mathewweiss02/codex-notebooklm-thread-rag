@@ -221,6 +221,26 @@ explicit replica approval.
   handoff/index digests.
 - Installed retrieval doctor passed 40/40 checks; persistent-chat doctor passed
   27/27 checks.
-- The complete repository gate now passes 43 Node and 148 Python tests, with
+- The complete repository gate now passes 43 Node and 152 Python tests, with
   all compile, parser, runner, doctor, auth/ACL, installation, configuration,
   and scheduler integration steps green.
+
+## 2026-08-14 — soak evidence refresh
+
+- Refreshed the read-only wall-clock monitor from the original release
+  boundary. It now retains 10 eligible production runs, zero failed or
+  malformed runs, a maximum observed gap of 0.257 hours, and 2.249 hours of
+  continuous evidence. The 168-hour gate remains open.
+
+## 2026-08-14 — rate-limit control
+
+- Added a thread-safe adaptive rate-limit controller to the bounded executor.
+  It requires an explicit classifier, honors bounded `Retry-After`, applies
+  capped exponential backoff, and stops after a finite rate-limit event
+  budget. Fake-clock burst, retry, invalid-classifier, and budget-exhaustion
+  tests pass.
+- Retained the deterministic rate-limit mock as covered evidence for PAR-019;
+  the upstream live canary is intentionally not promoted from mock behavior.
+- Reinstalled the skill and reran the complete repository gate: 43 Node and
+  152 Python tests passed, alongside compile, parser, runner, doctor, auth/ACL,
+  installation, configuration, and scheduler integrations.

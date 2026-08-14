@@ -9,6 +9,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from notebooklm_temporal_executor import (  # noqa: E402
+    AdaptiveRateLimiter,
     ExecutorError,
     ExecutorPolicy,
     execute_bounded,
@@ -18,6 +19,85 @@ from notebooklm_temporal_executor import (  # noqa: E402
 
 
 class TemporalExecutorTests(unittest.TestCase):
+    def test_rate_limiter_applies_bounded_retry_after_backoff(self) -> None:
+        now = 0.0
+        sleeps: list[float] = []
+
+        def clock() -> float:
+            return now
+
+        def sleep(seconds: float) -> None:
+            nonlocal now
+            sleeps.append(seconds)
+            now += seconds
+
+        limiter = AdaptiveRateLimiter(
+            base_delay_seconds=1,
+            max_delay_seconds=4,
+            max_rate_limit_events=2,
+            clock=clock,
+            sleep=sleep,
+        )
+        self.assertEqual(limiter.record_rate_limit(3), 3)
+        limiter.acquire()
+        self.assertEqual(sleeps, [3])
+        self.assertEqual(limiter.record_rate_limit(), 2)
+        self.assertEqual(limiter.snapshot()["rateLimitEvents"], 2)
+        self.assertEqual(limiter.snapshot()["backoffSeconds"], 5)
+
+    def test_rate_limiter_budget_fails_closed(self) -> None:
+        limiter = AdaptiveRateLimiter(max_rate_limit_events=1, clock=lambda: 0.0, sleep=lambda _seconds: None)
+        limiter.record_rate_limit()
+        with self.assertRaises(ExecutorError) as caught:
+            limiter.record_rate_limit()
+        self.assertEqual(caught.exception.code, "RATE_LIMIT_BUDGET_EXCEEDED")
+
+    def test_executor_rate_limit_burst_is_bounded_and_retried(self) -> None:
+        now = 0.0
+        sleeps: list[float] = []
+        attempts = 0
+
+        def sleep(seconds: float) -> None:
+            nonlocal now
+            sleeps.append(seconds)
+            now += seconds
+
+        limiter = AdaptiveRateLimiter(clock=lambda: now, sleep=sleep, max_rate_limit_events=1)
+
+        class RateLimited(RuntimeError):
+            retry_after = 2.5
+
+        def operation(_value: int) -> str:
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise RateLimited("burst")
+            return "ok"
+
+        result = execute_bounded(
+            [1],
+            operation,
+            policy=ExecutorPolicy(max_retries=1),
+            retryable=lambda error: isinstance(error, RateLimited),
+            rate_limiter=limiter,
+            rate_limit_classifier=lambda error: isinstance(error, RateLimited),
+            retry_after=lambda error: error.retry_after,
+        )
+        self.assertEqual(result, ["ok"])
+        self.assertEqual(attempts, 2)
+        self.assertEqual(sleeps, [2.5])
+        self.assertEqual(limiter.snapshot()["rateLimitEvents"], 1)
+
+    def test_executor_rejects_implicit_rate_limit_classifier(self) -> None:
+        with self.assertRaises(ExecutorError) as caught:
+            execute_bounded(
+                [1],
+                lambda value: value,
+                policy=ExecutorPolicy(),
+                rate_limiter=AdaptiveRateLimiter(),
+            )
+        self.assertEqual(caught.exception.code, "RATE_LIMIT_CLASSIFIER_REQUIRED")
+
     def test_safe_default_is_sequential_and_preserves_order(self) -> None:
         observed: list[int] = []
         result = execute_bounded(

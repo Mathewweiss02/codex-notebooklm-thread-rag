@@ -115,6 +115,13 @@ raw source/thread identifiers are available only with the explicit
 source-scoped synthesis experiment retain the identifiers only inside the
 local verification boundary.
 
+Any future isolated-replica executor must provide an explicit rate-limit
+classifier. The bounded executor's adaptive limiter honors a capped
+`Retry-After` value, applies capped exponential backoff, and stops after a
+finite rate-limit event budget. Ordinary failures are never silently treated as
+throttling, and deterministic mock evidence does not substitute for a live
+canary.
+
 Verify locally:
 
 ```powershell

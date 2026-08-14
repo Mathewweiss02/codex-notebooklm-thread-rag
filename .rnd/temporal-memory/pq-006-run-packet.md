@@ -20,7 +20,9 @@ consume NotebookLM source/notebook quota, and create cleanup obligations.
 - Replica source synchronization is isolated from the persistent chat notebook.
 - Each worker has a distinct notebook ID and a verified current source map.
 - The executor has a bounded worker count, cancellation, per-worker timeout,
-  circuit breaker, and aggregate-only report.
+  circuit breaker, explicit adaptive rate-limit backoff, and aggregate-only
+  report. Rate-limit classification must be supplied by the transport adapter;
+  ordinary failures cannot silently consume the rate-limit budget.
 - A one-worker control run passes before any two-worker run.
 - A failure at any level stops the ramp and preserves the last-known-good
   topology.
