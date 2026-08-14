@@ -265,6 +265,27 @@ async def main() -> int:
                             "firstAttempt": attempt,
                         })
                         candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
+                    if len(by_thread) >= args.min_semantic_candidates and attempt < args.max_semantic_attempts:
+                        diagnostic_candidates = [
+                            {
+                                "threadId": item["threadId"],
+                                "title": state["threads"].get(item["threadId"], {}).get("title"),
+                                "citationRank": item["citationRank"],
+                            }
+                            for item in sorted(
+                                by_thread.values(),
+                                key=lambda item: (item["citationRank"], item["firstAttempt"], item["threadId"]),
+                            )
+                        ]
+                        _, diagnostic_verification = local_rerank_candidates(
+                            safe_query,
+                            diagnostic_candidates,
+                            node_path=args.node,
+                            timeout_seconds=args.timeout,
+                        )
+                        if diagnostic_verification.get("abstained"):
+                            record.setdefault("retryReasons", []).append("local-verification-abstention")
+                            continue
                     if len(by_thread) >= args.min_semantic_candidates:
                         break
                 record["sourceScopeValid"] = out_of_scope_references == 0

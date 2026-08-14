@@ -656,6 +656,7 @@ async def search_instance(
                 "sourceCount": len(selected_source_ids),
                 "localElapsedMs": local_surface.get("elapsedMs"),
                 "selectedSourceIds": selected_source_ids,
+                "retryReasons": [],
             }
         else:
             selected_source_ids = []
@@ -702,6 +703,26 @@ async def search_instance(
                 candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
                 candidate["attempts"].append(attempt)
             if len(by_thread) >= min_semantic_candidates:
+                if source_scope_width is not None and attempt < max_semantic_attempts:
+                    diagnostic_candidates = [
+                        {
+                            "threadId": item["threadId"],
+                            "title": item.get("title"),
+                            "citationRank": item["citationRank"],
+                        }
+                        for item in sorted(
+                            by_thread.values(),
+                            key=lambda item: (item["citationRank"], item["attempts"][0], item["threadId"]),
+                        )
+                    ]
+                    _, diagnostic_verification = local_rerank_candidates(
+                        query,
+                        diagnostic_candidates,
+                        node_path=node_path,
+                    )
+                    if diagnostic_verification.get("abstained"):
+                        source_scope["retryReasons"].append("local-verification-abstention")
+                        continue
                 break
         if source_scope is not None:
             source_scope["outOfScopeReferenceCount"] = out_of_scope_reference_count
