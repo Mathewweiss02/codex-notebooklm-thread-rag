@@ -258,3 +258,16 @@ explicit replica approval.
 - OPS-006 remains pending because the open draft PR's latest GitHub check is
   for an older commit; current-commit CI proof still requires an intentional
   push or equivalent external CI run.
+
+## 2026-08-14 — resource-observable runner
+
+- Added aggregate working-set, private-memory, handle-count, and processor-time
+  samples to each new runner report. Child output, process paths, notebook IDs,
+  prompts, and answers remain excluded.
+- The runner integration now verifies the resource summary, and the full gate
+  passed again at commit `eb62c608dbd2b4a58911c8a6bc1f7b4d560b947d` with 43
+  Node tests, 152 Python tests, and all integration steps green.
+- Reinstalled the skill so the live local runtime contains the new runner.
+  The release soak boundary must be re-established from this installed
+  revision; PERF-011 and OPS-005 remain pending until the new reports show a
+  clean wall-clock window.
