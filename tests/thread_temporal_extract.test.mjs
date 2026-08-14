@@ -23,7 +23,15 @@ async function makeManifest(root, threads) {
   for (const [index, thread] of threads.entries()) {
     const fileName = `session-${index}.jsonl`;
     await writeFile(join(root, fileName), `${thread.lines.join("\n")}\n`, "utf8");
-    rows.push({ id: thread.id, path: fileName, updatedAt: 1786507200 + index, archived: Boolean(thread.archived), source: thread.source || "appServer" });
+    rows.push({
+      id: thread.id,
+      path: fileName,
+      updatedAt: 1786507200 + index,
+      archived: Boolean(thread.archived),
+      source: thread.source || "appServer",
+      ...(thread.workspaceLabel ? { workspaceLabel: thread.workspaceLabel } : {}),
+      ...(thread.workspaceHash ? { workspaceHash: thread.workspaceHash } : {}),
+    });
   }
   const manifest = join(root, "manifest.json");
   await writeFile(manifest, JSON.stringify({ threads: rows }), "utf8");
@@ -83,6 +91,27 @@ test("does not publish a destination after a missing source failure", async () =
     const out = join(root, "handoff.jsonl");
     await assert.rejects(runExtractor(manifest, out), /session-path-missing:missing/);
     assert.equal(existsSync(out), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("carries path-free workspace metadata into the temporal handoff", async () => {
+  const root = await mkdtemp(join(tmpdir(), "thread-temporal-metadata-"));
+  try {
+    const manifest = await makeManifest(root, [{
+      id: "metadata-thread",
+      workspaceLabel: "Hermes",
+      workspaceHash: "abc123",
+      lines: [message("2026-08-12T04:00:00Z", "user", "workspace metadata fixture")],
+    }]);
+    const out = join(root, "handoff.jsonl");
+    await runExtractor(manifest, out);
+    const records = (await readFile(out, "utf8")).trim().split(/\r?\n/).map((line) => JSON.parse(line));
+    assert.deepEqual(records[0].threadMetadata, {
+      "metadata-thread": { workspaceLabel: "Hermes", workspaceHash: "abc123", archived: false, source: "appServer" },
+    });
+    assert.ok(!JSON.stringify(records[0]).includes(root));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

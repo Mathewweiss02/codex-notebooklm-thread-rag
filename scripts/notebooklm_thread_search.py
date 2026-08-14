@@ -390,6 +390,95 @@ def local_rerank_candidates(
     }
 
 
+def local_fallback_candidates(
+    query: str,
+    limit: int,
+    *,
+    node_path: str | None = None,
+    codex_root: Path | None = None,
+    timeout_seconds: int = 240,
+) -> dict[str, Any]:
+    """Return deterministic local candidates when NotebookLM cannot answer.
+
+    This is deliberately a separate local-search contract. It does not invent
+    semantic citations, does not expose excerpts in the remote-shaped report,
+    and only promotes results that pass the local searcher's normal score gate.
+    """
+    if limit < 1:
+        raise ValueError("local fallback limit must be positive")
+    node = node_path or shutil.which("node")
+    if not node:
+        raise RuntimeError("local fallback is unavailable because Node.js was not found")
+    root = (codex_root or Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")).resolve()
+    safe_query, _ = sanitize_query(query)
+    command = [
+        node,
+        str(SCRIPT_DIR / "thread_search.mjs"),
+        "--query",
+        safe_query,
+        "--limit",
+        str(limit),
+        "--min-score",
+        "18",
+        "--no-hydrate",
+        "--include-current",
+        "--include-subagents",
+        "--json",
+    ]
+    roots = [root / "sessions", root / "archived_sessions"]
+    for search_root in roots:
+        if search_root.is_dir():
+            command.extend(["--root", str(search_root)])
+    try:
+        completed = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+            shell=False,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("local fallback runtime could not be started") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError("local fallback exceeded its bounded timeout") from exc
+    if completed.returncode != 0:
+        raise RuntimeError("local fallback search failed")
+    try:
+        payload = json.loads(completed.stdout.lstrip("\ufeff"))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("local fallback returned malformed JSON") from exc
+    candidates: list[dict[str, Any]] = []
+    for rank, result in enumerate(payload.get("results") or [], 1):
+        thread_id = str(result.get("id") or "")
+        if not thread_id:
+            continue
+        candidates.append({
+            "threadId": thread_id,
+            "title": result.get("name"),
+            "localRank": rank,
+            "localScore": result.get("score"),
+            "localCoverage": result.get("coverage"),
+            "matchedConcepts": result.get("matchedConcepts") or [],
+            "firstMatchAt": result.get("firstMatchAt"),
+            "lastMatchAt": result.get("lastMatchAt"),
+            "semanticRank": None,
+            "finalRank": rank,
+            "locallyVerified": True,
+            "localFallback": True,
+        })
+    return {
+        "used": True,
+        "engine": (payload.get("stats") or {}).get("engine"),
+        "elapsedMs": (payload.get("stats") or {}).get("elapsedMs"),
+        "filesSearched": (payload.get("stats") or {}).get("filesSearched"),
+        "candidateCount": len(candidates),
+        "candidates": candidates,
+    }
+
+
 def discover_configs(explicit: list[Path], codex_root: Path) -> list[Path]:
     if explicit:
         return [path.resolve() for path in explicit]
@@ -614,7 +703,27 @@ async def main() -> int:
             merged[key] = {**candidate, "device": instance["device"], "score": round(score, 6)}
     semantic_candidates = sorted(merged.values(), key=lambda item: (-item["score"], item["device"], item["threadId"]))
     report["semanticCandidates"] = semantic_candidates
-    if args.no_local_rerank:
+    if not args.no_local_rerank and not semantic_candidates:
+        try:
+            fallback = local_fallback_candidates(
+                safe_query,
+                args.limit,
+                node_path=args.node,
+                codex_root=args.codex_root,
+            )
+            report["localFallback"] = {key: value for key, value in fallback.items() if key != "candidates"}
+            report["candidates"] = fallback["candidates"]
+            report["localVerification"] = {
+                "attempted": True,
+                "mode": "local-fallback",
+                "verifiedCount": len(fallback["candidates"]),
+                "abstained": not bool(fallback["candidates"]),
+            }
+        except Exception as error:
+            report["candidates"] = []
+            report["localFallback"] = {"used": False, "error": f"{type(error).__name__}: local fallback unavailable"}
+            report["localVerification"] = {"attempted": True, "mode": "local-fallback", "error": "local fallback unavailable"}
+    elif args.no_local_rerank:
         report["candidates"] = [{**item, "semanticRank": rank, "finalRank": rank, "locallyVerified": False} for rank, item in enumerate(semantic_candidates, 1)]
         report["localVerification"] = {"attempted": False, "reason": "explicitly-disabled"}
     else:
@@ -634,7 +743,8 @@ async def main() -> int:
     atomic_json(output, report)
     print(json.dumps({"querySha256": query_hash, "instances": len(report["instances"]), "errors": report["errors"], "candidates": report["candidates"], "report": str(output)}, indent=2))
     usable = bool(report["candidates"]) if args.no_local_rerank else any(item.get("locallyVerified") for item in report["candidates"])
-    return 0 if report["instances"] and usable else 1
+    remote_or_fallback = bool(report["instances"]) or bool((report.get("localFallback") or {}).get("used"))
+    return 0 if remote_or_fallback and usable else 1
 
 
 if __name__ == "__main__":

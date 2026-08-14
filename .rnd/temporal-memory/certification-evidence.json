@@ -241,9 +241,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-007": {
       "status": "pass",
@@ -252,9 +252,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-008": {
       "status": "pass",
@@ -263,9 +263,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-009": {
       "status": "pass",
@@ -274,9 +274,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-010": {
       "status": "covered",
@@ -305,9 +305,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-013": {
       "status": "covered",
@@ -336,9 +336,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-016": {
       "status": "pass",
@@ -347,9 +347,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-017": {
       "status": "covered",
@@ -368,9 +368,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-019": {
       "status": "pass",
@@ -379,9 +379,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-020": {
       "status": "pass",
@@ -390,9 +390,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-021": {
       "status": "pass",
@@ -401,9 +401,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-022": {
       "status": "pass",
@@ -412,9 +412,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-023": {
       "status": "pass",
@@ -423,16 +423,20 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-024": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Schema migration",
       "testLevel": "Migration suite",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "IDX-025": {
       "status": "pass",
@@ -441,9 +445,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-001": {
       "status": "covered",
@@ -546,39 +550,59 @@
       "executedAt": "2026-08-14T09:59:27Z"
     },
     "CTX-011": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "User intent extraction",
       "testLevel": "Factuality suite",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-012": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Completion extraction",
       "testLevel": "Factuality suite",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-013": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Unresolved item extraction",
       "testLevel": "Factuality suite",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-014": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Artifact/path extraction",
       "testLevel": "Security + factuality",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-015": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Project filter",
       "testLevel": "Integration",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "CTX-016": {
       "status": "covered",
@@ -677,9 +701,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-006": {
       "status": "covered",
@@ -698,9 +722,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-008": {
       "status": "pass",
@@ -709,9 +733,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-009": {
       "status": "pass",
@@ -720,37 +744,53 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-010": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Remote outage",
       "testLevel": "Failure injection",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-011": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Auth expired",
       "testLevel": "Live recovery",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-012": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "429/5xx",
       "testLevel": "Mock + live canary",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-013": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Timeout",
       "testLevel": "Failure injection",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "NLM-014": {
       "status": "covered",
@@ -966,11 +1006,15 @@
       "executedAt": "2026-08-14T09:59:50Z"
     },
     "PAR-022": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Scheduler overlap",
       "testLevel": "Integration + soak",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "PERF-001": {
       "status": "covered",
@@ -1113,9 +1157,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "SEC-003": {
       "status": "covered",
@@ -1144,9 +1188,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "SEC-006": {
       "status": "pass",
@@ -1155,9 +1199,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "SEC-007": {
       "status": "pass",
@@ -1166,9 +1210,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "SEC-008": {
       "status": "pass",
@@ -1208,9 +1252,9 @@
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json"
       ],
-      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
-      "executedAt": "2026-08-14T11:50:48Z",
-      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "UX-004": {
       "status": "covered",
@@ -1273,11 +1317,15 @@
       "executedAt": "2026-08-14T09:59:56Z"
     },
     "OPS-004": {
-      "status": "pending",
+      "status": "pass",
       "scenario": "Rollback",
       "testLevel": "Release rehearsal",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic packet passed after schema-table fail-closed hardening; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T12:53:24Z",
+      "resultDigest": "9d3631563456ec0d1d8a1d92226c322b205fe5382725aeba7665ae8f0a17682d"
     },
     "OPS-005": {
       "status": "pending",
@@ -1294,5 +1342,5 @@
       "notes": "No retained row-specific execution result yet."
     }
   },
-  "updatedAt": "2026-08-14T11:50:48Z"
+  "updatedAt": "2026-08-14T12:53:25Z"
 }

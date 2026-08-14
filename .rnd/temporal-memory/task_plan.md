@@ -1,6 +1,6 @@
 # Temporal Memory and Parallel NotebookLM Certification Plan
 
-Status: execution in progress (`TM-000` through `VAL-001`, PQ-001 through PQ-005, PERF/RES/SEC/OPS, and REL-001 complete; REL-002 active)
+Status: certification program in progress (deterministic local release lane complete; REL-002 active; live/context/concurrency/soak gates remain open)
 
 Created: 2026-08-14
 
@@ -18,6 +18,20 @@ Build a clean, local-authority temporal memory layer over Codex tasks so a fresh
 - Load enough context from that period for us to continue the work now.
 
 The same system must retain the existing semantic task-finding capability and add an evidence-gated route for asking multiple NotebookLM questions concurrently or in packed form. Faster execution is accepted only when it preserves source identity, citation alignment, answer quality, conversation isolation, account health, and local verification.
+
+### Current evidence snapshot — 2026-08-14
+
+This is the starting point for the remaining work, not a certification claim:
+
+- The latest full repository gate is green at 43 Node tests and 148 Python tests, with compilation, PowerShell parsing, runner, doctor, auth/ACL, install, configuration, and scheduler integration checks passing.
+- The local exact-certification packet contains 35 deterministic cases. The 133-row matrix currently records 43 `pass`, 78 `covered`, 12 `pending`, and zero `fail` or `blocked` rows. Covered rows remain distinct from retained passes; release is still open.
+- The live temporal index contains 16,175 events, 16,175 source references, 145 path-free thread metadata records, and zero quarantines at the latest no-op verification. Current source-map verification covers 145 requested threads across 147 ready source parts with no missing, mismatched, stale, or untracked source findings.
+- The post-boundary wall-clock monitor has seven eligible runs, zero failed runs, and about 1.434 observed hours; the 168-hour soak gate is open.
+- NotebookLM transport and source-scope checks have passed in the canary lane, but the local claim verifier intentionally promoted zero of four remote answers because citation evidence did not match. Simulated remote outage, expired-auth, HTTP 429/503, and timeout paths now return locally verified fallback candidates. Local evidence remains authoritative.
+- Same-notebook fan-out is rejected as unsafe. No isolated notebook replicas have been created. Replica concurrency remains explicitly approval-gated.
+- Temporal context packs now carry conservative heuristic signals with event-level provenance and support exact path-free project filtering; missing project metadata fails closed. Schema v1 migration, overlapping-refresh serialization, and verified paired rollback are covered by retained tests.
+
+The working tree is therefore treated as an active development state, not a releasable state.
 
 ## 2. Honest definition of certified
 
@@ -377,6 +391,17 @@ Release is blocked by any unresolved required finding, flaky gate, unexplained d
 - Require three consecutive frozen passing runs and one fresh unspent holdout after the last policy change.
 - Add adversarial cases after release without deleting prior failures.
 
+### Required score separation
+
+Every benchmark report must keep these quantities separate:
+
+1. **Raw remote Top-1** — the first NotebookLM candidate or answer produced by the tested remote path, before local recovery.
+2. **Local candidate Top-1** — the first candidate selected by the deterministic local index/search path.
+3. **Verified accepted result** — an answer that survives source, timestamp, identity, citation, and conversation-state verification.
+4. **Fallback/degraded result** — a truthful local answer or abstention when the remote path is unavailable or untrustworthy.
+
+No fallback result may be counted as raw remote retrieval quality. A higher score is valid only when the test case, oracle, corpus fingerprint, query contract, and verification rules were frozen before the run.
+
 ## 9. Defect policy
 
 | Severity | Meaning | Certification effect |
@@ -406,6 +431,15 @@ Before declaring the program complete, produce:
 - rollback package and recovery rehearsal;
 - concise installed skill and operator runbook.
 
-## 11. Current next step
+## 11. Current next step and ordered finish sequence
 
-`TM-000` through `VAL-001`, `PQ-001` through `PQ-005`, PERF-001, RES-001, SEC-001, OPS-001, and REL-001 are complete: the current suite, aggregate live inventory, local latency baseline, synthetic temporal oracle, approved `temporal-memory-v1` contracts, accepted ADR decisions, parity-tested extractor/handoff, independent oracle, crash-safe SQLite index, DST-safe resolver, selected segmentation policy, tested context packer, `temporal-cli-v1` entrypoint, installed-skill routing contract, live source mapping, claim verifier, bounded executor, and retrieval runner canary are captured in `.rnd/temporal-memory`. The active item is `REL-002`: complete the soak and rollback evidence before the final holdout and release audit.
+The remaining work is deliberately sequential. A later phase cannot be used to hide an earlier failed gate.
+
+1. **Close the local correctness gaps.** Complete the deterministic local closure: remote outage/auth/429/5xx/timeout fallback, conservative intent/completion/unresolved/artifact/decision signals, path-free project filtering, schema migration, scheduler-overlap serialization, and paired rollback are now retained evidence. Remaining work is the live soak and committed-revision proof.
+2. **Finish the certification matrix.** Map each case to an executable test or signed inspection, with independent expected identities and provenance. Re-run all 133 rows after each material policy change. Keep `pass`, `covered`, `pending`, `fail`, and `blocked` distinct.
+3. **Seal the benchmark protocol.** Separate development, validation, and external/sealed holdout sets. Report raw remote Top-1, local Top-1, verified acceptance, fallback, abstention, latency, retries, and resource cost separately. Require three frozen passing runs plus one unspent holdout after the final policy change.
+4. **Prove efficiency locally.** Benchmark warm/cold exact selection, context packing, incremental refresh, 2x/5x/10x replay, memory, CPU, I/O, index growth, retry cost, and idle behavior. Optimize only after profiling, and preserve an evidence trail for every improvement.
+5. **Run the parallel-query experiment under isolation.** First test packed asks and explicit conversation IDs without destructive reset. If neither is safe, request explicit approval for disposable isolated notebook replicas, validate one replica, then ramp 1 → 2 → 4 → 8. Advance to 16, 32, or 50 only after repeated quality, isolation, rate-limit, memory, cancellation, and account-health passes. Fifty is an experiment ceiling, never a default.
+6. **Operate and certify.** Complete the 168-hour soak (extend to 14 days after any scheduler/index/concurrency defect), prove console-free scheduling and overlap suppression, rehearse rollback and rebuild, run a fresh-task end-to-end test from the committed revision, perform the final dirty-tree/dependency/source reconciliation audit, and issue a release certificate listing residual risks.
+
+The release decision is binary: all required gates pass with evidence, or the system remains explicitly uncertified and uses the safe local/degraded path. “Zero bugs” is represented honestly as zero known P0–P2 defects and zero failed required gates; unknown defects cannot be mathematically ruled out.

@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import importlib.util
 import json
+import shutil
+import sys
 import tempfile
 import unittest
 from datetime import UTC, datetime
@@ -117,6 +119,95 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(result["transportMaxRetries"], 0)
         self.assertEqual(factory.call_args.kwargs["rate_limit_max_retries"], 0)
         self.assertEqual(factory.call_args.kwargs["server_error_max_retries"], 0)
+
+    def run_local_fallback_case(self, failure: Exception):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("Node.js is required for the local fallback integration")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            session = root / "sessions" / "2026" / "08" / "fallback-thread.jsonl"
+            session.parent.mkdir(parents=True)
+            thread_id = "44444444-4444-4444-8444-444444444444"
+            rows = [
+                {
+                    "type": "session_meta",
+                    "payload": {"id": thread_id, "session_id": thread_id, "cwd": "C:\\Fallback\\Project", "source": "vscode"},
+                    "timestamp": "2026-08-14T12:00:00.000Z",
+                },
+                {
+                    "timestamp": "2026-08-14T12:01:00.000Z",
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"type": "input_text", "text": "Investigate the temporal recovery fallback path."}],
+                    },
+                },
+            ]
+            session.write_text("".join(json.dumps(row, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8")
+            config = root / "retrieval.json"
+            projection = root / "projection"
+            projection.mkdir()
+            (projection / "state.json").write_text(
+                json.dumps({"policyVersion": search.REQUIRED_POLICY, "threads": {thread_id: {"revision": 1, "uploadRevision": 1, "parts": [{"part": 1, "sourceId": "source-a", "title": "Fallback"}]}}}),
+                encoding="utf-8",
+            )
+            (projection / "runner_state.json").write_text(
+                json.dumps({"LastSuccessAt": datetime.now(UTC).isoformat()}), encoding="utf-8"
+            )
+            config.write_text(
+                json.dumps({
+                    "Profile": "test",
+                    "NotebookId": "notebook",
+                    "NotebookRole": "retrieval",
+                    "DisposableSearchChat": True,
+                    "Device": "fallback-device",
+                    "ProjectionRoot": str(projection),
+                }),
+                encoding="utf-8",
+            )
+            output = root / "search.json"
+            argv = [
+                "thread_search.py",
+                "temporal recovery",
+                "--config",
+                str(config),
+                "--codex-root",
+                str(root),
+                "--node",
+                node,
+                "--out",
+                str(output),
+            ]
+            with patch.object(search, "search_instance", side_effect=failure), patch.object(sys, "argv", argv):
+                exit_code = asyncio.run(search.main())
+            report = json.loads(output.read_text(encoding="utf-8"))
+            return exit_code, report
+
+    def assert_local_fallback(self, failure: Exception):
+        exit_code, report = self.run_local_fallback_case(failure)
+        self.assertEqual(exit_code, 0, report)
+        self.assertEqual(report["localVerification"]["mode"], "local-fallback")
+        self.assertEqual(report["candidates"][0]["threadId"], "44444444-4444-4444-8444-444444444444")
+        self.assertTrue(report["candidates"][0]["localFallback"])
+        self.assertEqual(report["localFallback"]["candidateCount"], 1)
+        self.assertTrue(report["errors"])
+        self.assertIn(type(failure).__name__, report["errors"][0]["error"])
+
+    def test_remote_outage_uses_real_local_fallback(self):
+        self.assert_local_fallback(RuntimeError("simulated remote outage"))
+
+    def test_expired_auth_uses_real_local_fallback(self):
+        self.assert_local_fallback(PermissionError("simulated expired auth"))
+
+    def test_rate_limit_and_server_error_use_real_local_fallback(self):
+        for failure in (RuntimeError("simulated HTTP 429"), RuntimeError("simulated HTTP 503")):
+            with self.subTest(error=str(failure)):
+                self.assert_local_fallback(failure)
+
+    def test_timeout_uses_real_local_fallback(self):
+        self.assert_local_fallback(TimeoutError("simulated timeout"))
 
     def test_local_authority_can_promote_a_second_semantic_candidate(self):
         candidates = [

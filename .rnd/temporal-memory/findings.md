@@ -51,3 +51,40 @@
 ## Tooling note
 
 Sol Advisor orchestration could not run during the preceding architecture pass because its Windows plugin data directory was reported by Bun as POSIX mode `0666`, while the plugin requires `0700` and fails closed. No advisor verdict was fabricated or substituted. Plugin repair is separate from this product plan.
+
+## Current certification findings — 2026-08-14
+
+- The local temporal architecture is now strong enough for a controlled certification campaign: canonical message-level timestamps, a crash-safe SQLite index, DST-safe range resolution, hierarchical context packing, source-map verification, local claim verification, and a local-first CLI/skill route are all exercised by deterministic tests.
+- The most important remaining correctness distinction is between transport success and accepted truth. NotebookLM can answer successfully while still failing local citation/evidence verification; such answers must remain abstentions rather than benchmark wins.
+- The system should support broad-period questions by exact local enumeration first, then context packing, then optional NotebookLM synthesis. Daily/weekly duplicated NotebookLM corpora are not the default architecture because they add freshness and reconciliation cost.
+- Same-notebook parallel asks are not a safe concurrency primitive. The plan must test packed prompts and explicit conversation IDs first, then use disposable isolated notebook replicas only after explicit approval and one-at-a-time validation.
+- Parallelism is valuable only as quality-adjusted throughput. The scorecard must include correctness, citation alignment, isolation, retries, rate-limit behavior, cancellation, memory, CPU, and wall time; a faster but cross-talk-prone route is a failed experiment.
+- The local fallback is now retained evidence: simulated remote outage, expired
+  auth, HTTP 429/503, and timeout failures each return a locally verified
+  candidate. The fallback is reported as degraded/local evidence and is never
+  counted as raw remote retrieval quality.
+- The live soak is not complete: seven eligible runs and roughly 1.434 hours are evidence of a healthy beginning, not a seven-day certification result.
+
+## New implementation findings — 2026-08-14
+
+- Context signals are useful only as navigation metadata. Intent, completion,
+  unresolved, artifact, and decision labels are conservative heuristics with
+  event IDs, role, timestamp, digest, and source references; they are not
+  accepted as independent factual summaries.
+- Project filtering is safe when it uses path-free workspace labels or hashes
+  carried in the manifest. Missing or stale metadata fails closed rather than
+  silently broadening the query.
+- Temporal index schema v1 can migrate in place to v2 with a recorded migration
+  row. Unsupported versions, contract drift, and redaction-policy drift still
+  require an explicit rebuild and preserve the last-good derived state.
+- Refresh-level overlap requires its own lock in addition to SQLite writer
+  locking. Without it, two valid refreshes could promote a handoff and index
+  from different generations even though each artifact was individually valid.
+- Rollback must treat the handoff and SQLite index as one verified generation.
+  The rehearsal restores a matched previous pair and leaves canonical session
+  state untouched.
+- A real deployment-order defect was observed: a scheduled task using an older
+  globally installed skill ran after a source refresh and restored a schema-v1
+  derived index. Installing the current skill and rerunning the refresh fixed
+  it. Source/installed parity and committed-revision proof are therefore
+  release gates, not documentation niceties.

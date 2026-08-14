@@ -88,6 +88,19 @@ Use separate configs and projection roots for `NotebookRole=retrieval` and `Note
 
 The runner's temporal step uses the pinned Node and Python runtimes, copies each canonical session to a stable staging area, extracts timestamped visible messages, builds the derived SQLite index transactionally, and verifies handoff/index digests after promotion. The production handoff keeps one `.previous` copy for recovery. The current index is a derived cache: rebuilding or removing it never removes canonical Codex sessions.
 
+Refresh promotion is serialized by a recoverable SQLite lock around the staged
+handoff/index pair, so overlapping runs cannot publish different generations
+as a mixed pair. Schema version 1 migrates in place to version 2 with a
+migration ledger. To inspect or restore the previous verified pair:
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\thread_temporal_rollback.py" --root "$env:USERPROFILE\.codex\thread-rag\temporal" --dry-run
+& "PYTHON_PATH" "$Skill\scripts\thread_temporal_rollback.py" --root "$env:USERPROFILE\.codex\thread-rag\temporal"
+```
+
+Rollback changes only derived temporal artifacts and verifies matching handoff
+and index digests; it does not modify canonical session data.
+
 ## Semantic discovery
 
 ```powershell
@@ -112,7 +125,8 @@ node "$Skill\scripts\thread_origin.mjs" --thread "THREAD_ID" --query "original i
 
 For broad date/time requests use the temporal CLI before any semantic ask:
 `when`, `recap`, `context`, `find`, and `compare` are local-only exact-time
-commands. The older `thread_search.mjs --today` path remains a low-level
+commands. Pass `--project PROJECT_LABEL_OR_HASH` for an exact workspace filter.
+The older `thread_search.mjs --today` path remains a low-level
 diagnostic/focused search surface, not the primary temporal route.
 
 Benchmark a recorded live run without paying for another NotebookLM pass:
@@ -147,3 +161,6 @@ Review the report before `--apply` or setting `RetentionApply=true`. Current par
 - Temporal index failure: inspect the aggregate refresh code, verify the last-good SQLite index, and rerun the documented refresh after the projection source is stable. Do not delete canonical sessions or manually replace the handoff.
 - Repository relocation: registered configs point to globally installed skill scripts, not the clone. Re-run the installer to upgrade the skill.
 - NotebookLM outage: use `thread_search.mjs` and `thread_origin.mjs` locally.
+- NotebookLM outage, expired auth, timeout, HTTP 429, or HTTP 5xx: the semantic
+  wrapper may return a locally verified degraded candidate. Keep it labeled
+  local/degraded and do not count it as raw remote retrieval quality.

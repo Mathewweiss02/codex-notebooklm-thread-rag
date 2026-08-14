@@ -168,3 +168,59 @@ budget in about 831 ms. Failure-injection, ACL/redaction, dependency audit,
 live doctors, scheduler console-free checks, and the 108-test full gate passed.
 The next safe gate is REL-001 shadow/canary validation; PQ-006 remains gated on
 explicit replica approval.
+
+## 2026-08-14 — certification plan refreshed
+
+- Reconciled the durable plan with the latest evidence: 42 Node tests and 135
+  Python tests were green at the last full run; the local certification packet
+  has 23 exact deterministic cases; the matrix is 31 pass, 78 covered, 24
+  pending, and zero fail/blocked rows.
+- Recorded current live boundaries: 16,141 temporal events, 16,141 source
+  references, zero quarantines, 145 requested source-mapped threads across 147
+  ready parts, and seven post-boundary soak runs covering about 1.434 hours.
+- Reaffirmed that local evidence is authoritative. The last remote canary had
+  successful transport and scope checks but zero promoted answers because the
+  verifier found unmatched citation evidence.
+- Added the finish sequence for context-signal extraction, project filtering,
+  migration and failure-injection coverage, benchmark sealing, efficiency
+  profiling, isolated parallel-query experiments, soak, rollback, and final
+  release certification. No live replicas or parallel load were launched in
+  this planning-only pass.
+- A focused local-fallback test was previously attempted but its output was
+  truncated before the result could be established. The next action is a
+  bounded rerun; no certification row will be marked from that attempt.
+- Planning-audit tooling notes: one recursive file discovery timed out after
+  returning the existing planning files, and one progress read used the wrong
+  working directory before being corrected. Neither affected product state.
+
+## 2026-08-14 — local correctness closure
+
+- Added deterministic local fallback for simulated remote outage, expired auth,
+  HTTP 429/503, and timeout failures. Four fallback cases pass and retain only
+  aggregate diagnostics plus locally verified candidate evidence.
+- Added conservative context signals for intent, completion, unresolved work,
+  artifacts, and decisions. Signals carry event-level provenance and are
+  validated against the selected temporal evidence before publication.
+- Added exact path-free project filtering by workspace label/hash across the
+  temporal CLI and context packer. Missing metadata fails closed.
+- Added schema-v1-to-v2 in-place migration with a migration ledger and tests
+  for unsupported/corrupt state and explicit rebuild recovery.
+- Added refresh-level overlap serialization and a matched handoff/index rollback
+  rehearsal that leaves canonical state unchanged.
+- Reran the local certification packet: 35/35 cases pass. The 133-row ledger
+  is now 43 pass, 78 covered, 12 pending, zero fail/blocked.
+
+## 2026-08-14 — installed runtime reconciliation
+
+- Installed the current skill and verified exact source/installed script parity
+  at 56/56 files.
+- A scheduled older-runtime run was observed reverting the derived temporal
+  index to schema v1 after a source refresh. The current install plus a real
+  refresh recovered schema v2, 145 path-free metadata records, 16,175 events
+  at the latest no-op verification, zero quarantines, and matching
+  handoff/index digests.
+- Installed retrieval doctor passed 40/40 checks; persistent-chat doctor passed
+  27/27 checks.
+- The complete repository gate now passes 43 Node and 148 Python tests, with
+  all compile, parser, runner, doctor, auth/ACL, installation, configuration,
+  and scheduler integration steps green.

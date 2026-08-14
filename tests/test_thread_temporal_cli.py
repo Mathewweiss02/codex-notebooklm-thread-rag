@@ -32,7 +32,7 @@ def event(thread_id: str, timestamp: str, text: str, line: int) -> dict[str, obj
     }
 
 
-def write_handoff(path: Path, events: list[dict[str, object]]) -> None:
+def write_handoff(path: Path, events: list[dict[str, object]], thread_metadata: dict[str, dict[str, object]] | None = None) -> None:
     header = {
         "recordType": "header",
         "contractVersion": "temporal-event-v1",
@@ -41,6 +41,8 @@ def write_handoff(path: Path, events: list[dict[str, object]]) -> None:
         "threadCount": len({event["threadId"] for event in events}),
         "manifestDigest": "fixture-cli-manifest",
     }
+    if thread_metadata is not None:
+        header["threadMetadata"] = thread_metadata
     lines = [json.dumps(header, separators=(",", ":")) + "\n"]
     event_digest = hashlib.sha256()
     for record in events:
@@ -106,6 +108,30 @@ class TemporalCliTests(unittest.TestCase):
         result = self.run_cli(None, "when", "--start", "2026-02-03T00:00:00.000Z", "--end", "2026-02-02T00:00:00.000Z", "--timezone", "UTC", expected_code=1)
         self.assertEqual(result["status"], "error")
         self.assertEqual(result["code"], "INVALID_TIME_RANGE")
+
+    def test_project_filter_is_available_through_the_primary_cli(self) -> None:
+        metadata = {
+            "thread-a": {"workspaceLabel": "Hermes", "workspaceHash": "hermes123", "archived": False, "source": "vscode"},
+            "thread-b": {"workspaceLabel": "Other", "workspaceHash": "other456", "archived": False, "source": "vscode"},
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            write_handoff(handoff, self.events, metadata)
+            index.build_index(handoff, database, rebuild=True)
+            result = self.run_cli(
+                database,
+                "recap",
+                "--db", str(database),
+                "--expression", "2026-02-02",
+                "--timezone", "UTC",
+                "--now", "2026-02-04T12:00:00.000Z",
+                "--project", "Hermes",
+            )
+        self.assertEqual(result["result"]["selection"]["project"], "Hermes")
+        self.assertEqual(result["result"]["projectFilter"]["matchedThreadIds"], ["thread-a"])
+        self.assertTrue(all(message["threadId"] == "thread-a" for message in result["result"]["messages"]))
 
     def test_ambiguous_local_time_is_disclosed_instead_of_guessed(self) -> None:
         result = self.run_cli(

@@ -78,6 +78,8 @@ function loadManifest(manifestPath, includeSubagents = false) {
       updatedAt: Number(thread.updatedAt),
       archived: Boolean(thread.archived),
       source,
+      workspaceLabel: String(thread.workspaceLabel || "unknown"),
+      workspaceHash: thread.workspaceHash == null ? null : String(thread.workspaceHash),
     };
   }).filter(Boolean);
   normalized.sort((a, b) => a.id.localeCompare(b.id));
@@ -100,6 +102,8 @@ function manifestDigest(manifest) {
     updatedAt: thread.updatedAt,
     archived: thread.archived,
     source: thread.source,
+    workspaceLabel: thread.workspaceLabel,
+    workspaceHash: thread.workspaceHash,
     pathDigest: sha256(thread.canonicalPath || thread.path),
   }));
   return sha256(JSON.stringify(canonical));
@@ -192,6 +196,12 @@ export async function extractManifest(manifestPath, outPath, options = {}) {
       generatedAt: new Date().toISOString(),
       threadCount: manifest.threads.length,
       manifestDigest: manifestDigest(manifest),
+      threadMetadata: Object.fromEntries(manifest.threads.map((thread) => [thread.id, {
+        workspaceLabel: thread.workspaceLabel,
+        workspaceHash: thread.workspaceHash,
+        archived: thread.archived,
+        source: thread.source,
+      }])),
     });
     for (const thread of manifest.threads) {
       const scanned = await withFileRetries(async () => {

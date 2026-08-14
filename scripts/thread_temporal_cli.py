@@ -21,7 +21,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from thread_temporal_context import TemporalContextError, build_context  # noqa: E402
-from thread_temporal_index import TemporalIndexError, query_events  # noqa: E402
+from thread_temporal_index import TemporalIndexError, query_events, query_thread_ids_by_project  # noqa: E402
 
 
 CONTRACT = "temporal-cli-v1"
@@ -70,6 +70,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         command.add_argument("--max-messages", type=int)
         command.add_argument("--max-chars", type=int)
         command.add_argument("--thread", action="append", dest="threads")
+        command.add_argument("--project", help="Exact workspace label or hash to include")
         command.add_argument("--segment", dest="drill_down")
 
     find = subparsers.add_parser("find", help="Find exact local lexical matches inside a period")
@@ -81,6 +82,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     find.add_argument("--query", "-q", required=True)
     find.add_argument("--limit", type=int, default=20)
     find.add_argument("--thread", action="append", dest="threads")
+    find.add_argument("--project", help="Exact workspace label or hash to include")
 
     compare = subparsers.add_parser("compare", help="Compare two resolved periods without mixing their evidence")
     compare.add_argument("--db", required=True, type=Path)
@@ -90,6 +92,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     compare.add_argument("--now")
     compare.add_argument("--week-start", choices=["monday", "sunday"], default="monday")
     compare.add_argument("--thread", action="append", dest="threads")
+    compare.add_argument("--project", help="Exact workspace label or hash to include")
     compare.add_argument("--sample-limit", type=int, default=20)
     return parser.parse_args(argv)
 
@@ -146,6 +149,7 @@ def local_context(args: argparse.Namespace, period: dict[str, Any]) -> dict[str,
         max_messages=getattr(args, "max_messages", None),
         max_chars=getattr(args, "max_chars", None),
         thread_ids=getattr(args, "threads", None),
+        project=getattr(args, "project", None),
         drill_down=getattr(args, "drill_down", None),
         node_path=args.node,
         range_metadata=period,
@@ -158,7 +162,11 @@ def lexical_find(args: argparse.Namespace, period: dict[str, Any]) -> dict[str, 
     terms = [term.lower() for term in TOKEN_RE.findall(args.query)]
     if not terms:
         raise TemporalCliError("INVALID_QUERY", "query must contain at least one alphanumeric term")
-    events = query_events(args.db.resolve(), period["startUtc"], period["endUtc"], args.threads)
+    thread_ids = args.threads
+    if args.project:
+        project_ids = query_thread_ids_by_project(args.db.resolve(), args.project)
+        thread_ids = [thread_id for thread_id in (args.threads or project_ids) if thread_id in set(project_ids)]
+    events = query_events(args.db.resolve(), period["startUtc"], period["endUtc"], thread_ids)
     phrase = " ".join(terms)
     matches = []
     for event in events:
@@ -194,8 +202,12 @@ def lexical_find(args: argparse.Namespace, period: dict[str, Any]) -> dict[str, 
 def compare_periods(args: argparse.Namespace) -> dict[str, Any]:
     left_period = resolve_period(args, expression=args.left)
     right_period = resolve_period(args, expression=args.right)
-    left_events = query_events(args.db.resolve(), left_period["startUtc"], left_period["endUtc"], args.threads)
-    right_events = query_events(args.db.resolve(), right_period["startUtc"], right_period["endUtc"], args.threads)
+    thread_ids = args.threads
+    if args.project:
+        project_ids = query_thread_ids_by_project(args.db.resolve(), args.project)
+        thread_ids = [thread_id for thread_id in (args.threads or project_ids) if thread_id in set(project_ids)]
+    left_events = query_events(args.db.resolve(), left_period["startUtc"], left_period["endUtc"], thread_ids)
+    right_events = query_events(args.db.resolve(), right_period["startUtc"], right_period["endUtc"], thread_ids)
     left_ids = {event["eventId"] for event in left_events}
     right_ids = {event["eventId"] for event in right_events}
     limit = max(1, args.sample_limit)
@@ -212,6 +224,7 @@ def compare_periods(args: argparse.Namespace) -> dict[str, Any]:
             "rightOnlySample": sorted(right_ids - left_ids)[:limit],
             "sharedSample": sorted(left_ids & right_ids)[:limit],
         },
+        "projectFilter": {"requested": args.project, "matchMode": "workspace-label-or-hash" if args.project else None},
         "evidencePolicy": "periods remain separately resolved; IDs are compared without chronology mixing",
     }
 

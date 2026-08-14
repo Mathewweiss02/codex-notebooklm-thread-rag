@@ -14,9 +14,11 @@ import hashlib
 import json
 import os
 import shutil
+import sqlite3
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -34,6 +36,38 @@ class TemporalRefreshError(RuntimeError):
     def __init__(self, code: str, message: str):
         super().__init__(f"{code}: {message}")
         self.code = code
+
+
+@contextmanager
+def refresh_lock(root: Path):
+    """Serialize the complete stage-to-promotion transaction.
+
+    The index writer lock alone is insufficient: two refreshes could otherwise
+    apply different indexes and then promote handoffs in the opposite order.
+    Keeping this lock across staging, index promotion, handoff promotion, and
+    post-promotion verification preserves the digest pairing invariant.
+    """
+    root.mkdir(parents=True, exist_ok=True)
+    lock_path = root / "temporal-refresh-lock.sqlite3"
+    connection: sqlite3.Connection | None = None
+    try:
+        connection = sqlite3.connect(lock_path, timeout=30, isolation_level=None)
+        connection.execute("PRAGMA busy_timeout=30000")
+        connection.execute("CREATE TABLE IF NOT EXISTS refresh_lock (id INTEGER PRIMARY KEY CHECK(id=1))")
+        connection.execute("INSERT OR IGNORE INTO refresh_lock(id) VALUES(1)")
+        connection.execute("BEGIN IMMEDIATE")
+    except sqlite3.DatabaseError as exc:
+        if connection is not None:
+            connection.close()
+        raise TemporalRefreshError("REFRESH_LOCK_TIMEOUT", "temporal refresh overlap lock is unavailable") from exc
+    try:
+        yield
+    finally:
+        try:
+            connection.execute("ROLLBACK")
+        except sqlite3.DatabaseError:
+            pass
+        connection.close()
 
 
 def _read_json_object(path: Path) -> dict[str, Any]:
@@ -203,7 +237,7 @@ def refresh(
     production_handoff = root / "temporal-events.ndjson"
     production_db = root / "temporal.sqlite3"
 
-    with tempfile.TemporaryDirectory(prefix=".temporal-refresh-", dir=root) as temporary_root:
+    with refresh_lock(root), tempfile.TemporaryDirectory(prefix=".temporal-refresh-", dir=root) as temporary_root:
         temporary_root_path = Path(temporary_root)
         snapshot = temporary_root_path / "state.json"
         manifest = temporary_root_path / "manifest.json"

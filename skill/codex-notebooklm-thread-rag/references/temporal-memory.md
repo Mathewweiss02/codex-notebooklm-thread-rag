@@ -29,6 +29,14 @@ For vague semantic memory without a broad period, use the existing
 `notebooklm_thread_search.py` candidate-finding route after its doctor/freshness
 checks. It is intentionally not the route for exhaustive date/time questions.
 
+Add `--project PROJECT_LABEL_OR_HASH` to `recap`, `context`, `find`, or
+`compare` when the period should be restricted to one workspace. Project
+metadata is path-free; unavailable metadata is an explicit failure rather than
+an implicit all-project query. Context packs may include heuristic intent,
+completion, unresolved, artifact, and decision signals. Treat them as
+navigation aids only and follow their event-level provenance before making a
+claim.
+
 ## Safety and fallback
 
 - Exact temporal authority is the local canonical Codex history and its
@@ -41,3 +49,6 @@ checks. It is intentionally not the route for exhaustive date/time questions.
 - NotebookLM may be added later for source-scoped synthesis after the local
   selection and mapping gates pass. Never reset the persistent CLI-chat
   notebook to answer a temporal question.
+- If NotebookLM is unavailable, expired, rate-limited, or times out, use the
+  deterministic local fallback when the local candidate is verified. Label the
+  result as local/degraded; it is not a remote retrieval benchmark win.

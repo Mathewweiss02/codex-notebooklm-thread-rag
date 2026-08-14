@@ -41,6 +41,12 @@ NotebookLM.
 The stable cold-start route table is `references/temporal-routing.json`; its
 examples are evaluated by the repository test suite.
 
+Use `--project PROJECT_LABEL_OR_HASH` on temporal `recap`, `context`, `find`,
+or `compare` commands when the question is workspace-scoped. The filter uses
+path-free manifest metadata and fails closed when metadata is missing. Context
+signals are conservative heuristic navigation hints with event-level
+provenance, not independent factual claims.
+
 ## Synchronize safely
 
 1. Run the projection first. Permit only policy `visible-messages-secrets-redacted-v4`.
@@ -52,6 +58,9 @@ examples are evaluated by the repository test suite.
 7. Keep `AllowAllThreads=false`. Use `notebooklm_thread_enroll.py` to stage-project newly visible tasks, query live source limits, prove rolling-update headroom, and atomically extend the explicit scope.
 8. Treat `RejectUntrackedSources=true` as mandatory for dedicated notebooks. Report extras; never delete them automatically.
 9. Apply retention only through `thread_rag_retention.py` after reviewing its dry-run report. Current and previous lineage must remain protected.
+10. Use `thread_temporal_rollback.py --dry-run --root TEMPORAL_ROOT` to inspect
+    a matched previous handoff/index generation before rollback. Rollback is
+    derived-state only and must not alter canonical Codex sessions.
 
 ## Authentication boundary
 
@@ -66,4 +75,7 @@ examples are evaluated by the repository test suite.
 - Stop uploads on policy drift, oversized skipped visible messages, missing files, source-cap failure, stale revision, account mismatch, or lineage mismatch.
 - Rerun an interrupted upload: accepted source IDs are checkpointed and exact-title ready sources are reused.
 - Keep the deterministic local search operational when NotebookLM or its unofficial interface is unavailable.
+- Remote outage, expired auth, timeout, HTTP 429, and HTTP 5xx failures may use
+  the deterministic local fallback. Label that result as local/degraded; never
+  count it as raw remote retrieval quality.
 - Never delete raw Codex sessions, source emails/files, unrelated NotebookLM sources, or auth profiles as part of recovery.

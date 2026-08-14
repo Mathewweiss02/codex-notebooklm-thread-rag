@@ -154,7 +154,60 @@ class TemporalIndexTests(unittest.TestCase):
             self.assertEqual(caught.exception.code, "INDEX_SCHEMA_MISMATCH")
             rebuilt = index.build_index(handoff, database, rebuild=True)
             self.assertTrue(rebuilt["rebuilt"])
-            self.assertEqual(index.verify_database(database)["schemaVersion"], 1)
+            self.assertEqual(index.verify_database(database)["schemaVersion"], 2)
+
+    def test_schema_v1_migrates_in_place_and_rebuild_restores_supported_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            records = [event("thread-a", "2026-08-12T04:00:00.000Z", "migration", "active", "file-a", 1)]
+            write_handoff(handoff, records)
+            index.build_index(handoff, database, rebuild=True)
+            connection = sqlite3.connect(database)
+            connection.execute("DROP TABLE thread_metadata")
+            connection.execute("DROP TABLE schema_migrations")
+            connection.execute("DELETE FROM meta WHERE key='threadMetadata'")
+            connection.execute("UPDATE meta SET value='1' WHERE key='schemaVersion'")
+            connection.commit()
+            connection.close()
+
+            migrated = index.build_index(handoff, database)
+            self.assertTrue(migrated["noOp"])
+            self.assertEqual(index.verify_database(database)["schemaVersion"], 2)
+            connection = sqlite3.connect(database)
+            try:
+                migration = connection.execute("SELECT version FROM schema_migrations WHERE version=2").fetchone()
+                self.assertIsNotNone(migration)
+                self.assertIsNotNone(connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='thread_metadata'").fetchone())
+            finally:
+                connection.close()
+
+            rebuilt = index.build_index(handoff, database, rebuild=True)
+            self.assertTrue(rebuilt["rebuilt"])
+            self.assertEqual(index.verify_database(database)["eventCount"], len(records))
+
+    def test_missing_v2_metadata_tables_fail_closed_until_explicit_rebuild(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            records = [event("thread-a", "2026-08-12T04:00:00.000Z", "metadata table", "active", "file-a", 1)]
+            write_handoff(handoff, records)
+            index.build_index(handoff, database, rebuild=True)
+            connection = sqlite3.connect(database)
+            connection.execute("DROP TABLE thread_metadata")
+            connection.commit()
+            connection.close()
+
+            with self.assertRaises(index.TemporalIndexError) as caught:
+                index.verify_database(database)
+            self.assertEqual(caught.exception.code, "INDEX_SCHEMA_MISMATCH")
+            with self.assertRaises(index.TemporalIndexError):
+                index.build_index(handoff, database)
+            rebuilt = index.build_index(handoff, database, rebuild=True)
+            self.assertTrue(rebuilt["rebuilt"])
+            self.assertEqual(index.verify_database(database)["schemaVersion"], 2)
 
     def test_redaction_policy_change_fails_closed_until_rebuild(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

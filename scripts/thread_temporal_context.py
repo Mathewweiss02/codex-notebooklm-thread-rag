@@ -21,7 +21,14 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from thread_temporal_index import TemporalIndexError, query_events, query_thread_events, timestamp_ms  # noqa: E402
+from thread_temporal_index import (  # noqa: E402
+    TemporalIndexError,
+    query_events,
+    query_thread_events,
+    query_thread_ids_by_project,
+    timestamp_ms,
+)
+from thread_temporal_signals import extract_signals, validate_signals  # noqa: E402
 
 
 CONTRACT = "temporal-context-pack-v1"
@@ -316,13 +323,22 @@ def output_days(events: list[dict[str, Any]], included_ids: set[str], local_date
     return days
 
 
-def empty_result(start: str, end: str, timezone_name: str, mode: str, metadata: dict[str, Any] | None = None) -> dict[str, Any]:
+def empty_result(
+    start: str,
+    end: str,
+    timezone_name: str,
+    mode: str,
+    metadata: dict[str, Any] | None = None,
+    project: str | None = None,
+    project_thread_ids: list[str] | None = None,
+) -> dict[str, Any]:
     budget = MODE_BUDGETS[mode]
+    matched_thread_ids = sorted(project_thread_ids or [])
     return {
         "contractVersion": CONTRACT,
         "status": "empty",
         "mode": mode,
-        "selection": {"scope": "period", "threadIds": [], "segmentId": None},
+        "selection": {"scope": "period", "threadIds": [], "segmentId": None, "project": project},
         "resolvedRange": resolved_range(start, end, timezone_name, metadata),
         "policy": {"contract": SEGMENTATION_CONTRACT, "thresholdMinutes": SEGMENTATION_THRESHOLD_MINUTES, "newSegmentWhen": "timestamp gap > threshold", "localDateBoundary": "does not split", "timezoneProvider": "node-intl-icu"},
         "coverage": {
@@ -339,8 +355,15 @@ def empty_result(start: str, end: str, timezone_name: str, mode: str, metadata: 
         "days": [],
         "segments": [],
         "messages": [],
+        "signals": extract_signals([]),
+        "projectFilter": {
+            "requested": project,
+            "matchMode": "workspace-label-or-hash" if project else None,
+            "matchedThreadCount": len(matched_thread_ids) if project else None,
+            "matchedThreadIds": matched_thread_ids if project else [],
+        },
         "drillDownHandles": [],
-        "verification": {"status": "local-authoritative", "provenanceComplete": True, "claimPolicy": "evidence pack only; no generated factual summary", "outOfWindowEventCount": 0},
+        "verification": {"status": "local-authoritative", "provenanceComplete": True, "signalsProvenanceComplete": True, "claimPolicy": "evidence pack only; no generated factual summary", "outOfWindowEventCount": 0},
         "latency": {"totalMs": 0},
     }
 
@@ -354,6 +377,7 @@ def build_context(
     max_messages: int | None = None,
     max_chars: int | None = None,
     thread_ids: list[str] | None = None,
+    project: str | None = None,
     drill_down: str | None = None,
     node_path: str = "node",
     range_metadata: dict[str, Any] | None = None,
@@ -373,15 +397,29 @@ def build_context(
     end_ms = timestamp_ms(end)
     if end_ms < start_ms:
         raise TemporalContextError("INVALID_TIME_RANGE", "end must not precede start")
+    project_thread_ids: list[str] | None = None
+    if project:
+        project_thread_ids = query_thread_ids_by_project(database, project)
+        requested_thread_ids = sorted({str(thread_id) for thread_id in (thread_ids or []) if str(thread_id)})
+        effective_thread_ids = [thread_id for thread_id in requested_thread_ids if thread_id in set(project_thread_ids)] if requested_thread_ids else project_thread_ids
+    else:
+        effective_thread_ids = thread_ids
+
     if end_ms == start_ms:
-        result = empty_result(start, end, timezone_name, mode, range_metadata)
+        result = empty_result(start, end, timezone_name, mode, range_metadata, project, project_thread_ids)
         result["coverage"]["budget"] = budget
         result["latency"]["totalMs"] = round((time.perf_counter() - started) * 1000, 3)
         return result
 
-    selected_events = query_events(database, start, end, thread_ids)
+    if project and not effective_thread_ids:
+        result = empty_result(start, end, timezone_name, mode, range_metadata, project, project_thread_ids)
+        result["coverage"]["budget"] = budget
+        result["latency"]["totalMs"] = round((time.perf_counter() - started) * 1000, 3)
+        return result
+
+    selected_events = query_events(database, start, end, effective_thread_ids)
     if not selected_events:
-        result = empty_result(start, end, timezone_name, mode, range_metadata)
+        result = empty_result(start, end, timezone_name, mode, range_metadata, project, project_thread_ids)
         result["coverage"]["budget"] = budget
         result["latency"]["totalMs"] = round((time.perf_counter() - started) * 1000, 3)
         return result
@@ -419,6 +457,8 @@ def build_context(
     included_events, budget_stats = budget_events(pack_events, pack_segments, budget["maxMessages"], budget["maxChars"])
     included_ids = {str(event["eventId"]) for event in included_events}
     messages = [output_event(event, local_dates, segment_by_event) for event in included_events]
+    signals = extract_signals(included_events)
+    validate_signals(signals, included_events)
     segment_output = [output_segment(segment, included_ids, local_dates) for segment in pack_segments]
     days = output_days(pack_events, included_ids, local_dates, segment_by_event, segments_by_id)
     omission_reasons = {}
@@ -441,6 +481,7 @@ def build_context(
             "scope": scope,
             "threadIds": selected_threads,
             "segmentId": drill_down,
+            "project": project,
             "periodCanonicalEventCount": len(selected_events),
         },
         "resolvedRange": resolved_range(start, end, timezone_name, range_metadata),
@@ -472,6 +513,13 @@ def build_context(
         "days": days,
         "segments": segment_output,
         "messages": messages,
+        "signals": signals,
+        "projectFilter": {
+            "requested": project,
+            "matchMode": "workspace-label-or-hash" if project else None,
+            "matchedThreadCount": len(project_thread_ids) if project else None,
+            "matchedThreadIds": sorted(project_thread_ids or []) if project else [],
+        },
         "drillDownHandles": [
             {"segmentId": segment["segmentId"], "threadId": segment["threadId"], "eventCount": len(segment["selectedEvents"]), "operation": "activity-segment"}
             for segment in period_segments
@@ -479,6 +527,7 @@ def build_context(
         "verification": {
             "status": "local-authoritative",
             "provenanceComplete": all(bool(message.get("sourceRef")) and bool(message.get("eventId")) for message in messages),
+            "signalsProvenanceComplete": True,
             "claimPolicy": "evidence pack only; no generated factual summary",
             "outOfWindowEventCount": 0,
         },

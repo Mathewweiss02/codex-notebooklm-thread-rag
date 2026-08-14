@@ -19,14 +19,14 @@ import thread_temporal_context as context  # noqa: E402
 import thread_temporal_index as index  # noqa: E402
 
 
-def make_event(thread_id: str, timestamp: str, text: str, line: int) -> dict[str, object]:
-    event_id = index.sha256("\x00".join([thread_id, "user", timestamp, text]))
+def make_event(thread_id: str, timestamp: str, text: str, line: int, role: str = "user") -> dict[str, object]:
+    event_id = index.sha256("\x00".join([thread_id, role, timestamp, text]))
     return {
         "recordType": "event",
         "contractVersion": "temporal-event-v1",
         "eventId": event_id,
         "threadId": thread_id,
-        "role": "user",
+        "role": role,
         "timestampUtc": timestamp,
         "text": text,
         "textDigest": index.sha256(text),
@@ -34,7 +34,7 @@ def make_event(thread_id: str, timestamp: str, text: str, line: int) -> dict[str
     }
 
 
-def write_handoff(path: Path, events: list[dict[str, object]]) -> None:
+def write_handoff(path: Path, events: list[dict[str, object]], thread_metadata: dict[str, dict[str, object]] | None = None) -> None:
     header = {
         "recordType": "header",
         "contractVersion": "temporal-event-v1",
@@ -43,6 +43,8 @@ def write_handoff(path: Path, events: list[dict[str, object]]) -> None:
         "threadCount": len({event["threadId"] for event in events}),
         "manifestDigest": "fixture-context-manifest",
     }
+    if thread_metadata is not None:
+        header["threadMetadata"] = thread_metadata
     lines = [json.dumps(header, separators=(",", ":")) + "\n"]
     event_digest = hashlib.sha256()
     for event in events:
@@ -186,6 +188,90 @@ class TemporalContextTests(unittest.TestCase):
         self.assertEqual(drill["coverage"]["omittedEventCount"], 0)
         self.assertEqual(empty["status"], "empty")
         self.assertEqual(empty["coverage"]["canonicalEventCount"], 0)
+
+    def test_signals_are_conservative_and_point_only_to_included_evidence(self) -> None:
+        events = [
+            make_event("thread-signals", "2026-02-02T12:00:00.000Z", "I need to build scripts/thread_temporal_cli.py for this project.", 1),
+            make_event("thread-signals", "2026-02-02T12:05:00.000Z", "Implemented and verified the migration; tests passed.", 2, "assistant"),
+            make_event("thread-signals", "2026-02-02T12:10:00.000Z", "Still need to resolve the scheduler overlap; TODO for rollback.", 3),
+            make_event("thread-signals", "2026-02-02T12:15:00.000Z", "We decided to keep local authority as the default policy.", 4, "assistant"),
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            write_handoff(handoff, events)
+            index.build_index(handoff, database, rebuild=True)
+            result = context.build_context(
+                database,
+                "2026-02-02T11:00:00.000Z",
+                "2026-02-02T13:00:00.000Z",
+                "America/New_York",
+                node_path=self.node,
+            )
+
+        included_ids = {message["eventId"] for message in result["messages"]}
+        self.assertGreaterEqual(result["signals"]["counts"]["intent"], 1)
+        self.assertGreaterEqual(result["signals"]["counts"]["completion"], 1)
+        self.assertGreaterEqual(result["signals"]["counts"]["unresolved"], 1)
+        self.assertGreaterEqual(result["signals"]["counts"]["artifact"], 1)
+        self.assertGreaterEqual(result["signals"]["counts"]["decision"], 1)
+        for values in result["signals"]["signals"].values():
+            for signal in values:
+                self.assertIn(signal["eventId"], included_ids)
+                self.assertEqual(signal["confidence"], "heuristic")
+                self.assertTrue(signal["sourceRef"]["sourceFileDigest"])
+        self.assertEqual(result["verification"]["signalsProvenanceComplete"], True)
+
+    def test_project_filter_uses_path_free_workspace_metadata(self) -> None:
+        metadata = {
+            "thread-a": {"workspaceLabel": "Hermes", "workspaceHash": "hermes123", "archived": False, "source": "vscode"},
+            "thread-b": {"workspaceLabel": "Other", "workspaceHash": "other456", "archived": False, "source": "vscode"},
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            handoff = root / "handoff.jsonl"
+            database = root / "temporal.sqlite3"
+            write_handoff(handoff, self.events, metadata)
+            index.build_index(handoff, database, rebuild=True)
+            result = context.build_context(
+                database,
+                "2026-02-02T04:00:00.000Z",
+                "2026-02-02T04:00:00.000Z",
+                "America/New_York",
+                project="Hermes",
+                node_path=self.node,
+            )
+            # Equal boundaries are an empty period, but the filter still reports
+            # the matched thread scope for diagnostics.
+            filtered = context.build_context(
+                database,
+                "2026-02-02T04:00:00.000Z",
+                "2026-02-04T00:00:00.000Z",
+                "America/New_York",
+                project="hermes123",
+                node_path=self.node,
+            )
+
+        self.assertEqual(result["status"], "empty")
+        self.assertEqual(result["projectFilter"]["matchedThreadIds"], ["thread-a"])
+        self.assertEqual(filtered["projectFilter"]["matchedThreadIds"], ["thread-a"])
+        self.assertEqual(set(filtered["selection"]["threadIds"]), {"thread-a"})
+        self.assertTrue(all(message["threadId"] == "thread-a" for message in filtered["messages"]))
+
+    def test_project_filter_fails_closed_without_metadata(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            database = self.build_database(Path(temporary))
+            with self.assertRaises(index.TemporalIndexError) as caught:
+                context.build_context(
+                    database,
+                    "2026-02-02T04:00:00.000Z",
+                    "2026-02-04T00:00:00.000Z",
+                    "America/New_York",
+                    project="Hermes",
+                    node_path=self.node,
+                )
+        self.assertEqual(caught.exception.code, "PROJECT_METADATA_UNAVAILABLE")
 
     def test_stale_resolver_metadata_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

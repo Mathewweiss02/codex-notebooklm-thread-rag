@@ -22,7 +22,9 @@ from typing import Any, Iterable
 
 CONTRACT = "temporal-event-v1"
 POLICY = "visible-messages-secrets-redacted-v4"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
+LEGACY_SCHEMA_VERSION = 1
+THREAD_METADATA_KEY = "threadMetadata"
 
 
 class TemporalIndexError(RuntimeError):
@@ -96,6 +98,66 @@ def validate_quarantine(record: dict[str, Any]) -> None:
         raise TemporalIndexError("INVALID_QUARANTINE", "quarantine provenance is incomplete")
 
 
+def validate_thread_metadata(value: Any) -> dict[str, dict[str, Any]]:
+    """Validate path-free workspace metadata carried by a temporal handoff."""
+    if value in (None, ""):
+        return {}
+    if isinstance(value, str):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError as exc:
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "thread metadata is not valid JSON") from exc
+    if not isinstance(value, dict) or any(not isinstance(key, str) or not key for key in value):
+        raise TemporalIndexError("THREAD_METADATA_INVALID", "thread metadata must be keyed by thread ID")
+    normalized: dict[str, dict[str, Any]] = {}
+    for thread_id, metadata in value.items():
+        if not isinstance(metadata, dict):
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "thread metadata entries must be objects")
+        label = metadata.get("workspaceLabel", "unknown")
+        workspace_hash = metadata.get("workspaceHash")
+        source = metadata.get("source", "unknown")
+        if not isinstance(label, str) or not label or len(label) > 120:
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "workspace label is invalid")
+        if workspace_hash is not None and (not isinstance(workspace_hash, str) or len(workspace_hash) > 64):
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "workspace hash is invalid")
+        if not isinstance(metadata.get("archived", False), bool) or not isinstance(source, str):
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "thread metadata flags are invalid")
+        # Deliberately reject raw cwd/path fields so this sidecar cannot become
+        # an accidental private-path transport.
+        if any(key in metadata for key in ("cwd", "path", "canonicalPath")):
+            raise TemporalIndexError("THREAD_METADATA_INVALID", "raw path metadata is not allowed")
+        normalized[thread_id] = {
+            "workspaceLabel": label,
+            "workspaceHash": workspace_hash,
+            "archived": bool(metadata.get("archived", False)),
+            "source": source,
+        }
+    return normalized
+
+
+def _metadata_from_connection(connection: sqlite3.Connection) -> dict[str, dict[str, Any]]:
+    table = connection.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='thread_metadata'"
+    ).fetchone()
+    if table is None:
+        raise TemporalIndexError("INDEX_SCHEMA_MISMATCH", "thread metadata table is missing")
+    rows = connection.execute(
+        "SELECT thread_id,workspace_label,workspace_hash,archived,source FROM thread_metadata ORDER BY thread_id"
+    ).fetchall()
+    if rows:
+        return validate_thread_metadata({
+            row[0]: {
+                "workspaceLabel": row[1],
+                "workspaceHash": row[2],
+                "archived": bool(row[3]),
+                "source": row[4],
+            }
+            for row in rows
+        })
+    row = connection.execute("SELECT value FROM meta WHERE key=?", (THREAD_METADATA_KEY,)).fetchone()
+    return validate_thread_metadata(row[0] if row else {})
+
+
 def load_handoff(path: Path) -> dict[str, Any]:
     if not path.is_file():
         raise TemporalIndexError("HANDOFF_MISSING", "handoff file does not exist")
@@ -155,9 +217,10 @@ def load_handoff(path: Path) -> dict[str, Any]:
         raise TemporalIndexError("HANDOFF_COUNT_MISMATCH", "trailer counts do not match records")
     if trailer.get("eventDigest") != event_hash.hexdigest():
         raise TemporalIndexError("HANDOFF_DIGEST_MISMATCH", "event digest does not match handoff bytes")
+    thread_metadata = validate_thread_metadata(header.get(THREAD_METADATA_KEY, {}))
     if record_count < 2:
         raise TemporalIndexError("HANDOFF_INCOMPLETE", "handoff contains no event/trailer body")
-    return {"header": header, "trailer": trailer, "events": events, "quarantines": quarantines}
+    return {"header": header, "trailer": trailer, "events": events, "quarantines": quarantines, "threadMetadata": thread_metadata}
 
 
 def connect(path: Path) -> sqlite3.Connection:
@@ -239,6 +302,18 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
             quarantine_count INTEGER NOT NULL,
             error_code TEXT
         );
+        CREATE TABLE IF NOT EXISTS thread_metadata (
+            thread_id TEXT PRIMARY KEY,
+            workspace_label TEXT NOT NULL,
+            workspace_hash TEXT,
+            archived INTEGER NOT NULL,
+            source TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS schema_migrations (
+            version INTEGER PRIMARY KEY,
+            applied_at TEXT NOT NULL,
+            description TEXT NOT NULL
+        );
         CREATE INDEX IF NOT EXISTS events_time_idx ON events(timestamp_ms, event_id);
         CREATE INDEX IF NOT EXISTS events_thread_time_idx ON events(thread_id, timestamp_ms, event_id);
         CREATE INDEX IF NOT EXISTS sources_event_idx ON event_sources(event_id, is_canonical);
@@ -246,8 +321,9 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
         """
     )
     existing = connection.execute("SELECT value FROM meta WHERE key='schemaVersion'").fetchone()
-    if existing is not None and int(existing[0]) != SCHEMA_VERSION:
-        raise TemporalIndexError("INDEX_SCHEMA_MISMATCH", f"schema {existing[0]} is not supported")
+    existing_version = int(existing[0]) if existing is not None else None
+    if existing_version not in {None, LEGACY_SCHEMA_VERSION, SCHEMA_VERSION}:
+        raise TemporalIndexError("INDEX_SCHEMA_MISMATCH", f"schema {existing_version} is not supported")
     for key, expected, code in (
         ("contractVersion", CONTRACT, "INDEX_CONTRACT_MISMATCH"),
         ("policyVersion", POLICY, "INDEX_POLICY_MISMATCH"),
@@ -255,6 +331,26 @@ def initialize_schema(connection: sqlite3.Connection) -> None:
         prior = connection.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
         if prior is not None and prior[0] != expected:
             raise TemporalIndexError(code, f"{key} {prior[0]} is not supported")
+    if existing_version == LEGACY_SCHEMA_VERSION:
+        try:
+            connection.execute("BEGIN IMMEDIATE")
+            set_meta(connection, "schemaVersion", str(SCHEMA_VERSION))
+            connection.execute(
+                "INSERT OR REPLACE INTO schema_migrations(version,applied_at,description) VALUES(?,?,?)",
+                (SCHEMA_VERSION, utc_now(), "add path-free thread workspace metadata and migration ledger"),
+            )
+            connection.execute("COMMIT")
+        except sqlite3.DatabaseError as exc:
+            try:
+                connection.execute("ROLLBACK")
+            except sqlite3.DatabaseError:
+                pass
+            raise TemporalIndexError("INDEX_MIGRATION_FAILED", "schema v1 could not be upgraded to v2") from exc
+    elif existing_version is None:
+        connection.execute(
+            "INSERT OR REPLACE INTO schema_migrations(version,applied_at,description) VALUES(?,?,?)",
+            (SCHEMA_VERSION, utc_now(), "initial temporal index schema with path-free thread workspace metadata"),
+        )
     set_meta(connection, "schemaVersion", str(SCHEMA_VERSION))
     set_meta(connection, "contractVersion", CONTRACT)
     set_meta(connection, "policyVersion", POLICY)
@@ -371,12 +467,25 @@ def _apply_handoff(connection: sqlite3.Connection, handoff: dict[str, Any]) -> N
                 "INSERT INTO quarantine(thread_id,reason,source_kind,source_file_digest,line_number) VALUES(?,?,?,?,?)",
                 (record["threadId"], record["reason"], ref["sourceKind"], ref["sourceFileDigest"], ref["lineNumber"]),
             )
+        connection.execute("DELETE FROM thread_metadata")
+        for thread_id, metadata in (handoff.get("threadMetadata") or {}).items():
+            connection.execute(
+                "INSERT INTO thread_metadata(thread_id,workspace_label,workspace_hash,archived,source) VALUES(?,?,?,?,?)",
+                (
+                    thread_id,
+                    metadata["workspaceLabel"],
+                    metadata.get("workspaceHash"),
+                    int(bool(metadata.get("archived", False))),
+                    metadata.get("source", "unknown"),
+                ),
+            )
         header = handoff["header"]
         trailer = handoff["trailer"]
         set_meta(connection, "manifestDigest", str(header.get("manifestDigest") or ""))
         set_meta(connection, "eventDigest", str(trailer["eventDigest"]))
         set_meta(connection, "eventCount", str(len(unique_events)))
         set_meta(connection, "quarantineCount", str(len(quarantines)))
+        set_meta(connection, THREAD_METADATA_KEY, json.dumps(handoff.get("threadMetadata") or {}, sort_keys=True, separators=(",", ":")))
         set_meta(connection, "lastAppliedAt", utc_now())
         connection.execute(
             "INSERT INTO runs(applied_at,status,manifest_digest,event_digest,event_count,quarantine_count) VALUES(?,?,?,?,?,?)",
@@ -407,7 +516,15 @@ def verify_connection(connection: sqlite3.Connection) -> dict[str, Any]:
         value = connection.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
         if value is None or value[0] != expected:
             raise TemporalIndexError(code, f"{key} is missing or unsupported")
+    migration_table = connection.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'"
+    ).fetchone()
+    if migration_table is None or connection.execute(
+        "SELECT version FROM schema_migrations WHERE version=?", (SCHEMA_VERSION,)
+    ).fetchone() is None:
+        raise TemporalIndexError("INDEX_SCHEMA_MISMATCH", "schema migration ledger is missing or incomplete")
     counts = connection.execute("SELECT (SELECT COUNT(*) FROM events), (SELECT COUNT(*) FROM event_sources), (SELECT COUNT(*) FROM quarantine)").fetchone()
+    thread_metadata = _metadata_from_connection(connection)
     return {
         "schemaVersion": SCHEMA_VERSION,
         "contractVersion": connection.execute("SELECT value FROM meta WHERE key='contractVersion'").fetchone()[0],
@@ -415,6 +532,7 @@ def verify_connection(connection: sqlite3.Connection) -> dict[str, Any]:
         "eventCount": counts[0],
         "sourceReferenceCount": counts[1],
         "quarantineCount": counts[2],
+        "threadMetadataCount": len(thread_metadata),
         "lastAppliedAt": (connection.execute("SELECT value FROM meta WHERE key='lastAppliedAt'").fetchone() or [None])[0],
         "manifestDigest": (connection.execute("SELECT value FROM meta WHERE key='manifestDigest'").fetchone() or [None])[0],
         "eventDigest": (connection.execute("SELECT value FROM meta WHERE key='eventDigest'").fetchone() or [None])[0],
@@ -442,13 +560,36 @@ def _backup_existing(path: Path, suffix: str = ".previous") -> Path | None:
     return backup
 
 
+def _stored_schema_version(path: Path) -> int | None:
+    """Read only the schema marker so the supported v1 -> v2 migration can run."""
+    try:
+        connection = sqlite3.connect(path, timeout=5)
+        try:
+            row = connection.execute("SELECT value FROM meta WHERE key='schemaVersion'").fetchone()
+            return int(row[0]) if row else None
+        finally:
+            connection.close()
+    except (sqlite3.DatabaseError, ValueError) as exc:
+        raise TemporalIndexError("INDEX_CORRUPT", "schema marker could not be read") from exc
+
+
 def build_index(handoff_path: Path, database_path: Path, rebuild: bool = False) -> dict[str, Any]:
     handoff = load_handoff(handoff_path)
     database_path = database_path.resolve()
     database_path.parent.mkdir(parents=True, exist_ok=True)
     with writer_lock(database_path):
         if database_path.exists() and not rebuild:
-            current = verify_database(database_path)
+            try:
+                current = verify_database(database_path)
+            except TemporalIndexError as exc:
+                if exc.code != "INDEX_SCHEMA_MISMATCH" or _stored_schema_version(database_path) != LEGACY_SCHEMA_VERSION:
+                    raise
+                connection = connect(database_path)
+                try:
+                    initialize_schema(connection)
+                finally:
+                    connection.close()
+                current = verify_database(database_path)
             if current.get("eventDigest") == handoff["trailer"]["eventDigest"] and current.get("manifestDigest") == handoff["header"].get("manifestDigest"):
                 return {**current, "changed": False, "noOp": True}
             try:
@@ -493,6 +634,31 @@ def build_index(handoff_path: Path, database_path: Path, rebuild: bool = False) 
                     temporary.unlink()
                 except OSError:
                     pass
+
+
+def query_thread_metadata(path: Path) -> dict[str, dict[str, Any]]:
+    """Return non-secret workspace metadata for indexed threads."""
+    connection = connect(path)
+    try:
+        return _metadata_from_connection(connection)
+    finally:
+        connection.close()
+
+
+def query_thread_ids_by_project(path: Path, project: str) -> list[str]:
+    """Resolve an exact workspace label or hash to canonical thread IDs."""
+    needle = str(project or "").strip().casefold()
+    if not needle:
+        raise TemporalIndexError("INVALID_PROJECT", "project filter must not be empty")
+    metadata = query_thread_metadata(path)
+    if not metadata:
+        raise TemporalIndexError("PROJECT_METADATA_UNAVAILABLE", "index has no workspace metadata; refresh the temporal index first")
+    matches = [
+        thread_id
+        for thread_id, value in metadata.items()
+        if needle in {str(value.get("workspaceLabel") or "").casefold(), str(value.get("workspaceHash") or "").casefold()}
+    ]
+    return sorted(matches)
 
 
 def query_events(path: Path, start: str, end: str, thread_ids: list[str] | None = None) -> list[dict[str, Any]]:

@@ -274,6 +274,13 @@ The new temporal evidence layer is available through one local CLI boundary. It 
 
 `recap` and `context` are evidence-pack commands: they disclose canonical/included/omitted counts, activity segments, local days, source lineage, and drill-down handles. They do not claim that a compressed pack is a complete narrative. NotebookLM source-scoped synthesis and verification remain separate gated steps.
 
+Use `--project PROJECT_LABEL_OR_HASH` on `recap`, `context`, `find`, or
+`compare` when the period should be restricted to one workspace. The filter
+uses path-free manifest metadata and fails closed when that metadata is not
+available. Context packs may include conservative heuristic signals for intent,
+completion, unresolved work, artifacts, and decisions; each signal points back
+to included event evidence and is not an independent factual claim.
+
 ## Multiple accounts and devices
 
 Keep `work` and `personal` profiles separate. Do not infer source limits from a subscription label; query the live limits for each account because entitlements can change. In the initial test both profiles reported tier 2, 500 notebooks, and 300 sources per notebook.
@@ -282,9 +289,9 @@ Use one stable device namespace and preferably one notebook per computer. Cross-
 
 ## R&D and current boundary
 
-The current release lane is temporal-memory reliability. The live retrieval profile has been wired to refresh the derived index during normal scheduled runs, with aggregate-only diagnostics and post-promotion digest verification. The latest stable live check mapped the current state to 145 threads and 147 current source parts with no source-map problems; the local suite currently passes 42 Node tests and 135 Python tests plus PowerShell, runner, doctor, auth, ACL, installation, config, and scheduler integrations. The locked dependency audit reports no known vulnerabilities. REL-001 (freshness wiring and canary) is complete. REL-002 accelerated refresh/recovery/fail-closed soak passes, while the required wall-clock observation window remains open.
+The current release lane is temporal-memory reliability. The live retrieval profile has been wired to refresh the derived index during normal scheduled runs, with aggregate-only diagnostics, refresh-overlap locking, and post-promotion digest verification. The latest stable live check mapped the current state to 145 threads and 147 current source parts with no source-map problems; the temporal index contains 16,175 events, 145 path-free metadata records, and zero quarantines. The local suite currently passes 43 Node tests and 148 Python tests plus PowerShell, runner, doctor, auth, ACL, installation, config, and scheduler integrations. The locked dependency audit reports no known vulnerabilities. REL-001 (freshness wiring and canary) is complete. REL-002 accelerated refresh/recovery/fail-closed evidence is green, while the required wall-clock observation window remains open.
 
-The full certification matrix is 133 cases across time interpretation, index integrity, context packing, NotebookLM verification, prompt packing/parallel topology, performance, security, usability, and operations. A row is not considered certified merely because a nearby unit test passes: each release-blocking row needs a retained executable result. Isolated-replica concurrency remains approval-gated; packed queries are the safe current experiment because they issue one remote ask and do not race the persistent chat notebook.
+The full certification matrix is 133 cases across time interpretation, index integrity, context packing, NotebookLM verification, prompt packing/parallel topology, performance, security, usability, and operations. The current ledger has 43 retained passes, 78 covered rows, and 12 pending rows; the local packet has 35/35 exact deterministic cases. A row is not considered certified merely because a nearby unit test passes: each release-blocking row needs a retained executable result. Isolated-replica concurrency remains approval-gated; packed queries are the safe current experiment because they issue one remote ask and do not race the persistent chat notebook.
 
 The historical 2026-08-10 130-task/132-source deployment was synchronized and strictly reconciled. Its frozen 24-case regression remains 100%, while the broader first sealed holdout is 93.75% semantic candidate recall and 75% hybrid Top-1; the latter is the governing generalization signal. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns. The newer 2026-08-14 live inventory observed 140 visible tasks; current source counts belong to the live reconciliation artifacts, not this historical paragraph.
 

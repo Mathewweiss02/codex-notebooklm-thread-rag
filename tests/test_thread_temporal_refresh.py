@@ -5,7 +5,10 @@ import importlib.util
 import json
 import sys
 import tempfile
+import threading
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
@@ -164,6 +167,52 @@ class TemporalRefreshTests(unittest.TestCase):
             with self.assertRaises(refresh.TemporalRefreshError) as caught:
                 refresh.refresh(state_path=state, root=root / "temporal", node_path="node")
             self.assertEqual(caught.exception.code, "POLICY_MISMATCH")
+
+    def test_overlapping_refreshes_serialize_and_leave_paired_verified_state(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            state = self.make_state(root)
+            fixture = root / "fixture.ndjson"
+            make_handoff(fixture, event_text="overlap")
+            temporal_root = root / "temporal"
+            activity_lock = threading.Lock()
+            active = 0
+            maximum_active = 0
+
+            def overlapping_child(_executable, arguments, _label, _timeout):
+                nonlocal active, maximum_active
+                with activity_lock:
+                    active += 1
+                    maximum_active = max(maximum_active, active)
+                try:
+                    time.sleep(0.06)
+                    output = Path(arguments[arguments.index("--out") + 1])
+                    if "--state" in arguments:
+                        source = output.parent / "source.jsonl"
+                        source.write_text("source\n", encoding="utf-8")
+                        output.write_text(
+                            json.dumps({"threadCount": 1, "missingThreadCount": 0, "threads": [{"id": "thread-a", "path": str(source), "updatedAt": 1}]}),
+                            encoding="utf-8",
+                        )
+                    else:
+                        output.write_bytes(fixture.read_bytes())
+                finally:
+                    with activity_lock:
+                        active -= 1
+
+            with patch.object(refresh, "_run_child", side_effect=overlapping_child):
+                with ThreadPoolExecutor(max_workers=2) as pool:
+                    results = list(pool.map(
+                        lambda _: refresh.refresh(state_path=state, root=temporal_root, node_path="node"),
+                        range(2),
+                    ))
+
+            self.assertEqual(maximum_active, 1)
+            self.assertTrue(all(result["status"] == "ok" for result in results))
+            verified = refresh.temporal_index.verify_database(temporal_root / "temporal.sqlite3")
+            summary = refresh._summarize_handoff(refresh.temporal_index.load_handoff(temporal_root / "temporal-events.ndjson"))
+            self.assertEqual(verified["eventDigest"], summary["eventDigest"])
+            self.assertEqual(verified["manifestDigest"], summary["manifestDigest"])
 
 
 if __name__ == "__main__":

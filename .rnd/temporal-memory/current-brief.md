@@ -35,7 +35,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 42 Node tests and 135 Python tests, plus
+- The full repository gate passed 43 Node tests and 148 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -56,28 +56,40 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The wall-clock release monitor is active from the post-REL-001 boundary: 7
   eligible runs, 0 failed or malformed runs, and 1.434 observed hours. The
   seven-day gate is correctly still open.
-- The new stable-snapshot temporal refresh is wired into the retrieval runner.
-  The latest installed refresh completed successfully with 16,141 temporal
-  events and source references, zero quarantines, nine allowed non-visible
-  overflow lines, and matching index/handoff digests.
+- The stable-snapshot temporal refresh is wired into the retrieval runner and
+  is protected by a recoverable SQLite overlap lock. The latest installed
+  refresh completed successfully with 16,175 temporal events and source
+  references, 145 path-free thread metadata records, zero quarantines, nine
+  allowed non-visible overflow lines, and matching index/handoff digests.
+- Schema version 1 was migrated in place to schema version 2 and the migration
+  ledger is verified. A paired derived-state rollback rehearsal restores a
+  verified previous handoff/index generation without touching canonical state.
+- Remote outage, expired-auth, HTTP 429/503, and timeout cases now exercise a
+  deterministic local fallback. Context packs expose conservative heuristic
+  intent/completion/unresolved/artifact/decision signals with provenance, and
+  exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 42 Node tests and 135 Python tests, plus
+- The full repository gate now passes 43 Node tests and 148 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The certification ledger contains 133 rows: 31 retained passes, 78 covered
-  rows, and 24 pending release evidence. The local-certification packet now
-  promotes 23 exact deterministic edge cases, including bounded Windows file
-  lock retry, process-kill recovery, derived-index removal/rebuild, query-error
-  redaction, ambiguous-time disclosure, and redaction-policy mismatch/rebuild
-  behavior. The 145-thread
+- The certification ledger contains 133 rows: 43 retained passes, 78 covered
+  rows, and 12 pending release evidence. The local-certification packet now
+  promotes 35 exact deterministic edge cases, including local fallback across
+  remote failure classes, bounded Windows file-lock retry, process-kill
+  recovery, schema migration, overlapping-refresh serialization, paired
+  rollback, derived-index removal/rebuild, query-error redaction,
+  ambiguous-time disclosure, and redaction-policy mismatch/rebuild behavior.
+  The 145-thread
   incremental benchmark also passes
   no-change P95 92.998 ms and one-thread-append P95 479.113 ms against the
   1-second/2-second floors; covered is intentionally not a pass.
 - The safe live packed experiment passed hybrid expectation on 4/4 questions at
   pack sizes 1, 2, and 4, but only 7/8 at pack size 8; packing remains opt-in
   and no pack size is promoted as a certified quality default.
-- The installed retrieval doctor passed 38/38 checks, including temporal
-  integrity and freshness. The persistent chat doctor passed 25/25 checks.
+- The installed retrieval doctor passed 40/40 checks, including temporal
+  integrity and freshness. The persistent chat doctor passed 27/27 checks.
+- Source/installed script parity is exact at 56/56 files after installation;
+  no raw path metadata is present in the temporal handoff.
 
 ## Certification principle
 

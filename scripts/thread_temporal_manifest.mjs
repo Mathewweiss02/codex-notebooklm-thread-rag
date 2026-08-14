@@ -3,6 +3,7 @@
 import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { locateThreads } from "./thread_origin_lib.mjs";
+import { workspaceIdentity } from "./notebooklm_thread_projection_lib.mjs";
 
 function usage() {
   return `Usage:
@@ -68,14 +69,19 @@ if (missing.length && !options.allowMissing) throw new Error(`THREAD_NOT_FOUND: 
 
 const threads = records
   .filter((record) => found.has(record.id))
-  .map((record) => ({
-    id: record.id,
-    path: record.path,
-    canonicalPath: record.path,
-    updatedAt: statSync(record.path).mtimeMs,
-    archived: Boolean(record.archived),
-    source: record.source || "unknown",
-  }));
+  .map((record) => {
+    const workspace = workspaceIdentity(record.cwd);
+    return {
+      id: record.id,
+      path: record.path,
+      canonicalPath: record.path,
+      updatedAt: statSync(record.path).mtimeMs,
+      archived: Boolean(record.archived),
+      source: record.source || "unknown",
+      workspaceLabel: workspace.label,
+      workspaceHash: workspace.hash,
+    };
+  });
 const manifest = { schemaVersion: 1, generatedAt: new Date().toISOString(), threadCount: threads.length, missingThreadCount: missing.length, threads };
 atomicJson(options.out, manifest);
 console.log(JSON.stringify({ status: missing.length ? "degraded" : "ok", requestedThreadCount: ids.length, foundThreadCount: threads.length, missingThreadCount: missing.length, output: options.out }));

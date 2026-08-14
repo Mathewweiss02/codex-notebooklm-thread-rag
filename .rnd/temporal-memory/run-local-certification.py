@@ -64,9 +64,19 @@ def cases(node: str) -> list[dict[str, object]]:
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_incremental_write_failure_rolls_back_to_last_good_state"],
         },
         {
+            "id": "IDX-024",
+            "label": "schema v1 to v2 migration and rebuild recovery",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_schema_v1_migrates_in_place_and_rebuild_restores_supported_state", "tests.test_thread_temporal_index.TemporalIndexTests.test_missing_v2_metadata_tables_fail_closed_until_explicit_rebuild"],
+        },
+        {
             "id": "IDX-025",
             "label": "redaction policy change requires rebuild",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_index.TemporalIndexTests.test_redaction_policy_change_fails_closed_until_rebuild"],
+        },
+        {
+            "id": "PAR-022",
+            "label": "overlapping temporal refreshes serialize",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_refresh.TemporalRefreshTests.test_overlapping_refreshes_serialize_and_leave_paired_verified_state"],
         },
         {
             "id": "NLM-005",
@@ -87,6 +97,51 @@ def cases(node: str) -> list[dict[str, object]]:
             "id": "NLM-009",
             "label": "citation-free claim rejection",
             "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_temporal_verify.NotebookLMTemporalVerifierTests.test_structural_citation_without_cited_text_is_not_promoted"],
+        },
+        {
+            "id": "NLM-010",
+            "label": "remote outage uses verified local fallback",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_remote_outage_uses_real_local_fallback"],
+        },
+        {
+            "id": "NLM-011",
+            "label": "expired auth uses verified local fallback",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_expired_auth_uses_real_local_fallback"],
+        },
+        {
+            "id": "NLM-012",
+            "label": "429 and 5xx use verified local fallback",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_rate_limit_and_server_error_use_real_local_fallback"],
+        },
+        {
+            "id": "NLM-013",
+            "label": "remote timeout uses verified local fallback",
+            "command": [sys.executable, "-m", "unittest", "tests.test_notebooklm_thread_search.SearchTests.test_timeout_uses_real_local_fallback"],
+        },
+        {
+            "id": "CTX-011",
+            "label": "heuristic user intent extraction with provenance",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_signals_are_conservative_and_point_only_to_included_evidence"],
+        },
+        {
+            "id": "CTX-012",
+            "label": "heuristic completion extraction with provenance",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_signals_are_conservative_and_point_only_to_included_evidence"],
+        },
+        {
+            "id": "CTX-013",
+            "label": "heuristic unresolved-item extraction with provenance",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_signals_are_conservative_and_point_only_to_included_evidence"],
+        },
+        {
+            "id": "CTX-014",
+            "label": "heuristic artifact extraction with provenance",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_signals_are_conservative_and_point_only_to_included_evidence"],
+        },
+        {
+            "id": "CTX-015",
+            "label": "path-free project filter and fail-closed metadata",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_context.TemporalContextTests.test_project_filter_uses_path_free_workspace_metadata", "tests.test_thread_temporal_context.TemporalContextTests.test_project_filter_fails_closed_without_metadata", "tests.test_thread_temporal_cli.TemporalCliTests.test_project_filter_is_available_through_the_primary_cli"],
         },
         {
             "id": "SEC-002",
@@ -112,6 +167,11 @@ def cases(node: str) -> list[dict[str, object]]:
             "id": "UX-003",
             "label": "ambiguous local time disclosure",
             "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_cli.TemporalCliTests.test_ambiguous_local_time_is_disclosed_instead_of_guessed"],
+        },
+        {
+            "id": "OPS-004",
+            "label": "digest-paired rollback rehearsal",
+            "command": [sys.executable, "-m", "unittest", "tests.test_thread_temporal_rollback.TemporalRollbackTests.test_restores_verified_previous_pair_without_touching_canonical_marker", "tests.test_thread_temporal_rollback.TemporalRollbackTests.test_mismatched_previous_pair_fails_closed_without_mutation"],
         },
     ]
 
