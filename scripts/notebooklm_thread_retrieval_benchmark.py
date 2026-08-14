@@ -46,6 +46,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", type=Path)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--max-semantic-attempts", type=int, default=2)
+    parser.add_argument(
+        "--min-semantic-candidates",
+        type=int,
+        default=2,
+        help="Keep asking until this many unique source-backed candidates exist (1-10)",
+    )
     parser.add_argument("--confirm-disposable-retrieval-notebook", action="store_true", help="Required acknowledgement because every case resets the notebook conversation")
     parser.add_argument("--allow-untracked-sources", action="store_true", help="Allow sources that are not linked by the projection state")
     args = parser.parse_args()
@@ -55,6 +61,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--confirm-disposable-retrieval-notebook is required")
     if not 1 <= args.max_semantic_attempts <= 3:
         parser.error("--max-semantic-attempts must be between 1 and 3")
+    if not 1 <= args.min_semantic_candidates <= 10:
+        parser.error("--min-semantic-candidates must be between 1 and 10")
     return args
 
 
@@ -96,6 +104,7 @@ async def main() -> int:
         "split": suite["split"],
         **suite_digests(suite),
         "threshold": args.threshold,
+        "minSemanticCandidates": args.min_semantic_candidates,
         "caseCount": len(cases),
         "results": [],
     }
@@ -137,7 +146,7 @@ async def main() -> int:
                             "firstAttempt": attempt,
                         })
                         candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
-                    if len(by_thread) >= 2:
+                    if len(by_thread) >= args.min_semantic_candidates:
                         break
                 if not by_thread and any(item.get("error") for item in attempts):
                     raise RuntimeError("; ".join(item["error"] for item in attempts if item.get("error")))

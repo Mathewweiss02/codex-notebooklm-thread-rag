@@ -1,6 +1,6 @@
 # Temporal Memory and Parallel NotebookLM Certification Plan
 
-Status: certification program in progress (deterministic local release lane complete; REL-002 active; live/context/concurrency/soak gates remain open)
+Status: certification program in progress (deterministic local release lane complete; live development retrieval gate failed and requires a development-only experiment; REL-002 active; concurrency/soak gates remain open)
 
 Created: 2026-08-14
 
@@ -23,11 +23,13 @@ The same system must retain the existing semantic task-finding capability and ad
 
 This is the starting point for the remaining work, not a certification claim:
 
-- The latest full repository gate is green at 48 Node tests and 200 Python tests, with compilation, PowerShell parsing, runner, doctor, auth/ACL, install, configuration, and scheduler integration checks passing.
+- The latest full repository gate is green at 48 Node tests and 202 Python tests, with compilation, PowerShell parsing, runner, doctor, auth/ACL, install, configuration, and scheduler integration checks passing.
 - Versioned local-certification packets retain 101 focused aggregate-only cases, including temporal edge cases, context/UX contracts, cross-runtime redaction, recovery, and current-corpus performance. The 133-row matrix currently records 117 `pass`, 8 `covered`, 8 `pending`, and zero `fail` or `blocked` rows. Covered rows remain distinct from retained passes; release is still open.
 - The live temporal index contains 16,282 events, 16,282 source references, 145 path-free thread metadata records, and zero quarantines at the latest no-op verification. Current source-map verification covers 145 requested threads across 147 ready source parts with no missing, mismatched, stale, or untracked source findings.
 - The timing-only post-boundary monitor has 10 eligible runs and about 2.249 observed hours; the resource-aware retrieval monitor now has 6 eligible post-install runs, 1.044 observed hours, zero failures, and zero missing-resource reports. The 168-hour soak gate is open.
 - NotebookLM transport and source-scope checks have passed in the canary lane, but the local claim verifier intentionally promoted zero of four remote answers because citation evidence did not match. Simulated remote outage, expired-auth, HTTP 429/503, and timeout paths now return locally verified fallback candidates. Local evidence remains authoritative.
+- A frozen live 40-case development run on the disposable retrieval notebook recorded raw semantic candidate recall 31/32, raw Top-1 28/32, and 8/8 negative false positives. Candidate-only local reranking recovered 31/32 hybrid Top-1 and 0/8 false positives, which remains below the required 100% candidate-recall and 97.5% hybrid gates. A local-candidate union reached 32/32 combined coverage but degraded hybrid Top-1 to 30/32; no union policy was promoted.
+- A bounded development-only minimum-four-candidate experiment completed 40/40 cases but reached only 30/32 candidate recall and 30/32 hybrid Top-1 with a slower latency tail. The default minimum remains two; this result is negative experiment evidence only.
 - Same-notebook fan-out is rejected as unsafe. No isolated notebook replicas have been created. Replica concurrency remains explicitly approval-gated.
 - The approval-gated `notebooklm_isolated_ramp.py` harness now provides a dry-run capacity plan and a reversible live boundary; it has not been used to create replicas or promote a concurrency result.
 - Temporal context packs now carry conservative heuristic signals with event-level provenance and support exact path-free project filtering; missing project metadata fails closed. Schema v1 migration, overlapping-refresh serialization, and verified paired rollback are covered by retained tests.
@@ -436,7 +438,7 @@ Before declaring the program complete, produce:
 
 The remaining work is deliberately sequential. A later phase cannot be used to hide an earlier failed gate.
 
-1. **Close the local correctness gaps.** Complete the deterministic local closure: remote outage/auth/429/5xx/timeout fallback, conservative intent/completion/unresolved/artifact/decision signals, path-free project filtering, schema migration, scheduler-overlap serialization, and paired rollback are now retained evidence. Remaining work is the live soak and committed-revision proof.
+1. **Close the local correctness gaps.** Complete the deterministic local closure: remote outage/auth/429/5xx/timeout fallback, conservative intent/completion/unresolved/artifact/decision signals, path-free project filtering, schema migration, scheduler-overlap serialization, and paired rollback are now retained evidence. Remaining work includes closing the failed live development retrieval-quality gate, the live soak, and committed-revision proof.
 2. **Finish the certification matrix.** Map each case to an executable test or signed inspection, with independent expected identities and provenance. Re-run all 133 rows after each material policy change. Keep `pass`, `covered`, `pending`, `fail`, and `blocked` distinct.
 3. **Seal the benchmark protocol.** Separate development, validation, and external/sealed holdout sets. Report raw remote Top-1, local Top-1, verified acceptance, fallback, abstention, latency, retries, and resource cost separately. Require three frozen passing runs plus one unspent holdout after the final policy change.
 4. **Prove efficiency locally.** Benchmark warm/cold exact selection, context packing, incremental refresh, 2x/5x/10x replay, memory, CPU, I/O, index growth, retry cost, and idle behavior. Optimize only after profiling, and preserve an evidence trail for every improvement.

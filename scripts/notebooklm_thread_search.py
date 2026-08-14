@@ -553,7 +553,10 @@ async def search_instance(
     limit: int,
     max_semantic_attempts: int = 2,
     transport_max_retries: int = 3,
+    min_semantic_candidates: int = 2,
 ) -> dict[str, Any]:
+    if not 1 <= min_semantic_candidates <= 10:
+        raise ValueError("min_semantic_candidates must be between 1 and 10")
     config = instance["config"]
     profile = config["Profile"]
     notebook_id = config["NotebookId"]
@@ -615,7 +618,7 @@ async def search_instance(
                 })
                 candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
                 candidate["attempts"].append(attempt)
-            if len(by_thread) >= 2:
+            if len(by_thread) >= min_semantic_candidates:
                 break
         if not by_thread and attempt_errors:
             raise RuntimeError("; ".join(attempt_errors))
@@ -631,6 +634,7 @@ async def search_instance(
             "hardMaxHours": config.get("HardMaxHours"),
             "attemptsUsed": attempts_used,
             "maxSemanticAttempts": max_semantic_attempts,
+            "minSemanticCandidates": min_semantic_candidates,
             "transportMaxRetries": transport_max_retries,
             "attemptErrors": attempt_errors,
             "referenceCounts": reference_counts,
@@ -649,6 +653,12 @@ async def main() -> int:
     parser.add_argument("--limit", type=int, default=5)
     parser.add_argument("--max-semantic-attempts", type=int)
     parser.add_argument(
+        "--min-semantic-candidates",
+        type=int,
+        default=2,
+        help="Keep asking until this many unique source-backed candidates exist (1-10)",
+    )
+    parser.add_argument(
         "--fast",
         action="store_true",
         help="Use one semantic attempt and disable automatic 429/5xx transport retries",
@@ -663,6 +673,8 @@ async def main() -> int:
         parser.error("--limit must be >= 1")
     if args.max_semantic_attempts is not None and not 1 <= args.max_semantic_attempts <= 3:
         parser.error("--max-semantic-attempts must be between 1 and 3")
+    if not 1 <= args.min_semantic_candidates <= 10:
+        parser.error("--min-semantic-candidates must be between 1 and 10")
     if args.fast and args.max_semantic_attempts not in (None, 1):
         parser.error("--fast cannot be combined with --max-semantic-attempts greater than 1")
     max_semantic_attempts = 1 if args.fast else (args.max_semantic_attempts or 2)
@@ -692,6 +704,7 @@ async def main() -> int:
                     args.limit,
                     max_semantic_attempts,
                     transport_max_retries,
+                    args.min_semantic_candidates,
                 )
             )
         except Exception as error:
@@ -732,7 +745,34 @@ async def main() -> int:
             ranked_candidates, report["localVerification"] = local_rerank_candidates(safe_query, semantic_candidates, node_path=args.node)
             if report["localVerification"].get("abstained"):
                 report["candidateDiagnostics"] = ranked_candidates
-                report["candidates"] = []
+                try:
+                    fallback = local_fallback_candidates(
+                        safe_query,
+                        args.limit,
+                        node_path=args.node,
+                        codex_root=args.codex_root,
+                    )
+                    report["localFallback"] = {key: value for key, value in fallback.items() if key != "candidates"}
+                    report["candidates"] = fallback["candidates"]
+                    report["localVerification"] = {
+                        **report["localVerification"],
+                        "mode": "local-recovery-after-abstention",
+                        "remoteCandidateCount": len(semantic_candidates),
+                        "recoveredCount": len(fallback["candidates"]),
+                        "abstained": not bool(fallback["candidates"]),
+                    }
+                except Exception as error:
+                    report["candidates"] = []
+                    report["localFallback"] = {
+                        "used": False,
+                        "error": f"{type(error).__name__}: local recovery unavailable",
+                    }
+                    report["localVerification"] = {
+                        **report["localVerification"],
+                        "mode": "local-recovery-unavailable",
+                        "remoteCandidateCount": len(semantic_candidates),
+                        "abstained": True,
+                    }
             else:
                 report["candidates"] = ranked_candidates
         except Exception as error:

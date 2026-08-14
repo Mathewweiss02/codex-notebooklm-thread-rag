@@ -30,6 +30,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
 
 ## Next item
 
+- Reproduce and close the live development retrieval-quality failure before
+  spending another holdout or starting live replica concurrency: the frozen
+  40-case run recorded raw semantic candidate recall 31/32, raw Top-1 28/32,
+  and 8/8 negative false positives; local reranking recovered to 31/32 hybrid
+  Top-1 with 0/8 false positives, still below the 97.5%/100% release gates.
 - REL-002: complete the seven-day or reset fourteen-day soak and rollback
   evidence.
 - PQ-006 remains separately gated on explicit isolated-replica approval.
@@ -37,7 +42,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 48 Node tests and 200 Python tests, plus
+- The full repository gate passed 48 Node tests and 202 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -72,7 +77,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 200 Python tests, plus
+- The full repository gate now passes 48 Node tests and 202 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -111,6 +116,19 @@ mapping. Treat packing and parallelism as separate experimental branches.
   post-install resource-bearing normal report with status `ok`. It remains a
   health/observability signal only and is intentionally excluded from the
   retrieval temporal soak because it does not run the temporal-refresh step.
+- The frozen live development retrieval run on the disposable notebook
+  completed all 40 cases. Its raw report was 28/32 positive Top-1, 31/32
+  candidate recall, and 8/8 negative false positives. The candidate-only local
+  verifier recovered 31/32 hybrid Top-1 and abstained on all 8 negatives, but
+  the required 100% candidate-recall and 97.5% hybrid gates remain failed.
+  A local-candidate union reached 32/32 combined coverage but degraded hybrid
+  Top-1 to 30/32, so it is not promoted. The persistent chat notebook was not
+  queried or reset.
+- A bounded development-only retry experiment raised the semantic minimum to
+  four candidates. It completed 40/40 cases but declined to 30/32 candidate
+  recall and 30/32 hybrid Top-1, with a higher latency tail, so the default
+  minimum remains two. This is retained as negative experiment evidence, not
+  as a release result.
 
 ## Certification principle
 

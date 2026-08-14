@@ -101,6 +101,32 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(result["attemptsUsed"], 1)
         self.assertEqual(context.chat.ask_count, 1)
 
+    def test_minimum_candidate_control_forces_fresh_attempt(self):
+        context = FakeClientContext([
+            [
+                SimpleNamespace(source_id="source-a", citation_number=1),
+                SimpleNamespace(source_id="source-b", citation_number=2),
+            ],
+            [
+                SimpleNamespace(source_id="source-a", citation_number=1),
+                SimpleNamespace(source_id="source-b", citation_number=2),
+                SimpleNamespace(source_id="source-a", citation_number=3),
+                SimpleNamespace(source_id="source-b", citation_number=4),
+            ],
+        ])
+        with patch.object(search.NotebookLMClient, "from_storage", return_value=context):
+            result = asyncio.run(search.search_instance(
+                self.retry_instance(),
+                "query",
+                False,
+                5,
+                max_semantic_attempts=2,
+                min_semantic_candidates=3,
+            ))
+        self.assertEqual(result["attemptsUsed"], 2)
+        self.assertEqual(context.chat.ask_count, 2)
+        self.assertEqual(result["minSemanticCandidates"], 3)
+
     def test_disposable_reset_requires_retrieval_role_and_is_explicit(self):
         class ConversationChat(FakeChat):
             def __init__(self):
@@ -241,6 +267,83 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(report["localFallback"]["candidateCount"], 1)
         self.assertTrue(report["errors"])
         self.assertIn(type(failure).__name__, report["errors"][0]["error"])
+
+    def test_unverified_remote_candidates_trigger_labeled_local_recovery(self):
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("Node.js is required for local recovery integration")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            session = root / "sessions" / "2026" / "08" / "recovery-thread.jsonl"
+            session.parent.mkdir(parents=True)
+            thread_id = "44444444-4444-4444-8444-444444444444"
+            rows = [
+                {
+                    "type": "session_meta",
+                    "payload": {"id": thread_id, "session_id": thread_id, "cwd": "C:\\Recovery\\Project", "source": "vscode"},
+                    "timestamp": "2026-08-14T12:00:00.000Z",
+                },
+                {
+                    "timestamp": "2026-08-14T12:01:00.000Z",
+                    "type": "response_item",
+                    "payload": {
+                        "type": "message",
+                        "role": "user",
+                        "content": [{"type": "input_text", "text": "Investigate the temporal recovery fallback path."}],
+                    },
+                },
+            ]
+            session.write_text("".join(json.dumps(row, separators=(",", ":")) + "\n" for row in rows), encoding="utf-8")
+            config = root / "retrieval.json"
+            projection = root / "projection"
+            projection.mkdir()
+            (projection / "state.json").write_text(
+                json.dumps({"policyVersion": search.REQUIRED_POLICY, "threads": {thread_id: {"revision": 1, "uploadRevision": 1, "parts": [{"part": 1, "sourceId": "source-a", "title": "Fallback"}]}}}),
+                encoding="utf-8",
+            )
+            (projection / "runner_state.json").write_text(
+                json.dumps({"LastSuccessAt": datetime.now(UTC).isoformat()}), encoding="utf-8"
+            )
+            config.write_text(
+                json.dumps({
+                    "Profile": "test",
+                    "NotebookId": "notebook",
+                    "NotebookRole": "retrieval",
+                    "DisposableSearchChat": True,
+                    "Device": "recovery-device",
+                    "ProjectionRoot": str(projection),
+                }),
+                encoding="utf-8",
+            )
+            output = root / "search.json"
+            argv = [
+                "thread_search.py",
+                "temporal recovery",
+                "--config",
+                str(config),
+                "--codex-root",
+                str(root),
+                "--node",
+                node,
+                "--out",
+                str(output),
+            ]
+            remote_instance = {
+                "device": "recovery-device",
+                "candidates": [{"threadId": "not-the-local-thread", "citationRank": 1}],
+            }
+            with patch.object(search, "search_instance", return_value=remote_instance), patch.object(
+                search,
+                "local_rerank_candidates",
+                return_value=([], {"attempted": True, "abstained": True, "confidence": {"accepted": False}}),
+            ), patch.object(sys, "argv", argv):
+                exit_code = asyncio.run(search.main())
+            report = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(exit_code, 0, report)
+        self.assertEqual(report["localVerification"]["mode"], "local-recovery-after-abstention")
+        self.assertEqual(report["candidates"][0]["threadId"], thread_id)
+        self.assertTrue(report["candidates"][0]["localFallback"])
+        self.assertEqual(report["localVerification"]["remoteCandidateCount"], 1)
 
     def test_remote_outage_uses_real_local_fallback(self):
         self.assert_local_fallback(RuntimeError("simulated remote outage"))

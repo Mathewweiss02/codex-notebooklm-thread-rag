@@ -105,3 +105,28 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
 - The release monitor now has an explicit `--require-resource` mode that
   fails closed when any eligible run lacks valid aggregate resource fields.
   Timing-only history cannot accidentally satisfy the resource-aware soak.
+
+## Live development retrieval finding — 2026-08-14
+
+- The frozen 40-case disposable-notebook run completed with raw semantic
+  candidate recall 31/32, raw citation-order Top-1 28/32, and 8/8 negative
+  false positives. This is a failed development gate, not a holdout result.
+- Candidate-only local reranking recovered 31/32 hybrid Top-1 and abstained on
+  all eight negative cases. A separate union with the full local-candidate
+  report reached 32/32 combined candidate coverage but degraded hybrid Top-1
+  to 30/32, so union retrieval is not a default fix.
+- The run used the disposable retrieval notebook and reset its conversation
+  before each attempt; the persistent chat notebook was not touched. The next
+  experiment must use development evidence only, preserve raw/combined/hybrid
+  score separation, and finish before any sealed holdout or live replica ramp.
+
+## Live minimum-candidate experiment — 2026-08-14
+
+- A bounded development-only run with `minSemanticCandidates=4` completed all
+  40 cases but declined to 30/32 positive candidate recall and 30/32 hybrid
+  Top-1, versus 31/32 for the default two-candidate policy. Its latency tail
+  was also higher, so the setting is retained as an explicit diagnostic
+  control and is not promoted as the production default.
+- The experiment used the same disposable retrieval notebook and preserved
+  raw remote, combined, hybrid, false-positive, and latency measurements. It
+  did not consume the sealed holdout or create replicas.
