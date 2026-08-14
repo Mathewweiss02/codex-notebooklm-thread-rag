@@ -1,6 +1,7 @@
 param(
   [string] $PythonPath,
-  [string] $NodePath = "node"
+  [string] $NodePath = "node",
+  [string] $ReportPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,4 +56,31 @@ Invoke-Step "skill-install-integration" { & (Join-Path $repository "tests\instal
 Invoke-Step "config-integration" { & (Join-Path $repository "tests\config.integration.ps1") -RepositoryRoot $repository | Out-Null }
 Invoke-Step "task-scheduler-integration" { & (Join-Path $repository "tests\task_scheduler.integration.ps1") -RepositoryRoot $repository -PythonPath $PythonPath | Out-Null }
 
-[pscustomobject]@{ Status = "passed"; TestFiles = $nodeTests.Count; PythonScripts = $pythonScripts.Count; Steps = $steps } | ConvertTo-Json -Depth 6
+$commitSha = (& git -C $repository rev-parse HEAD 2>$null | Select-Object -First 1).Trim()
+$report = [pscustomobject]@{
+  Status = "passed"
+  GeneratedAtUtc = (Get-Date).ToUniversalTime().ToString("o")
+  CommitSha = $commitSha
+  PowerShell = $PSVersionTable.PSVersion.ToString()
+  PythonRuntime = if ($PythonPath -match "notebooklm-py-0\.8\.0") { "pinned-notebooklm-py-0.8.0" } else { "external" }
+  NodeRuntime = Split-Path -Leaf $NodePath
+  TestFiles = $nodeTests.Count
+  PythonScripts = $pythonScripts.Count
+  Steps = $steps
+}
+$json = $report | ConvertTo-Json -Depth 6
+if ($ReportPath) {
+  $resolvedReportPath = if ([System.IO.Path]::IsPathRooted($ReportPath)) {
+    $ReportPath
+  } else {
+    Join-Path $repository $ReportPath
+  }
+  $reportDirectory = Split-Path -Parent $resolvedReportPath
+  if ($reportDirectory -and -not (Test-Path -LiteralPath $reportDirectory)) {
+    New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
+  }
+  $temporaryReportPath = "$resolvedReportPath.tmp"
+  Set-Content -LiteralPath $temporaryReportPath -Value $json -Encoding UTF8
+  Move-Item -LiteralPath $temporaryReportPath -Destination $resolvedReportPath -Force
+}
+Write-Output $json

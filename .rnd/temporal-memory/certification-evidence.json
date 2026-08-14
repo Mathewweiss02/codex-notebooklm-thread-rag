@@ -1342,8 +1342,12 @@
       "status": "pending",
       "scenario": "Committed-revision proof",
       "testLevel": "Release gate",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/full-gate-run.json"
+      ],
+      "notes": "Current committed revision has a retained aggregate full-gate report; current-revision GitHub CI and final evidence-hash audit remain required.",
+      "executedAt": "2026-08-14T13:16:40Z",
+      "resultDigest": "be0ae7c1b1034e9933304007abf797b98cad603ea544e1a82636f13b1c5f21bb"
     }
   },
   "updatedAt": "2026-08-14T13:03:09Z"

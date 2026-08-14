@@ -93,3 +93,7 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   `Retry-After`, apply exponential backoff, and fail closed when the budget is
   exhausted. Deterministic fake-clock burst tests pass; this is covered mock
   evidence only until a live canary observes the real upstream behavior.
+- Full-gate evidence should be retained at the tested revision, not inferred
+  from console output. The optional aggregate report records the commit and
+  step timings without path or content leakage; a stale CI result cannot be
+  promoted to current-revision proof.

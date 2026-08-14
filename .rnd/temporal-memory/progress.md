@@ -244,3 +244,17 @@ explicit replica approval.
 - Reinstalled the skill and reran the complete repository gate: 43 Node and
   152 Python tests passed, alongside compile, parser, runner, doctor, auth/ACL,
   installation, configuration, and scheduler integrations.
+
+## 2026-08-14 — committed full-gate evidence
+
+- Extended `tests/run_all.ps1` with an optional aggregate-only `-ReportPath`
+  output. The report records the tested commit, runtime labels, step timings,
+  and pass status without repository paths, prompts, answers, credentials, or
+  NotebookLM identifiers.
+- Ran the complete gate at commit `17966abe58b582662d3067ecf471d93e57eeac57`;
+  43 Node tests, 152 Python tests, compilation, parsing, runner, doctor,
+  auth/ACL, installation, configuration, and scheduler integrations all
+  passed. Retained report: `full-gate-run.json`.
+- OPS-006 remains pending because the open draft PR's latest GitHub check is
+  for an older commit; current-commit CI proof still requires an intentional
+  push or equivalent external CI run.
