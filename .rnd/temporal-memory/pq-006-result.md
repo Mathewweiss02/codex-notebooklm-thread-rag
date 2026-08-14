@@ -16,6 +16,13 @@ Creating the replicas would change external NotebookLM state and consume
 account quota. It therefore requires explicit approval at the moment of
 execution, followed by a one-worker control and a staged ramp.
 
+The reusable approval-gated ramp harness is now implemented and its live
+boundary is covered by focused tests. The current live dry-run models the
+147-part corpus at pool sizes 1/2/4/8/16/32/50: each replica preserves 93
+source parts of rolling-update headroom under the observed 300-source limit
+and 60-source reserve. This is capacity arithmetic only; no replica was
+created and no concurrency quality claim is promoted.
+
 ## Safe current behavior
 
 The production executor remains at one sequential worker. The persistent chat

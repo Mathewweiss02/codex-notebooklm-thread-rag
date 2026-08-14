@@ -26,13 +26,14 @@ try {
   Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\thread_temporal_resource_benchmark.py")) "resource benchmark is required"
   Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\thread_temporal_incremental_benchmark.py")) "incremental benchmark is required"
   Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\thread_temporal_release_monitor.py")) "release soak monitor is required"
+  Assert-True (Test-Path -LiteralPath (Join-Path $target "scripts\notebooklm_isolated_ramp.py")) "isolated ramp harness is required"
 
   $second = (& $installer -CodexRoot $temporary) | ConvertFrom-Json
   Assert-True ($second.Status -eq "installed") "upgrade install must succeed"
   Assert-True ([bool]$second.Backup) "upgrade install must retain a rollback backup"
   Assert-True (Test-Path -LiteralPath $second.Backup) "rollback backup must exist outside the skills scan root"
   Assert-True (Test-Path -LiteralPath (Join-Path $temporary "thread-rag\installation.json")) "installation manifest is required"
-  [pscustomobject]@{ Status = "passed"; Checks = 18 } | ConvertTo-Json
+  [pscustomobject]@{ Status = "passed"; Checks = 19 } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

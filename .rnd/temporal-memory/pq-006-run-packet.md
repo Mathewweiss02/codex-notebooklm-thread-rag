@@ -14,6 +14,15 @@ This packet is prepared but not executed. Live replica creation and bulk source
 copying require explicit user approval because they mutate the Google account,
 consume NotebookLM source/notebook quota, and create cleanup obligations.
 
+The approval-gated runner is now `scripts/notebooklm_isolated_ramp.py`. Its
+default mode is a no-mutation capacity plan. Live mode requires both
+`--apply` and `--confirm-isolated-retrieval-replicas`, clones projected files
+with parent source IDs removed, synchronizes each replica through the guarded
+sync script, validates exact source-title fingerprints, runs bounded query
+waves, and records only aggregate counters plus hashes. A failed live stage
+deletes every notebook created by that stage; successful cleanup requires the
+separate `--cleanup` flag.
+
 ## Preconditions
 
 - ADR-005 remains accepted.
@@ -26,6 +35,8 @@ consume NotebookLM source/notebook quota, and create cleanup obligations.
 - A one-worker control run passes before any two-worker run.
 - A failure at any level stops the ramp and preserves the last-known-good
   topology.
+- The persistent `chat` configuration is never accepted by the harness.
+- The dry-run capacity plan is retained before live creation.
 
 ## Stop conditions
 

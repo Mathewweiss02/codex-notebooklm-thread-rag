@@ -218,6 +218,23 @@ Require 100% semantic candidate recall, at least 97.5% hybrid Top-1, at most 5% 
 
 The experimental `notebooklm_thread_batch_benchmark.py` can measure 2/4/8 independently numbered questions in one disposable ask. It maps citations to each answer section, reranks each section locally, and stores no answer text. Do not treat prompt packing as production-ready from a small smoke test, and do not race concurrent null-conversation asks against one notebook: upstream intentionally serializes those asks and separate processes can race the server's mutable current conversation.
 
+For true parallel experiments, use the approval-gated isolated-ramp harness. Its
+default is a no-mutation capacity plan; live mode requires both explicit flags,
+copies projected files without parent source IDs, validates each replica's
+source-title fingerprint, runs bounded waves, and writes hashes/counters rather
+than notebook IDs, prompts, or answers:
+
+```powershell
+& "PYTHON_PATH" .\scripts\notebooklm_isolated_ramp.py `
+  --config "$env:USERPROFILE\.codex\thread-rag\ads-pc-pilot\sync_config.json" `
+  --pool-sizes 1 2 4 8 16 32 50 `
+  --out "$env:USERPROFILE\.codex\thread-rag\temporal\isolated-ramp-dry-run.json"
+```
+
+Start live work at the lowest pool size and retain the evidence before
+advancing. Use `--cleanup` only after a successful run when the replicas are no
+longer needed.
+
 ## 7. Schedule
 
 ```powershell
@@ -291,7 +308,7 @@ Use one stable device namespace and preferably one notebook per computer. Cross-
 
 The current release lane is temporal-memory reliability. The live retrieval profile has been wired to refresh the derived index during normal scheduled runs, with aggregate-only diagnostics, refresh-overlap locking, and post-promotion digest verification. The latest stable live check mapped the current state to 145 threads and 147 current source parts with no source-map problems; the temporal index contains 16,175 events, 145 path-free metadata records, and zero quarantines. The local suite currently passes 47 Node tests and 156 Python tests plus PowerShell, runner, doctor, auth, ACL, installation, config, and scheduler integrations. `tests/run_all.ps1 -ReportPath .rnd/temporal-memory/full-gate-run.json` retains the tested commit and aggregate step timings without private content. New runner reports also retain aggregate working-set, private-memory, handle-count, and processor-time diagnostics for the soak gate. The locked dependency audit reports no known vulnerabilities. REL-001 (freshness wiring and canary) is complete. REL-002 accelerated refresh/recovery/fail-closed evidence is green, while the required wall-clock observation window remains open.
 
-The full certification matrix is 133 cases across time interpretation, index integrity, context packing, NotebookLM verification, prompt packing/parallel topology, performance, security, usability, and operations. The current ledger has 70 retained passes, 53 covered rows, and 10 pending rows; the local packet has 63 focused cases, with 62 promoted exact deterministic cases and one covered adaptive rate-limit mock. A row is not considered certified merely because a nearby unit test passes: each release-blocking row needs a retained executable result. Isolated-replica concurrency remains approval-gated; packed queries are the safe current experiment because they issue one remote ask and do not race the persistent chat notebook.
+The full certification matrix is 133 cases across time interpretation, index integrity, context packing, NotebookLM verification, prompt packing/parallel topology, performance, security, usability, and operations. The current ledger has 70 retained passes, 55 covered rows, and 8 pending rows; the local packet has 63 focused cases, with 62 promoted exact deterministic cases and one covered adaptive rate-limit mock. A row is not considered certified merely because a nearby unit test passes: each release-blocking row needs a retained executable result. Isolated-replica concurrency remains approval-gated; packed queries are the safe current experiment because they issue one remote ask and do not race the persistent chat notebook.
 
 The historical 2026-08-10 130-task/132-source deployment was synchronized and strictly reconciled. Its frozen 24-case regression remains 100%, while the broader first sealed holdout is 93.75% semantic candidate recall and 75% hybrid Top-1; the latter is the governing generalization signal. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns. The newer 2026-08-14 live inventory observed 140 visible tasks; current source counts belong to the live reconciliation artifacts, not this historical paragraph.
 

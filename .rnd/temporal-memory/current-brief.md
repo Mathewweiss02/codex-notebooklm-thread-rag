@@ -19,6 +19,8 @@ CLI/skill contract.
   notebook is excluded from automated retrieval and reset operations.
 - Same-notebook parallel fan-out is rejected. Isolated replica ramps remain
   explicitly gated on approval.
+- `notebooklm_isolated_ramp.py` now supplies the dry-run and approval-gated
+  live boundary for replica creation; no replica has been created.
 
 ## Governing recommendation
 
@@ -72,8 +74,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   concurrent-writer regression coverage passes.
 - The full repository gate now passes 47 Node tests and 156 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The certification ledger contains 133 rows: 70 retained passes, 53 covered
-  rows, and 10 pending release evidence. The local-certification packet now
+- The certification ledger contains 133 rows: 70 retained passes, 55 covered
+  rows, and 8 pending release evidence. The local-certification packet now
   retains 63 focused cases: 62 promoted exact deterministic edge cases,
   including local fallback across remote failure classes, bounded Windows
   file-lock retry, process-kill recovery, schema migration,
@@ -96,9 +98,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass;
   the observation boundary must restart after the updated skill is installed.
-- The resource-aware retrieval soak monitor has now started at the first
-  post-install normal run: 2 eligible runs, 0.265 observed hours, zero failures,
-  and zero missing-resource reports. The 168-hour gate is open.
+- The resource-aware retrieval soak monitor has now recorded 3 eligible
+  post-install runs, 0.505 observed hours, zero failures, and zero
+  missing-resource reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
   health/observability signal only and is intentionally excluded from the

@@ -1181,15 +1181,15 @@
       "resultDigest": "870875C55451CEF00D09223B491994356BDFD2AC23A32566DE65721EEBD0926A"
     },
     "PERF-011": {
-      "status": "pending",
+      "status": "covered",
       "scenario": "Idle state",
       "testLevel": "Soak",
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
-      "executedAt": "2026-08-14T13:47:56Z",
-      "resultDigest": "ebdedbe832083caa90b3a055add146a087ac9ba19876de7ed9e26a58f3e5880f"
+      "notes": "Resource-aware retrieval soak remains open: 3 eligible post-install runs, 0 failures, 0 missing-resource reports, 0.505 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T14:11:50Z",
+      "resultDigest": "4b0f1eed908a1b02b68419142e31417597d8247e60079963fa2606f0c08a9e3d"
     },
     "PERF-012": {
       "status": "pass",
@@ -1390,15 +1390,15 @@
       "resultDigest": "7315e8b99243e5644f309d739ee2f75d5f77f983be78a2488b2c5f552d7c3334"
     },
     "OPS-005": {
-      "status": "pending",
+      "status": "covered",
       "scenario": "Seven-day soak",
       "testLevel": "Soak",
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
-      "executedAt": "2026-08-14T13:47:56Z",
-      "resultDigest": "ebdedbe832083caa90b3a055add146a087ac9ba19876de7ed9e26a58f3e5880f"
+      "notes": "Resource-aware retrieval soak remains open: 3 eligible post-install runs, 0 failures, 0 missing-resource reports, 0.505 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T14:11:50Z",
+      "resultDigest": "4b0f1eed908a1b02b68419142e31417597d8247e60079963fa2606f0c08a9e3d"
     },
     "OPS-006": {
       "status": "covered",
@@ -1412,5 +1412,5 @@
       "resultDigest": "0d302bb67ec4d873f4ac8b93e5ca552716b431b61d5c6e4613a862edc2ae5ba8"
     }
   },
-  "updatedAt": "2026-08-14T14:09:58Z"
+  "updatedAt": "2026-08-14T14:11:50Z"
 }

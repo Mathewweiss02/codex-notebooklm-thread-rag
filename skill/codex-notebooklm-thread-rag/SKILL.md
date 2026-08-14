@@ -62,6 +62,28 @@ provenance, not independent factual claims.
     a matched previous handoff/index generation before rollback. Rollback is
     derived-state only and must not alter canonical Codex sessions.
 
+## Parallel querying (experimental)
+
+Same-notebook fan-out is unsafe because the NotebookLM conversation is mutable.
+Use `notebooklm_isolated_ramp.py` for a dry-run capacity plan first. It rejects
+the persistent `chat` profile, never copies source IDs into a replica, and
+keeps live reports aggregate-only:
+
+```powershell
+& "$PythonPath" "$Skill\scripts\notebooklm_isolated_ramp.py" `
+  --config "$env:USERPROFILE\.codex\thread-rag\ads-pc-pilot\sync_config.json" `
+  --pool-sizes 1 2 4 8 16 32 50 `
+  --out "$env:USERPROFILE\.codex\thread-rag\temporal\isolated-ramp-dry-run.json"
+```
+
+Live creation and querying require both `--apply` and
+`--confirm-isolated-retrieval-replicas`. Start with one control or two
+replicas, use a bounded case limit, and run `--cleanup` only when the evidence
+has been retained. Advance only after source fingerprints, citation scope,
+local verification, conversation isolation, rate limits, cancellation, and
+resource checks pass at the prior level. Fifty is an experiment ceiling, never
+the default path.
+
 ## Authentication boundary
 
 - Keep `work` and `personal` profiles separate and verify the exact account after login.
