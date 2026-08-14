@@ -92,6 +92,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   integrity and freshness. The persistent chat doctor passed 27/27 checks.
 - Source/installed script parity is exact at 56/56 files after installation;
   no raw path metadata is present in the temporal handoff.
+- The runner now retains aggregate resource diagnostics in each new report:
+  working-set, private bytes, handle count, and processor-time samples. This
+  is implementation readiness for the idle/resource soak, not a soak pass;
+  the observation boundary must restart after the updated skill is installed.
 
 ## Certification principle
 

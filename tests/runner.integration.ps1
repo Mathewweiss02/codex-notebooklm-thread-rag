@@ -50,6 +50,8 @@ try {
   Assert-True ($result.Status -eq "ok") "benign native stderr must not fail a zero-exit command"
   $run = Get-Content -Raw -LiteralPath $result.Run | ConvertFrom-Json
   Assert-True ($run.Steps.Count -ge 3) "normal run must execute auth, projection, and sync"
+  Assert-True ([bool]$run.Resource.Available -and [int]$run.Resource.SampleCount -ge 2) "runner report must retain aggregate resource samples"
+  Assert-True ([int64]$run.Resource.WorkingSetPeakBytes -ge 0 -and [int64]$run.Resource.HandleCountPeak -ge 0) "resource summary must use bounded numeric diagnostics"
   Assert-True (-not ($run.PSObject.Properties.Name -contains "NotebookId")) "runner report must not persist the notebook ID"
   Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch [regex]::Escape("fixture-notebook")) "runner report must not persist notebook identifiers"
   Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch "private prompt|private answer") "runner report must not persist arbitrary child output"

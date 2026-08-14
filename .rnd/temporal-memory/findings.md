@@ -97,3 +97,8 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   from console output. The optional aggregate report records the commit and
   step timings without path or content leakage; a stale CI result cannot be
   promoted to current-revision proof.
+- Scheduler soak reports previously retained status and step timing only. The
+  runner now records aggregate working-set, private-memory, handle-count, and
+  processor-time samples around each child step. This improves leak/orphan
+  detection without retaining child output or sensitive process metadata; the
+  wall-clock gate must be re-established from the installed revision.

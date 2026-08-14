@@ -27,7 +27,9 @@ reset the persistent chat notebook or create replica notebooks during soak.
 
 - Every required cycle succeeds or fails with an expected stable code.
 - No canonical loss, silent omission, stale-success health result, orphaned
-  process, unbounded report growth, or unexplained resource trend.
+  process, unbounded report growth, or unexplained resource trend. Each
+  post-change runner report must include aggregate working-set, private-byte,
+  handle-count, and processor-time diagnostics without raw child output.
 - Recovery restores a verified derived index without deleting canonical source
   data.
 - The wall-clock observation has no P0-P2 defect and no waived mandatory gate.

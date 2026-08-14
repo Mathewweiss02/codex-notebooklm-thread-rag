@@ -24,6 +24,54 @@ function Convert-ToSafeDiagnosticLine {
   return "flags=$($flags -join ',')"
 }
 
+$resourceSamples = @()
+
+function Add-ResourceSample {
+  try {
+    $process = Get-Process -Id $PID -ErrorAction Stop
+    $script:resourceSamples += [pscustomobject]@{
+      WorkingSetBytes = [int64]$process.WorkingSet64
+      PrivateBytes = [int64]$process.PrivateMemorySize64
+      HandleCount = [int64]$process.HandleCount
+      ProcessorTimeMs = [math]::Round($process.TotalProcessorTime.TotalMilliseconds, 3)
+    }
+  } catch {
+    # Resource diagnostics are supplemental; a disappearing process must not
+    # hide the primary runner result or write exception details to the report.
+  }
+}
+
+function Get-ResourceSummary {
+  $samples = @($script:resourceSamples)
+  if ($samples.Count -eq 0) {
+    return [ordered]@{
+      SampleCount = 0
+      Available = $false
+    }
+  }
+  $workingSet = @($samples | ForEach-Object { [int64]$_.WorkingSetBytes })
+  $privateBytes = @($samples | ForEach-Object { [int64]$_.PrivateBytes })
+  $handles = @($samples | ForEach-Object { [int64]$_.HandleCount })
+  $processorTime = @($samples | ForEach-Object { [double]$_.ProcessorTimeMs })
+  return [ordered]@{
+    SampleCount = $samples.Count
+    Available = $true
+    WorkingSetStartBytes = $workingSet[0]
+    WorkingSetEndBytes = $workingSet[$workingSet.Count - 1]
+    WorkingSetPeakBytes = [int64](($workingSet | Measure-Object -Maximum).Maximum)
+    WorkingSetDeltaBytes = [int64]($workingSet[$workingSet.Count - 1] - $workingSet[0])
+    PrivateBytesStart = $privateBytes[0]
+    PrivateBytesEnd = $privateBytes[$privateBytes.Count - 1]
+    PrivateBytesPeak = [int64](($privateBytes | Measure-Object -Maximum).Maximum)
+    PrivateBytesDelta = [int64]($privateBytes[$privateBytes.Count - 1] - $privateBytes[0])
+    HandleCountStart = $handles[0]
+    HandleCountEnd = $handles[$handles.Count - 1]
+    HandleCountPeak = [int64](($handles | Measure-Object -Maximum).Maximum)
+    HandleCountDelta = [int64]($handles[$handles.Count - 1] - $handles[0])
+    ProcessorTimeDeltaMs = [math]::Round($processorTime[$processorTime.Count - 1] - $processorTime[0], 3)
+  }
+}
+
 function Invoke-Checked {
   param([string] $Executable, [string[]] $Arguments, [string] $Label)
   $started = Get-Date
@@ -42,6 +90,7 @@ function Invoke-Checked {
     $ErrorActionPreference = $priorPreference
     if ($hasNativePreference) { $PSNativeCommandUseErrorActionPreference = $priorNativePreference }
   }
+  Add-ResourceSample
   if ($exitCode -ne 0) {
     $safeTail = @($output | Select-Object -Last 12 | ForEach-Object { Convert-ToSafeDiagnosticLine $_ })
     throw "$Label failed with exit code $exitCode. $($safeTail -join ' | ')"
@@ -81,6 +130,7 @@ $run = [ordered]@{
   Steps = @()
   Status = "running"
 }
+Add-ResourceSample
 
 try {
   $hasMutex = $mutex.WaitOne(0)
@@ -199,6 +249,8 @@ try {
   throw
 } finally {
   $run.CompletedAt = (Get-Date).ToUniversalTime().ToString("o")
+  Add-ResourceSample
+  $run.Resource = Get-ResourceSummary
   if ($run.Status -ne "skipped-overlap") {
     $runnerStatePath = Join-Path ([string]$settings.ProjectionRoot) "runner_state.json"
     $finalRunnerState = if (Test-Path -LiteralPath $runnerStatePath) { Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json } else { [pscustomobject]@{} }
