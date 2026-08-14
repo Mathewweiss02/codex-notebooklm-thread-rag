@@ -20,7 +20,17 @@ function Invoke-Step {
 
 $nodeTests = @(Get-ChildItem -Recurse -File -LiteralPath $repository | Where-Object { $_.Name -like "*.test.mjs" } | ForEach-Object FullName)
 Invoke-Step "node-tests" { & $NodePath --test @nodeTests }
-Invoke-Step "python-tests" { & $PythonPath -m unittest discover -s (Join-Path $repository "tests") -p "test_*.py" -v }
+Invoke-Step "python-tests" {
+  $unittestCode = @'
+import sys
+import unittest
+
+suite = unittest.defaultTestLoader.discover(sys.argv[1], pattern=sys.argv[2])
+result = unittest.TextTestRunner(verbosity=2, stream=sys.stdout).run(suite)
+raise SystemExit(not result.wasSuccessful())
+'@
+  & $PythonPath -c $unittestCode (Join-Path $repository "tests") "test_*.py"
+}
 $pythonScripts = @(Get-ChildItem -File -LiteralPath (Join-Path $repository "scripts") | Where-Object { $_.Extension -in @(".py", ".pyw") } | ForEach-Object FullName)
 Invoke-Step "python-compile" { & $PythonPath -m py_compile @pythonScripts }
 

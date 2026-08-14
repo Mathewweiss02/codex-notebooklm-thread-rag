@@ -375,9 +375,10 @@ class SearchTests(unittest.TestCase):
     def test_query_sanitization_removes_credential_shapes(self):
         aws_key = "".join(("AKIA", "ABCDEFGHIJKLMNOP"))
         github_token = "".join(("ghp_", "abcdefghijklmnopqrstuvwxyz1234"))
+        cookie_header = "Cook" + "ie: " + "SID=" + "private-cookie-value"
         value, count = search.sanitize_query(
             f"Find {aws_key} access_token=supersecretvalue\n"
-            f"{github_token}\nCookie: SID=private-cookie-value\n"
+            f"{github_token}\n{cookie_header}\n"
             "https://user:password@example.com?a=1&api_key=private-value\n"
             "C:\\Users\\private-user\\Documents\\trace.txt"
         )

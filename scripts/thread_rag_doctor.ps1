@@ -39,6 +39,42 @@ if (Test-Path -LiteralPath $statePath) {
   Add-Check "projection-threads" (@($state.threads.PSObject.Properties).Count -gt 0) ("count={0}" -f @($state.threads.PSObject.Properties).Count)
 }
 
+if ($settings.TemporalRefresh -eq $true) {
+  foreach ($name in @("TemporalRoot", "TemporalRefreshScript", "TemporalManifestScript", "TemporalExtractScript", "TemporalIndexScript")) {
+    Add-Check "temporal-config-$name" ([bool]$settings.$name) $(if ($settings.$name) { "present" } else { "missing" })
+  }
+  foreach ($name in @("TemporalRefreshScript", "TemporalManifestScript", "TemporalExtractScript", "TemporalIndexScript")) {
+    $value = [string]$settings.$name
+    Add-Check "temporal-path-$name" (Test-Path -LiteralPath $value) $value
+  }
+  $temporalRoot = [string]$settings.TemporalRoot
+  $temporalDb = Join-Path $temporalRoot "temporal.sqlite3"
+  $temporalHandoff = Join-Path $temporalRoot "temporal-events.ndjson"
+  Add-Check "temporal-handoff" (Test-Path -LiteralPath $temporalHandoff) $temporalHandoff
+  Add-Check "temporal-index-file" (Test-Path -LiteralPath $temporalDb) $temporalDb
+  if ((Test-Path -LiteralPath $temporalDb) -and (Test-Path -LiteralPath ([string]$settings.TemporalIndexScript))) {
+    try {
+      $temporalOutput = @(& ([string]$settings.PythonPath) ([string]$settings.TemporalIndexScript) --db $temporalDb --verify 2>$null)
+      $temporalExit = $LASTEXITCODE
+      $temporalPayload = (($temporalOutput | ForEach-Object { [string]$_ }) -join "`n" | ConvertFrom-Json)
+      $temporalValid = $temporalExit -eq 0 -and [string]$temporalPayload.eventDigest -and [int]$temporalPayload.eventCount -ge 0
+      Add-Check "temporal-index-integrity" $temporalValid ("exit={0}; events={1}; quarantines={2}" -f $temporalExit, $temporalPayload.eventCount, $temporalPayload.quarantineCount)
+      if ($temporalValid) {
+        try {
+          $temporalApplied = [DateTimeOffset]::Parse([string]$temporalPayload.lastAppliedAt).ToUniversalTime()
+          $temporalMaxAge = if ($null -ne $settings.TemporalMaxAgeMinutes) { [int]$settings.TemporalMaxAgeMinutes } else { 90 }
+          $temporalAge = ([DateTimeOffset]::UtcNow - $temporalApplied).TotalMinutes
+          Add-Check "temporal-index-freshness" ($temporalAge -ge -5 -and $temporalAge -le $temporalMaxAge) ("at={0}; ageMinutes={1:N1}; maxMinutes={2}" -f $temporalApplied.ToString("o"), $temporalAge, $temporalMaxAge)
+        } catch {
+          Add-Check "temporal-index-freshness" $false ("invalid timestamp: {0}" -f [string]$temporalPayload.lastAppliedAt)
+        }
+      }
+    } catch {
+      Add-Check "temporal-index-integrity" $false "verification command failed"
+    }
+  }
+}
+
 $runnerStatePath = Join-Path ([string]$settings.ProjectionRoot) "runner_state.json"
 Add-Check "runner-state" (Test-Path -LiteralPath $runnerStatePath) $runnerStatePath
 if (Test-Path -LiteralPath $runnerStatePath) {

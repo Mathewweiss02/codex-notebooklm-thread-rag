@@ -1,0 +1,10 @@
+{
+  "experiment": "NLM-002",
+  "caseContract": "temporal-synthesis-case-v1",
+  "cases": [
+    {"caseId": "NLM-002-Q1", "prompt": "Summarize the main work topics in the selected source in three concise bullets. Cite each bullet."},
+    {"caseId": "NLM-002-Q2", "prompt": "Identify the most recent user-requested change in the selected source. Include a timestamp only if the source provides one, and cite it."},
+    {"caseId": "NLM-002-Q3", "prompt": "List the unresolved follow-ups or open questions in the selected source. Cite each item and say when the source is silent."},
+    {"caseId": "NLM-002-Q4", "prompt": "What was the user's intent around NotebookLM in the selected source? Give a concise evidence-backed answer with citations."}
+  ]
+}

@@ -13,6 +13,7 @@ from notebooklm_thread_batch_benchmark import (  # noqa: E402
     build_packed_prompt,
     map_references_to_sections,
     unique_threads,
+    build_source_map,
 )
 
 
@@ -72,6 +73,15 @@ class BatchBenchmarkTests(unittest.TestCase):
         self.assertIn("Q2: Find beta", prompt)
         self.assertIn("Do not combine questions", prompt)
         self.assertEqual(answer_sections("## Q1\nA\n## Q2\nB", 2), {1: (0, 8), 2: (8, 15)})
+
+    def test_source_map_excludes_incomplete_auto_enrollment_without_raising(self) -> None:
+        state = {
+            "threads": {
+                "ready": {"parts": [{"sourceId": "source-ready"}]},
+                "enrolling": {"parts": [{"sourceId": None}]},
+            }
+        }
+        self.assertEqual(build_source_map(state), {"source-ready": "ready"})
 
 
 if __name__ == "__main__":

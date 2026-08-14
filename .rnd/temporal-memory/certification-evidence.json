@@ -1,0 +1,1298 @@
+{
+  "contractVersion": "temporal-certification-evidence-v1",
+  "matrixPath": "certification-matrix.md",
+  "matrixDigest": "c6391a4f81a55aa450e40f8246dedd6983258c4bbc282ecfc5cec3dd45a9acdf",
+  "generatedAt": "2026-08-14T09:54:09Z",
+  "rows": {
+    "TIME-001": {
+      "status": "covered",
+      "scenario": "Today",
+      "testLevel": "Unit + E2E",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-002": {
+      "status": "covered",
+      "scenario": "Yesterday",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-003": {
+      "status": "covered",
+      "scenario": "Past 24 hours",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-004": {
+      "status": "covered",
+      "scenario": "Past 7 days",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-005": {
+      "status": "covered",
+      "scenario": "Last week",
+      "testLevel": "Unit + UX",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-006": {
+      "status": "covered",
+      "scenario": "Week to date",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-007": {
+      "status": "covered",
+      "scenario": "Explicit date",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-008": {
+      "status": "covered",
+      "scenario": "Explicit timestamp range",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-009": {
+      "status": "covered",
+      "scenario": "Midnight event",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-010": {
+      "status": "covered",
+      "scenario": "End-of-day millisecond",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-011": {
+      "status": "covered",
+      "scenario": "DST spring gap",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-012": {
+      "status": "covered",
+      "scenario": "DST fall overlap",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-013": {
+      "status": "covered",
+      "scenario": "Leap day",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-014": {
+      "status": "covered",
+      "scenario": "Month/year boundary",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-015": {
+      "status": "covered",
+      "scenario": "Time-zone override",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-016": {
+      "status": "covered",
+      "scenario": "Invalid natural phrase",
+      "testLevel": "Unit + UX",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-017": {
+      "status": "covered",
+      "scenario": "No period specified",
+      "testLevel": "UX",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "TIME-018": {
+      "status": "covered",
+      "scenario": "Future period",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:25Z"
+    },
+    "IDX-001": {
+      "status": "covered",
+      "scenario": "New session",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-002": {
+      "status": "covered",
+      "scenario": "Unchanged rerun",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-003": {
+      "status": "covered",
+      "scenario": "Appended messages",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-004": {
+      "status": "covered",
+      "scenario": "Active → archived move",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-005": {
+      "status": "covered",
+      "scenario": "Active/archive duplicate",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-006": {
+      "status": "pass",
+      "scenario": "Resumed old thread",
+      "testLevel": "Replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-007": {
+      "status": "pass",
+      "scenario": "Forked thread",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-008": {
+      "status": "pass",
+      "scenario": "Subagent thread",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-009": {
+      "status": "pass",
+      "scenario": "Compaction summary",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-010": {
+      "status": "covered",
+      "scenario": "Tool/reasoning payload",
+      "testLevel": "Security regression",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-011": {
+      "status": "covered",
+      "scenario": "Duplicate message",
+      "testLevel": "Property",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-012": {
+      "status": "pass",
+      "scenario": "Same text, different time",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-013": {
+      "status": "covered",
+      "scenario": "Missing timestamp",
+      "testLevel": "Unit",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-014": {
+      "status": "covered",
+      "scenario": "Invalid timestamp",
+      "testLevel": "Fuzz",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-015": {
+      "status": "pass",
+      "scenario": "Malformed JSONL line",
+      "testLevel": "Fuzz + integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-016": {
+      "status": "pass",
+      "scenario": "Partial final line",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-017": {
+      "status": "covered",
+      "scenario": "Oversized visible line",
+      "testLevel": "Regression",
+      "evidence": [
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:26Z"
+    },
+    "IDX-018": {
+      "status": "pass",
+      "scenario": "Unicode/emoji/bidi",
+      "testLevel": "Fuzz",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-019": {
+      "status": "pass",
+      "scenario": "File locked during scan",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-020": {
+      "status": "pass",
+      "scenario": "Concurrent index writers",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-021": {
+      "status": "pass",
+      "scenario": "Process kill during commit",
+      "testLevel": "Crash injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-022": {
+      "status": "pass",
+      "scenario": "Database corruption",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-023": {
+      "status": "pass",
+      "scenario": "Disk full",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "IDX-024": {
+      "status": "pending",
+      "scenario": "Schema migration",
+      "testLevel": "Migration suite",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "IDX-025": {
+      "status": "pass",
+      "scenario": "Redaction contract change",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "CTX-001": {
+      "status": "covered",
+      "scenario": "Empty period",
+      "testLevel": "E2E",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-002": {
+      "status": "covered",
+      "scenario": "Single message",
+      "testLevel": "E2E",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-003": {
+      "status": "covered",
+      "scenario": "One thread, many messages",
+      "testLevel": "Replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-004": {
+      "status": "covered",
+      "scenario": "Many threads, one day",
+      "testLevel": "Replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-005": {
+      "status": "covered",
+      "scenario": "One thread crosses midnight",
+      "testLevel": "Replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-006": {
+      "status": "covered",
+      "scenario": "Multiple sessions in one thread/day",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-007": {
+      "status": "covered",
+      "scenario": "Concurrent threads",
+      "testLevel": "Property",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-008": {
+      "status": "covered",
+      "scenario": "Giant thread",
+      "testLevel": "Scale replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-009": {
+      "status": "covered",
+      "scenario": "Giant day/week",
+      "testLevel": "Scale replay",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-010": {
+      "status": "covered",
+      "scenario": "Brief/standard/deep",
+      "testLevel": "Property",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-011": {
+      "status": "pending",
+      "scenario": "User intent extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "CTX-012": {
+      "status": "pending",
+      "scenario": "Completion extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "CTX-013": {
+      "status": "pending",
+      "scenario": "Unresolved item extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "CTX-014": {
+      "status": "pending",
+      "scenario": "Artifact/path extraction",
+      "testLevel": "Security + factuality",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "CTX-015": {
+      "status": "pending",
+      "scenario": "Project filter",
+      "testLevel": "Integration",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "CTX-016": {
+      "status": "covered",
+      "scenario": "Topic within period",
+      "testLevel": "Differential",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-017": {
+      "status": "covered",
+      "scenario": "Compare periods",
+      "testLevel": "E2E",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-018": {
+      "status": "covered",
+      "scenario": "Drill-down",
+      "testLevel": "E2E",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-019": {
+      "status": "covered",
+      "scenario": "Context budget exhausted",
+      "testLevel": "Property",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "CTX-020": {
+      "status": "covered",
+      "scenario": "Current thread inclusion",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:27Z"
+    },
+    "NLM-001": {
+      "status": "covered",
+      "scenario": "All selected threads mapped",
+      "testLevel": "Live + fixture",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-002": {
+      "status": "covered",
+      "scenario": "Missing mapped thread",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-003": {
+      "status": "covered",
+      "scenario": "Split thread sources",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-004": {
+      "status": "covered",
+      "scenario": "Previous revision present",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-005": {
+      "status": "pass",
+      "scenario": "Stale/missing source",
+      "testLevel": "Live canary",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "NLM-006": {
+      "status": "covered",
+      "scenario": "Untracked extra source",
+      "testLevel": "Regression",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-007": {
+      "status": "pass",
+      "scenario": "Wrong-day remote citation",
+      "testLevel": "Adversarial live",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "NLM-008": {
+      "status": "pass",
+      "scenario": "Wrong-thread remote citation",
+      "testLevel": "Adversarial fixture",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "NLM-009": {
+      "status": "pass",
+      "scenario": "Citation-free claim",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "NLM-010": {
+      "status": "pending",
+      "scenario": "Remote outage",
+      "testLevel": "Failure injection",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "NLM-011": {
+      "status": "pending",
+      "scenario": "Auth expired",
+      "testLevel": "Live recovery",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "NLM-012": {
+      "status": "pending",
+      "scenario": "429/5xx",
+      "testLevel": "Mock + live canary",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "NLM-013": {
+      "status": "pending",
+      "scenario": "Timeout",
+      "testLevel": "Failure injection",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "NLM-014": {
+      "status": "covered",
+      "scenario": "Persistent chat notebook",
+      "testLevel": "Regression",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-015": {
+      "status": "covered",
+      "scenario": "Disposable retrieval notebook",
+      "testLevel": "Regression",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "NLM-016": {
+      "status": "covered",
+      "scenario": "No NotebookLM benefit",
+      "testLevel": "Routing test",
+      "evidence": [
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:49Z"
+    },
+    "PAR-001": {
+      "status": "covered",
+      "scenario": "One question baseline",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-002": {
+      "status": "covered",
+      "scenario": "Pack size 2",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-003": {
+      "status": "covered",
+      "scenario": "Pack size 4",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-004": {
+      "status": "covered",
+      "scenario": "Pack size 8",
+      "testLevel": "Gated live benchmark",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-005": {
+      "status": "covered",
+      "scenario": "Missing section",
+      "testLevel": "Parser test",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-006": {
+      "status": "covered",
+      "scenario": "Reordered headings",
+      "testLevel": "Parser fuzz",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-007": {
+      "status": "covered",
+      "scenario": "Citation offset drift",
+      "testLevel": "Regression",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-008": {
+      "status": "covered",
+      "scenario": "Shared null conversation",
+      "testLevel": "Concurrency test",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-009": {
+      "status": "pending",
+      "scenario": "Distinct explicit conversations",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-010": {
+      "status": "pending",
+      "scenario": "Shared conversation follow-ups",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-011": {
+      "status": "pending",
+      "scenario": "Replica notebooks",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-012": {
+      "status": "pending",
+      "scenario": "Concurrency 2",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-013": {
+      "status": "pending",
+      "scenario": "Concurrency 4",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-014": {
+      "status": "pending",
+      "scenario": "Concurrency 8",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-015": {
+      "status": "pending",
+      "scenario": "Concurrency 16",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-016": {
+      "status": "pending",
+      "scenario": "Concurrency 32/50",
+      "testLevel": "Research gate",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-017": {
+      "status": "covered",
+      "scenario": "One child failure",
+      "testLevel": "Integration",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-018": {
+      "status": "covered",
+      "scenario": "Global cancellation",
+      "testLevel": "Failure injection",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-019": {
+      "status": "pending",
+      "scenario": "Rate-limit burst",
+      "testLevel": "Mock + canary",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-020": {
+      "status": "covered",
+      "scenario": "Cross-question citation",
+      "testLevel": "Adversarial benchmark",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-021": {
+      "status": "covered",
+      "scenario": "Conversation mutation",
+      "testLevel": "Live safety gate",
+      "evidence": [
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:50Z"
+    },
+    "PAR-022": {
+      "status": "pending",
+      "scenario": "Scheduler overlap",
+      "testLevel": "Integration + soak",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PERF-001": {
+      "status": "covered",
+      "scenario": "Current corpus cold build",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus local latency and budget evidence covers the measured warm/cold temporal paths; no-change/append and resource soak remain separate rows.",
+      "executedAt": "2026-08-14T09:59:52Z"
+    },
+    "PERF-002": {
+      "status": "pass",
+      "scenario": "No-change incremental run",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-004-incremental-report.json"
+      ],
+      "notes": "145-thread synthetic incremental benchmark: no-change P95 92.998 ms <= 1 s; one-thread append P95 479.113 ms <= 2 s; 10/10 exact no-op and append transitions.",
+      "executedAt": "2026-08-14T11:20:40Z",
+      "resultDigest": "6312EDC798EE900B3A7E45ED9D8EC173BAAB0A3BEF5748FA42A77D01F1569B1E"
+    },
+    "PERF-003": {
+      "status": "pass",
+      "scenario": "One-thread append",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-004-incremental-report.json"
+      ],
+      "notes": "145-thread synthetic incremental benchmark: no-change P95 92.998 ms <= 1 s; one-thread append P95 479.113 ms <= 2 s; 10/10 exact no-op and append transitions.",
+      "executedAt": "2026-08-14T11:20:40Z",
+      "resultDigest": "6312EDC798EE900B3A7E45ED9D8EC173BAAB0A3BEF5748FA42A77D01F1569B1E"
+    },
+    "PERF-004": {
+      "status": "covered",
+      "scenario": "Warm day query",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus local latency and budget evidence covers the measured warm/cold temporal paths; no-change/append and resource soak remain separate rows.",
+      "executedAt": "2026-08-14T09:59:52Z"
+    },
+    "PERF-005": {
+      "status": "covered",
+      "scenario": "Cold day query",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus local latency and budget evidence covers the measured warm/cold temporal paths; no-change/append and resource soak remain separate rows.",
+      "executedAt": "2026-08-14T09:59:52Z"
+    },
+    "PERF-006": {
+      "status": "covered",
+      "scenario": "Week context pack",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus local latency and budget evidence covers the measured warm/cold temporal paths; no-change/append and resource soak remain separate rows.",
+      "executedAt": "2026-08-14T09:59:52Z"
+    },
+    "PERF-007": {
+      "status": "pass",
+      "scenario": "2× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-008": {
+      "status": "pass",
+      "scenario": "5× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-009": {
+      "status": "pass",
+      "scenario": "10× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-010": {
+      "status": "pass",
+      "scenario": "Memory pressure",
+      "testLevel": "Profiling",
+      "evidence": [
+        ".rnd/temporal-memory/perf-003-resource-pressure-report.json"
+      ],
+      "notes": "64,000-event synthetic replay stayed under the explicit 128 MiB traced-allocation ceiling, with exact results and zero Windows handle growth.",
+      "executedAt": "2026-08-14T10:40:15Z",
+      "resultDigest": "870875C55451CEF00D09223B491994356BDFD2AC23A32566DE65721EEBD0926A"
+    },
+    "PERF-011": {
+      "status": "pending",
+      "scenario": "Idle state",
+      "testLevel": "Soak",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PERF-012": {
+      "status": "pass",
+      "scenario": "Repeated queries",
+      "testLevel": "Soak",
+      "evidence": [
+        ".rnd/temporal-memory/perf-003-resource-report.json"
+      ],
+      "notes": "50 repeated local temporal queries preserved exact results with zero handle growth and bounded traced allocation growth on the writer-locked index.",
+      "executedAt": "2026-08-14T10:53:06Z",
+      "resultDigest": "4EA2DB0679F460A1614AB84680052C89A6EF50017DCED0EBB558F260AA16E451"
+    },
+    "SEC-001": {
+      "status": "covered",
+      "scenario": "Credential patterns",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:53Z"
+    },
+    "SEC-002": {
+      "status": "pass",
+      "scenario": "Private paths",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "SEC-003": {
+      "status": "covered",
+      "scenario": "Database ACL",
+      "testLevel": "Installation test",
+      "evidence": [
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:53Z"
+    },
+    "SEC-004": {
+      "status": "covered",
+      "scenario": "Logs/reports",
+      "testLevel": "Secret scan",
+      "evidence": [
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:53Z"
+    },
+    "SEC-005": {
+      "status": "pass",
+      "scenario": "Query errors",
+      "testLevel": "Fuzz/security",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "SEC-006": {
+      "status": "pass",
+      "scenario": "Retention",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "SEC-007": {
+      "status": "pass",
+      "scenario": "Rebuild/removal",
+      "testLevel": "Recovery test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "SEC-008": {
+      "status": "pass",
+      "scenario": "Dependency update",
+      "testLevel": "CI gate",
+      "evidence": [
+        ".rnd/temporal-memory/sec-008-dependency-audit.json"
+      ],
+      "notes": "Locked uv export audited with pinned pip-audit; no known vulnerabilities.",
+      "executedAt": "2026-08-14T10:33:17Z",
+      "resultDigest": "F5ED410947366B14713849A77084E86EDC11AE3D292DD46D9114B4279C4E089C"
+    },
+    "UX-001": {
+      "status": "covered",
+      "scenario": "Fresh Codex task",
+      "testLevel": "Cold-start eval",
+      "evidence": [
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:54Z"
+    },
+    "UX-002": {
+      "status": "covered",
+      "scenario": "Nontechnical phrasing",
+      "testLevel": "E2E",
+      "evidence": [
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:54Z"
+    },
+    "UX-003": {
+      "status": "pass",
+      "scenario": "Ambiguous period",
+      "testLevel": "UX eval",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Exact focused deterministic test passed; no live NotebookLM, replica, or wall-clock claim.",
+      "executedAt": "2026-08-14T11:50:48Z",
+      "resultDigest": "70c2ffda4e967194397b3e8d587bf916b635107908df6856ebe09f15a0bbf74d"
+    },
+    "UX-004": {
+      "status": "covered",
+      "scenario": "Empty result",
+      "testLevel": "UX eval",
+      "evidence": [
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:54Z"
+    },
+    "UX-005": {
+      "status": "covered",
+      "scenario": "Degraded remote",
+      "testLevel": "UX eval",
+      "evidence": [
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:54Z"
+    },
+    "UX-006": {
+      "status": "covered",
+      "scenario": "Diagnostics",
+      "testLevel": "Contract test",
+      "evidence": [
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:54Z"
+    },
+    "OPS-001": {
+      "status": "covered",
+      "scenario": "Scheduled index update",
+      "testLevel": "Windows integration",
+      "evidence": [
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:56Z"
+    },
+    "OPS-002": {
+      "status": "covered",
+      "scenario": "Doctor",
+      "testLevel": "Integration + live",
+      "evidence": [
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:56Z"
+    },
+    "OPS-003": {
+      "status": "covered",
+      "scenario": "Rebuild",
+      "testLevel": "Recovery rehearsal",
+      "evidence": [
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "No retained row-specific execution result yet.",
+      "executedAt": "2026-08-14T09:59:56Z"
+    },
+    "OPS-004": {
+      "status": "pending",
+      "scenario": "Rollback",
+      "testLevel": "Release rehearsal",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "OPS-005": {
+      "status": "pending",
+      "scenario": "Seven-day soak",
+      "testLevel": "Soak",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "OPS-006": {
+      "status": "pending",
+      "scenario": "Committed-revision proof",
+      "testLevel": "Release gate",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    }
+  },
+  "updatedAt": "2026-08-14T11:50:48Z"
+}

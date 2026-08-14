@@ -55,13 +55,18 @@ def percentile(values: list[float], quantile: float) -> float | None:
 def build_source_map(state: dict[str, Any]) -> dict[str, str]:
     output: dict[str, str] = {}
     for thread_id, thread in state.get("threads", {}).items():
-        for part in thread.get("parts", []):
+        parts = thread.get("parts", [])
+        # Auto-enrollment can checkpoint a newly visible task before its live
+        # source upload finishes.  It is not part of the current remote corpus
+        # until every current part has a source ID; skip the incomplete task
+        # and let the report disclose the coverage gap.
+        if not parts or any(not part.get("sourceId") for part in parts):
+            continue
+        for part in parts:
             source_id = part.get("sourceId")
-            if not source_id:
-                raise ValueError(f"Thread {thread_id} has an unuploaded part")
             owner = output.setdefault(source_id, thread_id)
             if owner != thread_id:
-                raise ValueError("One live source id is assigned to multiple projected tasks")
+                raise ValueError("one live source id is assigned to multiple projected tasks")
     return output
 
 
@@ -191,6 +196,16 @@ async def main() -> int:
         "caseCount": len(cases),
         "packSizes": sorted(set(args.pack_sizes)),
         "results": [],
+    }
+    report["sourceCoverage"] = {
+        "stateThreadCount": len(state.get("threads") or {}),
+        "mappedThreadCount": len(set(source_to_thread.values())),
+        "mappedSourceCount": len(source_to_thread),
+        "incompleteThreadCount": sum(
+            1
+            for thread in (state.get("threads") or {}).values()
+            if not thread.get("parts") or any(not part.get("sourceId") for part in thread.get("parts", []))
+        ),
     }
     async with NotebookLMClient.from_storage(profile=args.profile, chat_timeout=240.0) as client:
         live_ids = {source.id for source in await client.sources.list(args.notebook_id, strict=True)}

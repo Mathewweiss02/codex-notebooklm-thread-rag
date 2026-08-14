@@ -1,0 +1,23 @@
+{
+  "contractVersion": "temporal-claim-verifier-v1",
+  "status": "accepted-for-implementation",
+  "authority": "local-temporal-index-and-current-projection",
+  "acceptance": {
+    "localContext": ["status=ok", "completeSelection=true", "includedEventCount=canonicalEventCount"],
+    "conversation": "is_follow_up=false",
+    "sourceScope": "every returned source ID is current and mapper-approved",
+    "citation": ["answer marker maps to a returned reference", "reference cited_text matches current local projection or selected event evidence", "answer span is within answer bounds"],
+    "explicitTimeLiterals": "must remain inside the resolved local period",
+    "projection": "sourceSha256 must match before cited text is used"
+  },
+  "failure": {
+    "localIncomplete": "degraded",
+    "scopeOrCitationFailure": "abstained",
+    "remoteUnavailable": "deterministic-local-fallback",
+    "rawAnswerPersistence": "forbidden"
+  },
+  "output": {
+    "stores": ["status", "decision", "stable codes", "aggregate counts", "answer hash"],
+    "doesNotStore": ["answer text", "cited passages", "raw CLI output", "credentials", "cookies", "raw paths"]
+  }
+}

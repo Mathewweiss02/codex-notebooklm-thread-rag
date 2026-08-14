@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { formatHumanReport, searchThreads } from "./thread_search_lib.mjs";
+import { formatHumanReport, redactSensitiveText, searchThreads } from "./thread_search_lib.mjs";
 import { pathToFileURL } from "node:url";
 
 function printUsage() {
@@ -160,12 +160,21 @@ export function parseArgs(argv, runtime = {}) {
   return options;
 }
 
+export function formatCliError(error) {
+  const message = error && typeof error === "object" && "stack" in error
+    ? error.stack
+    : error && typeof error === "object" && "message" in error
+      ? error.message
+      : String(error);
+  return redactSensitiveText(String(message || "Unknown error"));
+}
+
 async function main() {
   let options;
   try {
     options = parseArgs(process.argv.slice(2));
   } catch (error) {
-    console.error(error.message);
+    console.error(formatCliError(error));
     printUsage();
     process.exitCode = 2;
     return;
@@ -184,7 +193,7 @@ async function main() {
     const report = await searchThreads(options);
     console.log(options.json ? JSON.stringify(report, null, 2) : formatHumanReport(report));
   } catch (error) {
-    console.error(`Thread search failed: ${error.stack || error.message}`);
+    console.error(`Thread search failed: ${formatCliError(error)}`);
     process.exitCode = 1;
   }
 }

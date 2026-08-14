@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "timezone": "America/New_York",
+  "events": [
+    {
+      "recordId": "spring-before",
+      "logicalId": "spring-before",
+      "threadId": "fixture-spring",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": "2026-03-08T06:59:59Z",
+      "text": "synthetic message before the spring-forward transition"
+    },
+    {
+      "recordId": "spring-after",
+      "logicalId": "spring-after",
+      "threadId": "fixture-spring",
+      "sourceKind": "active",
+      "role": "assistant",
+      "timestamp": "2026-03-08T07:00:00Z",
+      "text": "synthetic message after the spring-forward transition"
+    },
+    {
+      "recordId": "midnight-before",
+      "logicalId": "midnight-before",
+      "threadId": "fixture-boundary",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": "2026-08-12T03:59:59Z",
+      "text": "synthetic message immediately before local midnight"
+    },
+    {
+      "recordId": "midnight-start",
+      "logicalId": "midnight-start",
+      "threadId": "fixture-boundary",
+      "sourceKind": "active",
+      "role": "assistant",
+      "timestamp": "2026-08-12T04:00:00Z",
+      "text": "synthetic message exactly at the local-day start"
+    },
+    {
+      "recordId": "midnight-end",
+      "logicalId": "midnight-end",
+      "threadId": "fixture-boundary",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": "2026-08-13T04:00:00Z",
+      "text": "synthetic message exactly at the exclusive local-day end"
+    },
+    {
+      "recordId": "resumed-thread",
+      "logicalId": "resumed-thread",
+      "threadId": "fixture-resumed",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": "2026-08-12T15:00:00Z",
+      "text": "synthetic continuation of an older thread"
+    },
+    {
+      "recordId": "duplicate-active",
+      "logicalId": "duplicate-message",
+      "threadId": "fixture-duplicate",
+      "sourceKind": "active",
+      "role": "assistant",
+      "timestamp": "2026-08-12T16:00:00Z",
+      "text": "synthetic message represented in active and archived lineage"
+    },
+    {
+      "recordId": "duplicate-archive",
+      "logicalId": "duplicate-message",
+      "threadId": "fixture-duplicate",
+      "sourceKind": "archive",
+      "role": "assistant",
+      "timestamp": "2026-08-12T16:00:00Z",
+      "text": "synthetic message represented in active and archived lineage"
+    },
+    {
+      "recordId": "fall-first-hour",
+      "logicalId": "fall-first-hour",
+      "threadId": "fixture-fall",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": "2026-11-01T05:30:00Z",
+      "text": "synthetic message in the first repeated fall-back hour"
+    },
+    {
+      "recordId": "fall-second-hour",
+      "logicalId": "fall-second-hour",
+      "threadId": "fixture-fall",
+      "sourceKind": "active",
+      "role": "assistant",
+      "timestamp": "2026-11-01T06:30:00Z",
+      "text": "synthetic message in the second repeated fall-back hour"
+    },
+    {
+      "recordId": "hidden-developer",
+      "logicalId": "hidden-developer",
+      "threadId": "fixture-hidden",
+      "sourceKind": "active",
+      "role": "developer",
+      "timestamp": "2026-08-12T17:00:00Z",
+      "text": "synthetic hidden record"
+    },
+    {
+      "recordId": "hidden-tool",
+      "logicalId": "hidden-tool",
+      "threadId": "fixture-hidden",
+      "sourceKind": "active",
+      "role": "tool",
+      "timestamp": "2026-08-12T17:01:00Z",
+      "text": "synthetic hidden tool record"
+    },
+    {
+      "recordId": "missing-timestamp",
+      "logicalId": "missing-timestamp",
+      "threadId": "fixture-invalid",
+      "sourceKind": "active",
+      "role": "user",
+      "timestamp": null,
+      "text": "synthetic record without a timestamp"
+    },
+    {
+      "recordId": "invalid-timestamp",
+      "logicalId": "invalid-timestamp",
+      "threadId": "fixture-invalid",
+      "sourceKind": "active",
+      "role": "assistant",
+      "timestamp": "not-a-timestamp",
+      "text": "synthetic record with an invalid timestamp"
+    }
+  ],
+  "cases": [
+    {
+      "id": "spring-forward-local-day",
+      "start": "2026-03-08T05:00:00Z",
+      "end": "2026-03-09T04:00:00Z",
+      "expectedLogicalIds": ["spring-before", "spring-after"]
+    },
+    {
+      "id": "midnight-half-open-day",
+      "start": "2026-08-12T04:00:00Z",
+      "end": "2026-08-13T04:00:00Z",
+      "expectedLogicalIds": ["midnight-start", "resumed-thread", "duplicate-message"]
+    },
+    {
+      "id": "fall-back-local-day",
+      "start": "2026-11-01T04:00:00Z",
+      "end": "2026-11-02T05:00:00Z",
+      "expectedLogicalIds": ["fall-first-hour", "fall-second-hour"]
+    },
+    {
+      "id": "wide-visible-window",
+      "start": "2026-08-12T00:00:00Z",
+      "end": "2026-08-13T00:00:00Z",
+      "expectedLogicalIds": ["midnight-before", "midnight-start", "resumed-thread", "duplicate-message"]
+    }
+  ]
+}

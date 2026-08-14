@@ -1,0 +1,76 @@
+{
+  "experiment": "TM-006",
+  "contract": "activity-segmentation-experiment-v1",
+  "fixtureEventCount": 17,
+  "expectedActivityCount": 8,
+  "thresholds": [
+    {
+      "thresholdMinutes": 15,
+      "truePositivePairs": 7,
+      "falsePositivePairs": 0,
+      "falseNegativePairs": 4,
+      "trueNegativePairs": 125,
+      "precision": 1.0,
+      "recall": 0.636364,
+      "f1": 0.777778,
+      "predictedSegments": 11,
+      "expectedSegments": 8,
+      "exactOraclePartition": false
+    },
+    {
+      "thresholdMinutes": 30,
+      "truePositivePairs": 8,
+      "falsePositivePairs": 0,
+      "falseNegativePairs": 3,
+      "trueNegativePairs": 125,
+      "precision": 1.0,
+      "recall": 0.727273,
+      "f1": 0.842105,
+      "predictedSegments": 10,
+      "expectedSegments": 8,
+      "exactOraclePartition": false
+    },
+    {
+      "thresholdMinutes": 60,
+      "truePositivePairs": 11,
+      "falsePositivePairs": 0,
+      "falseNegativePairs": 0,
+      "trueNegativePairs": 125,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "predictedSegments": 8,
+      "expectedSegments": 8,
+      "exactOraclePartition": true
+    },
+    {
+      "thresholdMinutes": 120,
+      "truePositivePairs": 11,
+      "falsePositivePairs": 16,
+      "falseNegativePairs": 0,
+      "trueNegativePairs": 109,
+      "precision": 0.407407,
+      "recall": 1.0,
+      "f1": 0.578947,
+      "predictedSegments": 5,
+      "expectedSegments": 8,
+      "exactOraclePartition": false
+    }
+  ],
+  "selectedPolicy": {
+    "thresholdMinutes": 60,
+    "newSegmentWhen": "timestamp gap > threshold",
+    "threadBoundary": "always-new activity domain",
+    "crossMidnight": "does not split by local date",
+    "tieBreak": [
+      "timestampUtc",
+      "eventId"
+    ]
+  },
+  "oracleNotes": [
+    "expected activity labels are independent of the candidate segmenter",
+    "pairwise precision and recall count merges and fragments separately",
+    "this is a synthetic policy-selection experiment, not a production-corpus quality claim"
+  ],
+  "resultDigest": "b4f57673f7c577b70de5f11ad2f6cac658bb54ec2bc1cbd357efe9c8e6606398"
+}

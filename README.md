@@ -29,7 +29,7 @@ The v4 ADS-PC evaluation used 20 varied real tasks, including renamed tasks, for
 
 The current ADS-PC deployment is newer and larger than that pilot: the Codex app-server currently exposes 130 visible tasks, all 130 are enrolled, and 132 unique sources are live and reconciled in NotebookLM with no missing or unrelated extras. The earlier 312-task/338-part result was a historical local filesystem scan, not today's visible app-server corpus and not the current deployment size.
 
-The current 130-task corpus passed a fresh saved 24-case evaluation on 2026-08-10: semantic candidate recall was 24/24 (100%), raw unique-candidate Top-1 was 23/24 (95.83%), and fused semantic/title/local Top-1 was 24/24 (100%). That suite is now classified as a frozen regression baseline, not proof of generalization.
+The historical 130-task corpus passed a fresh saved 24-case evaluation on 2026-08-10: semantic candidate recall was 24/24 (100%), raw unique-candidate Top-1 was 23/24 (95.83%), and fused semantic/title/local Top-1 was 24/24 (100%). That suite is now classified as a frozen regression baseline, not proof of generalization; the initial 2026-08-14 live inventory observed 140 visible tasks and the latest scheduled projection observes 145.
 
 A broader governed evaluation added 40 visible development cases, 40 sealed holdout cases, negative/no-match queries, uncertainty intervals, immutable evidence, and a 12-case duplicate-title sibling slice. The first sealed holdout scored 30/32 semantic candidate recall, 24/32 hybrid Top-1, and 8/8 correct abstentions. Those honest results block a release-grade retrieval claim and motivate bounded semantic retry. The spent holdout is diagnostic only; a fresh sealed holdout and three consecutive frozen runs are required for promotion.
 
@@ -123,12 +123,13 @@ The account email selects the intended Google identity; it is not a token. Never
 
 Scheduled upkeep uses the upstream CLI command `auth refresh --verify`. A personal profile with a master token can fully re-mint an expired session. A Workspace profile that blocks master-token exchange can still rotate and verify its existing browser session, but may eventually require interactive login when an administrator-enforced session expires.
 
-The thread-RAG wrapper intentionally uses profile names `personal` and `work`. If an older upstream installation uses `main` and `alt`, verify the account mapping first and rename the profiles without copying credential files:
+The thread-RAG wrapper intentionally uses profile names `personal` and `work`. If an older upstream installation uses `main` and `alt`, verify the account mapping first and rename the profiles without copying credential files. Use the pinned executable explicitly; a different `notebooklm` found earlier on `PATH` can be an older installation:
 
 ```powershell
-notebooklm profile list --json
-notebooklm profile rename main personal
-notebooklm profile rename alt work
+$NotebookLm = "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\notebooklm.exe"
+& $NotebookLm profile list --json
+& $NotebookLm profile rename main personal
+& $NotebookLm profile rename alt work
 ```
 
 Only rename after confirming which email each profile represents. Durable automation additionally requires `master_token.json`; a profile with only `storage_state.json` still needs the one-time `master-login-*` flow.
@@ -171,6 +172,8 @@ $Config = "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\sync_config.json"
 ```
 
 Runner `-DryRun` writes the sanitized local projection, manifest, and state needed for validation, then performs only live read checks against NotebookLM. It does not create, upload, replace, or delete NotebookLM sources.
+
+When the config has `TemporalRefresh=true` (the retrieval profile), the runner also builds a timestamp-preserving temporal handoff and SQLite index from the same projection snapshot. The refresh copies canonical session files into a stable staging area, verifies the extractor output and index before promotion, and preserves the last-good derived state on failure. The `chat` profile leaves this step disabled so persistent CLI conversation state remains separate from automated retrieval.
 
 The sync uploads a new revision fully before deleting only the old source IDs already linked to that task. It refuses schema-policy drift, missing parts, size drift, oversized skipped visible messages, lineage-mismatched deletion, duplicate source identity, and unrelated sources in a dedicated notebook.
 
@@ -260,6 +263,17 @@ node .\scripts\thread_search.mjs --query "what was I doing" --today
 node .\scripts\thread_search.mjs --query "when did I ask for the refactor" --after "2026-08-01" --before "2026-08-11"
 ```
 
+The new temporal evidence layer is available through one local CLI boundary. It resolves a period once, queries the SQLite-derived temporal index, and emits a provenance-preserving context pack without NotebookLM or conversation state:
+
+```powershell
+& "PYTHON_PATH" .\scripts\thread_temporal_cli.py when --expression yesterday --timezone America/New_York
+& "PYTHON_PATH" .\scripts\thread_temporal_cli.py recap --db "$env:USERPROFILE\.codex\thread-rag\temporal\temporal.sqlite3" --expression yesterday --timezone America/New_York --mode standard
+& "PYTHON_PATH" .\scripts\thread_temporal_cli.py find --db "$env:USERPROFILE\.codex\thread-rag\temporal\temporal.sqlite3" --expression yesterday --timezone America/New_York --query "refactor"
+& "PYTHON_PATH" .\scripts\thread_temporal_cli.py compare --db "$env:USERPROFILE\.codex\thread-rag\temporal\temporal.sqlite3" --left yesterday --right today --timezone America/New_York
+```
+
+`recap` and `context` are evidence-pack commands: they disclose canonical/included/omitted counts, activity segments, local days, source lineage, and drill-down handles. They do not claim that a compressed pack is a complete narrative. NotebookLM source-scoped synthesis and verification remain separate gated steps.
+
 ## Multiple accounts and devices
 
 Keep `work` and `personal` profiles separate. Do not infer source limits from a subscription label; query the live limits for each account because entitlements can change. In the initial test both profiles reported tier 2, 500 notebooks, and 300 sources per notebook.
@@ -268,7 +282,11 @@ Use one stable device namespace and preferably one notebook per computer. Cross-
 
 ## R&D and current boundary
 
-The current 130-task/132-source deployment is synchronized and strictly reconciled. Its frozen 24-case regression remains 100%, while the broader first sealed holdout is 93.75% semantic candidate recall and 75% hybrid Top-1; the latter is the governing generalization signal. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns.
+The current release lane is temporal-memory reliability. The live retrieval profile has been wired to refresh the derived index during normal scheduled runs, with aggregate-only diagnostics and post-promotion digest verification. The latest stable live check mapped the current state to 145 threads and 147 current source parts with no source-map problems; the local suite currently passes 42 Node tests and 135 Python tests plus PowerShell, runner, doctor, auth, ACL, installation, config, and scheduler integrations. The locked dependency audit reports no known vulnerabilities. REL-001 (freshness wiring and canary) is complete. REL-002 accelerated refresh/recovery/fail-closed soak passes, while the required wall-clock observation window remains open.
+
+The full certification matrix is 133 cases across time interpretation, index integrity, context packing, NotebookLM verification, prompt packing/parallel topology, performance, security, usability, and operations. A row is not considered certified merely because a nearby unit test passes: each release-blocking row needs a retained executable result. Isolated-replica concurrency remains approval-gated; packed queries are the safe current experiment because they issue one remote ask and do not race the persistent chat notebook.
+
+The historical 2026-08-10 130-task/132-source deployment was synchronized and strictly reconciled. Its frozen 24-case regression remains 100%, while the broader first sealed holdout is 93.75% semantic candidate recall and 75% hybrid Top-1; the latter is the governing generalization signal. The separate CLI-chat notebook has the same corpus, persistent conversation policy, and a live test proving automated retrieval does not alter its conversation ID or turns. The newer 2026-08-14 live inventory observed 140 visible tasks; current source counts belong to the live reconciliation artifacts, not this historical paragraph.
 
 A four-question prompt-packing smoke reached 4/4 per-question candidate recall and 3/4 raw/hybrid Top-1 in about 53 seconds end to end, versus about 285 seconds for four individual cached asks. That is a promising roughly 5.4x throughput result, not a promotion: the sample is tiny and one related-candidate ranking remained wrong. Isolated notebook replicas are the next safe true-parallel topology, but require explicit provisioning approval and their own quality/throttling gate.
 

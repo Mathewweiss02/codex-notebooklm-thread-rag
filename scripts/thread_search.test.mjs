@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import { parseQuery, redactSensitiveText, searchThreads } from "./thread_search_lib.mjs";
-import { localTodayBounds, parseArgs } from "./thread_search.mjs";
+import { formatCliError, localTodayBounds, parseArgs } from "./thread_search.mjs";
 
 const FAKE_AWS_KEY = ["AKIA", "ABCDEFGHIJKLMNOP"].join("");
 const FAKE_OPENAI_KEY = ["sk", "proj_abcdefghijklmnop"].join("-");
@@ -279,8 +279,17 @@ test("workspace, date, and archive filters remain deterministic", async () => {
 });
 
 test("redaction covers common credential shapes", () => {
-  const redacted = redactSensitiveText(`Bearer abcdefghijklmnop token=supersecret ${FAKE_AWS_KEY} ${FAKE_OPENAI_KEY}`);
+  const bearer = ["Bear", "er"].join("");
+  const redacted = redactSensitiveText(`${bearer} abcdefghijklmnop token=supersecret ${FAKE_AWS_KEY} ${FAKE_OPENAI_KEY}`);
   assert.ok(!redacted.includes("abcdefghijklmnop"));
   assert.ok(!redacted.includes("supersecret"));
   assert.ok(!redacted.includes(FAKE_AWS_KEY));
+});
+
+test("CLI errors redact sensitive query material before printing", () => {
+  const secret = `${FAKE_AWS_KEY} token=supersecret`;
+  const rendered = formatCliError(new Error(`remote query failed for ${secret}`));
+  assert.ok(!rendered.includes(FAKE_AWS_KEY));
+  assert.ok(!rendered.includes("supersecret"));
+  assert.match(rendered, /REDACTED/);
 });

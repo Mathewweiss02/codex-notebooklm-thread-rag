@@ -16,6 +16,14 @@ function Write-AtomicJson {
   Move-Item -LiteralPath $temporary -Destination $Path -Force
 }
 
+function Convert-ToSafeDiagnosticLine {
+  param([object] $Value)
+  $line = [string]$Value
+  $flags = @([regex]::Matches($line, '(?i)--[a-z0-9-]+') | ForEach-Object { $_.Value.ToLowerInvariant() } | Select-Object -Unique)
+  if ($flags.Count -eq 0) { return "<native-output>" }
+  return "flags=$($flags -join ',')"
+}
+
 function Invoke-Checked {
   param([string] $Executable, [string[]] $Arguments, [string] $Label)
   $started = Get-Date
@@ -35,14 +43,14 @@ function Invoke-Checked {
     if ($hasNativePreference) { $PSNativeCommandUseErrorActionPreference = $priorNativePreference }
   }
   if ($exitCode -ne 0) {
-    $safeTail = @($output | Select-Object -Last 12 | ForEach-Object { [string]$_ })
+    $safeTail = @($output | Select-Object -Last 12 | ForEach-Object { Convert-ToSafeDiagnosticLine $_ })
     throw "$Label failed with exit code $exitCode. $($safeTail -join ' | ')"
   }
   return [pscustomobject]@{
     Label = $Label
     ExitCode = $exitCode
     DurationMs = [math]::Round(((Get-Date) - $started).TotalMilliseconds)
-    OutputTail = @($output | Select-Object -Last 8 | ForEach-Object { [string]$_ })
+    OutputTail = @($output | Select-Object -Last 8 | ForEach-Object { Convert-ToSafeDiagnosticLine $_ })
   }
 }
 
@@ -65,10 +73,9 @@ $mutex = [System.Threading.Mutex]::new($false, $mutexName)
 $hasMutex = $false
 $run = [ordered]@{
   StartedAt = (Get-Date).ToUniversalTime().ToString("o")
-  Config = $configPath
+  ConfigName = Split-Path -Leaf $configPath
   Device = $settings.Device
   Profile = $settings.Profile
-  NotebookId = $settings.NotebookId
   DryRun = [bool]$DryRun
   ReconcileOnly = [bool]$ReconcileOnly
   Steps = @()
@@ -123,6 +130,25 @@ try {
     # only the NotebookLM sync step is remote-write-free.
     $run.Steps += Invoke-Checked -Executable ([string]$settings.NodePath) -Arguments $projectionArgs -Label "projection"
 
+    if ($settings.TemporalRefresh -eq $true) {
+      if (-not $settings.TemporalRefreshScript) { throw "TemporalRefresh requires TemporalRefreshScript in config." }
+      if (-not $settings.TemporalRoot) { throw "TemporalRefresh requires TemporalRoot in config." }
+      $temporalArgs = @(
+        [string]$settings.TemporalRefreshScript,
+        "--state", (Join-Path $root "state.json"),
+        "--root", [string]$settings.TemporalRoot,
+        "--node", [string]$settings.NodePath
+      )
+      if ($settings.TemporalManifestScript) { $temporalArgs += @("--manifest-script", [string]$settings.TemporalManifestScript) }
+      if ($settings.TemporalExtractScript) { $temporalArgs += @("--extract-script", [string]$settings.TemporalExtractScript) }
+      if ($settings.TemporalTimeoutSeconds) { $temporalArgs += @("--timeout-seconds", [string]$settings.TemporalTimeoutSeconds) }
+      if ($settings.TemporalSnapshotAttempts) { $temporalArgs += @("--snapshot-attempts", [string]$settings.TemporalSnapshotAttempts) }
+      if ($settings.MaxMessageChars) { $temporalArgs += @("--max-message-chars", [string]$settings.MaxMessageChars) }
+      if ($settings.MaxLineBytes) { $temporalArgs += @("--max-line-bytes", [string]$settings.MaxLineBytes) }
+      if ($DryRun) { $temporalArgs += "--dry-run" }
+      $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $temporalArgs -Label "temporal-refresh"
+    }
+
     $syncArgs = @(
       [string]$settings.SyncScript,
       "--state", (Join-Path $root "state.json"),
@@ -169,7 +195,7 @@ try {
   $run.Status = "ok"
 } catch {
   $run.Status = "error"
-  $run.Error = "$($_.Exception.GetType().Name): $($_.Exception.Message)"
+  $run.Error = "$($_.Exception.GetType().Name): runner step failed"
   throw
 } finally {
   $run.CompletedAt = (Get-Date).ToUniversalTime().ToString("o")

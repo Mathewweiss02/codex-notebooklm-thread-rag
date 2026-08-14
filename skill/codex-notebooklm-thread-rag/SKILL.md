@@ -9,7 +9,7 @@ Use NotebookLM as a semantic candidate finder and local Codex history as the aut
 
 ## Upstream boundary
 
-This skill operates a wrapper around `teng-lin/notebooklm-py` v0.8.0. Treat the upstream `notebooklm` CLI as the primary operator interface. The package also supplies `NotebookLMClient`, the optional secondary `notebooklm-mcp` adapter, profile storage, and master-token recovery. This repository supplies sanitized Codex projection, guarded synchronization, local reranking/verification, scheduling, and recovery policy. Read `references/operations.md` before setup or auth work; use the CLI for general NotebookLM operations outside thread retrieval.
+This skill operates a wrapper around `teng-lin/notebooklm-py` v0.8.0. Treat the upstream `notebooklm` CLI as the primary operator interface. The package also supplies `NotebookLMClient`, the optional secondary `notebooklm-mcp` adapter, profile storage, and master-token recovery. This repository supplies sanitized Codex projection, a local timestamp-preserving temporal index, guarded synchronization, local reranking/verification, scheduling, and recovery policy. Read `references/operations.md` before setup or auth work; use the CLI for general NotebookLM operations outside thread retrieval.
 
 ## Locate the installation
 
@@ -23,26 +23,35 @@ $Registry = Join-Path $CodexRoot "thread-rag\registry.json"
 
 Read `references/operations.md` for setup, synchronization, search, and recovery commands. Read `references/release-gates.md` before expanding scope, adding a device, or publishing a release.
 
+Read `references/temporal-memory.md` when the user asks what they did during a
+date/time period, when an event occurred, to compare periods, or to load a
+chronological working context. That route is local-first and does not require
+NotebookLM.
+
 ## Find a remembered task
 
-1. Inspect Codex task metadata/title search first when the clue is exact.
-2. Run `scripts/thread_rag_doctor.ps1` against the registered configuration. Require a recent successful runner and reconciled live sources.
-3. Run `scripts/notebooklm_thread_search.py` with the user's remembered description. For an ordinary latency-sensitive lookup, pass `--fast`; do not silently retry if it fails. Use the balanced default only when the user requests higher confidence or the task justifies retry latency. The command requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `NotebookRole=retrieval` and `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination. Registered `NotebookRole=chat` configs are excluded from automated search so persistent CLI conversation history is never erased.
-4. For exact date/time questions, use `scripts/thread_search.mjs --today` or explicit `--after`/`--before` bounds first. Preserve its timestamped local evidence; use NotebookLM only when broader synthesis is materially useful.
-5. Require `locallyVerified=true` on the selected candidate, then inspect bounded local evidence. Use `scripts/thread_search.mjs --thread ID` for focused verification and `scripts/thread_origin.mjs` when the user needs the original instruction rather than a later recap.
-6. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use the deterministic local search directly.
+1. If the request is broad temporal intent—“what was I doing yesterday,” “what did I work on last week,” “when did I ask for this,” “show today,” or “compare Tuesday and Wednesday”—invoke `scripts/thread_temporal_cli.py` first. Use `when` to disclose the range, `recap`/`context` for the evidence pack, `find` for exact lexical matching inside the period, and `compare` for separate period deltas. Do not route these requests to semantic-only NotebookLM search.
+2. If the clue is an exact task title or ID without broad temporal intent, inspect Codex task metadata/title search first.
+3. If the clue is vague semantic memory without an exhaustive period request, run `scripts/thread_rag_doctor.ps1` against the registered configuration. Require a recent successful runner and reconciled live sources before NotebookLM.
+4. Run `scripts/notebooklm_thread_search.py` with the user's remembered description only for the semantic candidate-finding route. For an ordinary latency-sensitive lookup, pass `--fast`; do not silently retry if it fails. Use the balanced default only when the user requests higher confidence or the task justifies retry latency. The command requires cited candidate task IDs and reranks them against authoritative local JSONL by default. The dedicated RAG notebook must declare `NotebookRole=retrieval` and `DisposableSearchChat=true`; resetting its chat prevents cross-query contamination. Registered `NotebookRole=chat` configs are excluded from automated search so persistent CLI conversation history is never erased.
+5. Require `locallyVerified=true` on a selected semantic candidate, then inspect bounded local evidence. Use `scripts/thread_search.mjs --thread ID` for focused verification and `scripts/thread_origin.mjs` when the user needs the original instruction rather than a later recap.
+6. If the temporal index is missing or stale, report the explicit local diagnostic and bootstrap/rebuild it; do not silently downgrade an exhaustive temporal request to semantic search. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use deterministic local search directly.
 7. Relay only relevant, credential-redacted evidence. Distinguish original request, later clarification, and downstream summary.
+
+The stable cold-start route table is `references/temporal-routing.json`; its
+examples are evaluated by the repository test suite.
 
 ## Synchronize safely
 
 1. Run the projection first. Permit only policy `visible-messages-secrets-redacted-v4`.
 2. Review errors, visible-message overflow, source count, and the shard plan before upload.
-3. Upload new revision parts fully and verify them live before deleting any previous source.
-4. Delete only source IDs recorded in that task's `previousSources` with an exact live title match.
-5. Run `--validate-only` reconciliation after changes.
-6. Keep `AllowAllThreads=false`. Use `notebooklm_thread_enroll.py` to stage-project newly visible tasks, query live source limits, prove rolling-update headroom, and atomically extend the explicit scope.
-7. Treat `RejectUntrackedSources=true` as mandatory for dedicated notebooks. Report extras; never delete them automatically.
-8. Apply retention only through `thread_rag_retention.py` after reviewing its dry-run report. Current and previous lineage must remain protected.
+3. For retrieval configurations, refresh the temporal handoff and SQLite index from the same stable projection snapshot before any remote sync. A failed or diagnostically unsafe refresh leaves the last verified derived state intact; it never silently falls back to a stale temporal index.
+4. Upload new revision parts fully and verify them live before deleting any previous source.
+5. Delete only source IDs recorded in that task's `previousSources` with an exact live title match.
+6. Run `--validate-only` reconciliation after changes.
+7. Keep `AllowAllThreads=false`. Use `notebooklm_thread_enroll.py` to stage-project newly visible tasks, query live source limits, prove rolling-update headroom, and atomically extend the explicit scope.
+8. Treat `RejectUntrackedSources=true` as mandatory for dedicated notebooks. Report extras; never delete them automatically.
+9. Apply retention only through `thread_rag_retention.py` after reviewing its dry-run report. Current and previous lineage must remain protected.
 
 ## Authentication boundary
 

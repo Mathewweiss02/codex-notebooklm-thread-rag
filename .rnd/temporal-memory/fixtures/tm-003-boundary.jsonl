@@ -1,0 +1,3 @@
+{"timestamp":"2026-08-12T03:59:59Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic message immediately before local midnight"}]}}
+{"timestamp":"2026-08-12T04:00:00Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"input_text","text":"synthetic message exactly at the local-day start"}]}}
+{"timestamp":"2026-08-13T04:00:00Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic message exactly at the exclusive local-day end"}]}}

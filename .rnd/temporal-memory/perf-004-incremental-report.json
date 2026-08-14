@@ -1,0 +1,22 @@
+{
+  "contractVersion": "temporal-incremental-benchmark-v1",
+  "status": "pass",
+  "threads": 145,
+  "initialEventCount": 2320,
+  "repeats": 10,
+  "noChange": {
+    "noOpCount": 10,
+    "p50Ms": 87.858,
+    "p95Ms": 92.998,
+    "floorMs": 1000,
+    "floorPass": true
+  },
+  "oneThreadAppend": {
+    "changedCount": 10,
+    "p50Ms": 460.566,
+    "p95Ms": 479.113,
+    "floorMs": 2000,
+    "floorPass": true,
+    "finalEventCount": 2330
+  }
+}

@@ -1,0 +1,2 @@
+{"timestamp":"2026-03-08T06:59:59Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic message before the spring-forward transition"}]}}
+{"timestamp":"2026-03-08T07:00:00Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"input_text","text":"synthetic message after the spring-forward transition"}]}}

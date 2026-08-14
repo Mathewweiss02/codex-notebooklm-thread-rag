@@ -60,7 +60,7 @@ Run the configured runner in dry-run mode first:
 & "$Skill\scripts\notebooklm_thread_sync_runner.ps1" -Config "CONFIG_PATH" -DryRun
 ```
 
-Runner dry-run materializes the sanitized local projection/state and performs live read checks, but does not write NotebookLM sources. The projection CLI's lower-level `--dry-run` is only a candidate listing and intentionally writes no state.
+Runner dry-run materializes the sanitized local projection/state, refreshes a temporary temporal handoff/index when `TemporalRefresh=true`, and performs live read checks, but does not write NotebookLM sources. The temporal refresh is staged and verified before promotion; malformed source diagnostics, missing sessions, or index mismatches fail closed. The projection CLI's lower-level `--dry-run` is only a candidate listing and intentionally writes no state.
 
 Plan full-corpus shards after projection and before enabling all threads:
 
@@ -84,7 +84,9 @@ Normal runner passes automatically inventory newly visible tasks when `AutoEnrol
 & "PYTHON_PATH" "$Skill\scripts\notebooklm_thread_enroll.py" --config "CONFIG_PATH" --apply
 ```
 
-Use separate configs and projection roots for `NotebookRole=retrieval` and `NotebookRole=chat`. The retrieval notebook is disposable automation state. The chat notebook is the primary persistent CLI conversation surface and is never selected by automatic semantic search.
+Use separate configs and projection roots for `NotebookRole=retrieval` and `NotebookRole=chat`. The retrieval notebook is disposable automation state and normally has `TemporalRefresh=true`. The chat notebook is the primary persistent CLI conversation surface, keeps `TemporalRefresh=false`, and is never selected by automatic semantic search.
+
+The runner's temporal step uses the pinned Node and Python runtimes, copies each canonical session to a stable staging area, extracts timestamped visible messages, builds the derived SQLite index transactionally, and verifies handoff/index digests after promotion. The production handoff keeps one `.previous` copy for recovery. The current index is a derived cache: rebuilding or removing it never removes canonical Codex sessions.
 
 ## Semantic discovery
 
@@ -94,13 +96,24 @@ Use separate configs and projection roots for `NotebookRole=retrieval` and `Note
 
 The command discovers only registered retrieval configs, refuses stale/unmonitored instances by default, verifies all state-linked sources live, rejects unrelated extras in strict mode, resets only a notebook explicitly marked as disposable retrieval chat, and returns locally reranked candidate task IDs without answer text. `--fast` uses one semantic attempt and disables automatic 429/5xx transport retries; omit it when reliability warrants the balanced retry policy. Treat `--no-local-rerank` as a diagnostic switch only.
 
+The standalone temporal source mapper prints an aggregate report by default;
+raw source/thread identifiers are available only with the explicit
+`--include-identifiers` diagnostic switch. In-memory callers used by the
+source-scoped synthesis experiment retain the identifiers only inside the
+local verification boundary.
+
 Verify locally:
 
 ```powershell
 node "$Skill\scripts\thread_search.mjs" --query "same remembered clues" --thread "CANDIDATE_ID" --json
-node "$Skill\scripts\thread_search.mjs" --query "what was I doing" --today --json
+& "PYTHON_PATH" "$Skill\scripts\thread_temporal_cli.py" recap --db "$env:USERPROFILE\.codex\thread-rag\temporal\temporal.sqlite3" --expression yesterday --timezone America/New_York
 node "$Skill\scripts\thread_origin.mjs" --thread "THREAD_ID" --query "original instruction clues" --json
 ```
+
+For broad date/time requests use the temporal CLI before any semantic ask:
+`when`, `recap`, `context`, `find`, and `compare` are local-only exact-time
+commands. The older `thread_search.mjs --today` path remains a low-level
+diagnostic/focused search surface, not the primary temporal route.
 
 Benchmark a recorded live run without paying for another NotebookLM pass:
 
@@ -114,7 +127,7 @@ Benchmark a recorded live run without paying for another NotebookLM pass:
 & "$Skill\scripts\install_notebooklm_thread_sync_task.ps1" -Config "CONFIG_PATH" -TaskName "Codex NotebookLM Thread Sync - DEVICE" -Minutes 15
 ```
 
-The scheduler uses the configured runtime's `pythonw.exe` plus Windows' `CREATE_NO_WINDOW` process flag, so recurring syncs do not open or flash a terminal. Task Scheduler's `Hidden` setting only controls whether the task appears in its own UI and is not a substitute for the console-free launcher. The scheduler uses a per-config mutex, ignores overlapping starts, preserves the runner's exit code, has a 120-minute execution limit by default, waits 60 minutes after recent task activity, applies a six-hour hard freshness ceiling to previously projected changing tasks, and performs daily strict source reconciliation. A 60-minute quiet gate is eventual freshness, not real-time freshness.
+The scheduler uses the configured runtime's `pythonw.exe` plus Windows' `CREATE_NO_WINDOW` process flag, so recurring syncs do not open or flash a terminal. Task Scheduler's `Hidden` setting only controls whether the task appears in its own UI and is not a substitute for the console-free launcher. The scheduler uses a per-config mutex, ignores overlapping starts, preserves the runner's exit code, has a 120-minute execution limit by default, waits 60 minutes after recent task activity, applies a six-hour hard freshness ceiling to previously projected changing tasks, refreshes the retrieval temporal index as part of the same run, and performs daily strict source reconciliation. A 60-minute quiet gate is eventual freshness, not real-time freshness.
 
 ## Retention
 
@@ -131,5 +144,6 @@ Review the report before `--apply` or setting `RetentionApply=true`. Current par
 - Authentication failure: stop sync, run passive check, then refresh or recapture only the affected profile.
 - Interrupted upload: rerun the same config; do not delete partial ready sources manually.
 - Reconciliation failure: inspect current state-linked source IDs/titles; repair missing current parts before guarded deletion.
+- Temporal index failure: inspect the aggregate refresh code, verify the last-good SQLite index, and rerun the documented refresh after the projection source is stable. Do not delete canonical sessions or manually replace the handoff.
 - Repository relocation: registered configs point to globally installed skill scripts, not the clone. Re-run the installer to upgrade the skill.
 - NotebookLM outage: use `thread_search.mjs` and `thread_origin.mjs` locally.

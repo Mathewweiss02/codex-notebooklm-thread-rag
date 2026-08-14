@@ -16,7 +16,7 @@ try {
   $fail = Join-Path $temporary "fail.cmd"
   $signal = Join-Path $temporary "slow-started.txt"
   $slow = Join-Path $temporary "slow.cmd"
-  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@echo %*", "@exit /b 0")
+  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@echo %*", '@echo {"prompt":"private prompt","answer":"private answer"}', "@exit /b 0")
   Set-Content -LiteralPath $fail -Encoding Ascii -Value @("@echo simulated failure 1>&2", "@exit /b 7")
   Set-Content -LiteralPath $slow -Encoding Ascii -Value @("@echo started>$signal", "@ping -n 3 127.0.0.1 >nul", "@exit /b 0")
 
@@ -50,6 +50,9 @@ try {
   Assert-True ($result.Status -eq "ok") "benign native stderr must not fail a zero-exit command"
   $run = Get-Content -Raw -LiteralPath $result.Run | ConvertFrom-Json
   Assert-True ($run.Steps.Count -ge 3) "normal run must execute auth, projection, and sync"
+  Assert-True (-not ($run.PSObject.Properties.Name -contains "NotebookId")) "runner report must not persist the notebook ID"
+  Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch [regex]::Escape("fixture-notebook")) "runner report must not persist notebook identifiers"
+  Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch "private prompt|private answer") "runner report must not persist arbitrary child output"
   Assert-True ((Test-Path -LiteralPath (Join-Path $root "runner_state.json"))) "runner checkpoint must be written"
 
   $dryResult = (& $Runner -Config $configPath -DryRun) | ConvertFrom-Json
