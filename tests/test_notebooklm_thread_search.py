@@ -24,6 +24,7 @@ class FakeChat:
     def __init__(self, attempts):
         self.attempts = list(attempts)
         self.ask_count = 0
+        self.source_ids = []
 
     async def get_conversation_id(self, _notebook_id):
         return None
@@ -34,7 +35,8 @@ class FakeChat:
     def clear_cache(self):
         return None
 
-    async def ask(self, _notebook_id, _query):
+    async def ask(self, _notebook_id, _query, source_ids=None):
+        self.source_ids.append(source_ids)
         references = self.attempts[self.ask_count]
         self.ask_count += 1
         return SimpleNamespace(answer="answer", references=references, is_follow_up=False)
@@ -75,6 +77,7 @@ class SearchTests(unittest.TestCase):
                 }
             },
             "sourceToThread": {"source-a": "thread-a", "source-b": "thread-b"},
+            "threadToSources": {"thread-a": ["source-a"], "thread-b": ["source-b"]},
             "lastSuccess": datetime.now(UTC),
         }
 
@@ -100,6 +103,34 @@ class SearchTests(unittest.TestCase):
             result = asyncio.run(search.search_instance(self.retry_instance(), "query", False, 5, 2))
         self.assertEqual(result["attemptsUsed"], 1)
         self.assertEqual(context.chat.ask_count, 1)
+
+    def test_source_scoped_mode_uses_only_locally_selected_sources(self):
+        context = FakeClientContext([[
+            SimpleNamespace(source_id="source-b", citation_number=1),
+        ]])
+        local_surface = {
+            "candidates": [{"threadId": "thread-b"}, {"threadId": "thread-a"}],
+            "elapsedMs": 3,
+        }
+        with patch.object(search.NotebookLMClient, "from_storage", return_value=context), patch.object(
+            search, "local_candidate_surface", return_value=local_surface
+        ):
+            result = asyncio.run(search.search_instance(
+                self.retry_instance(),
+                "query",
+                False,
+                5,
+                max_semantic_attempts=1,
+                source_scope_width=1,
+                codex_root=Path("C:/codex"),
+                node_path="node",
+            ))
+        self.assertEqual(context.chat.source_ids, [["source-b"]])
+        self.assertEqual(result["retrievalMode"], "local-first-source-scoped")
+        self.assertEqual(result["sourceScope"]["candidateWidth"], 1)
+        self.assertEqual(result["sourceScope"]["sourceCount"], 1)
+        self.assertEqual(result["sourceScope"]["scopeValid"], True)
+        self.assertEqual([item["threadId"] for item in result["candidates"]], ["thread-b"])
 
     def test_minimum_candidate_control_forces_fresh_attempt(self):
         context = FakeClientContext([

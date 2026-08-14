@@ -391,25 +391,29 @@ def local_rerank_candidates(
     }
 
 
-def local_fallback_candidates(
+def local_candidate_surface(
     query: str,
     limit: int,
     *,
     node_path: str | None = None,
     codex_root: Path | None = None,
     timeout_seconds: int = 240,
+    thread_ids: set[str] | None = None,
+    min_score: int | float = 18,
 ) -> dict[str, Any]:
-    """Return deterministic local candidates when NotebookLM cannot answer.
+    """Return deterministic local candidates from the authoritative corpus.
 
-    This is deliberately a separate local-search contract. It does not invent
-    semantic citations, does not expose excerpts in the remote-shaped report,
-    and only promotes results that pass the local searcher's normal score gate.
+    The caller decides whether this surface is a degraded fallback or a
+    source-selection input. It never invents semantic citations and does not
+    expose excerpts in the remote-shaped report.
     """
     if limit < 1:
-        raise ValueError("local fallback limit must be positive")
+        raise ValueError("local candidate limit must be positive")
+    if min_score < 0:
+        raise ValueError("local candidate minimum score must be non-negative")
     node = node_path or shutil.which("node")
     if not node:
-        raise RuntimeError("local fallback is unavailable because Node.js was not found")
+        raise RuntimeError("local candidate search is unavailable because Node.js was not found")
     root = (codex_root or Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")).resolve()
     safe_query, _ = sanitize_query(query)
     command = [
@@ -420,16 +424,20 @@ def local_fallback_candidates(
         "--limit",
         str(limit),
         "--min-score",
-        "18",
+        str(min_score),
         "--no-hydrate",
         "--include-current",
         "--include-subagents",
         "--json",
     ]
-    roots = [root / "sessions", root / "archived_sessions"]
-    for search_root in roots:
-        if search_root.is_dir():
-            command.extend(["--root", str(search_root)])
+    if thread_ids:
+        for thread_id in sorted(thread_ids):
+            command.extend(["--thread", thread_id])
+    else:
+        roots = [root / "sessions", root / "archived_sessions"]
+        for search_root in roots:
+            if search_root.is_dir():
+                command.extend(["--root", str(search_root)])
     try:
         completed = subprocess.run(
             command,
@@ -480,6 +488,25 @@ def local_fallback_candidates(
     }
 
 
+def local_fallback_candidates(
+    query: str,
+    limit: int,
+    *,
+    node_path: str | None = None,
+    codex_root: Path | None = None,
+    timeout_seconds: int = 240,
+) -> dict[str, Any]:
+    """Return deterministic local candidates when NotebookLM cannot answer."""
+    return local_candidate_surface(
+        query,
+        limit,
+        node_path=node_path,
+        codex_root=codex_root,
+        timeout_seconds=timeout_seconds,
+        min_score=18,
+    )
+
+
 def discover_configs(explicit: list[Path], codex_root: Path) -> list[Path]:
     if explicit:
         return [path.resolve() for path in explicit]
@@ -526,6 +553,7 @@ def load_instance(config_path: Path, max_run_age_minutes: int, allow_unmonitored
             raise ValueError(f"Runner is stale for {config_path}: {age:.1f} minutes")
     source_to_thread: dict[str, str] = {}
     title_to_part: dict[str, str] = {}
+    thread_to_sources: dict[str, list[str]] = {}
     for thread_id, thread in (state.get("threads") or {}).items():
         if thread.get("uploadRevision") != thread.get("revision"):
             continue
@@ -541,9 +569,18 @@ def load_instance(config_path: Path, max_run_age_minutes: int, allow_unmonitored
                 owner = source_to_thread.setdefault(source_id, thread_id)
                 if owner != thread_id:
                     raise ValueError(f"Duplicate projected source id in {state_path}")
+                thread_to_sources.setdefault(thread_id, []).append(source_id)
     if not source_to_thread:
         raise ValueError(f"No current uploaded sources in {state_path}")
-    return {"configPath": config_path, "config": config, "statePath": state_path, "state": state, "lastSuccess": last_success, "sourceToThread": source_to_thread}
+    return {
+        "configPath": config_path,
+        "config": config,
+        "statePath": state_path,
+        "state": state,
+        "lastSuccess": last_success,
+        "sourceToThread": source_to_thread,
+        "threadToSources": thread_to_sources,
+    }
 
 
 async def search_instance(
@@ -554,9 +591,14 @@ async def search_instance(
     max_semantic_attempts: int = 2,
     transport_max_retries: int = 3,
     min_semantic_candidates: int = 2,
+    source_scope_width: int | None = None,
+    codex_root: Path | None = None,
+    node_path: str | None = None,
 ) -> dict[str, Any]:
     if not 1 <= min_semantic_candidates <= 10:
         raise ValueError("min_semantic_candidates must be between 1 and 10")
+    if source_scope_width is not None and source_scope_width < 1:
+        raise ValueError("source_scope_width must be positive")
     config = instance["config"]
     profile = config["Profile"]
     notebook_id = config["NotebookId"]
@@ -586,6 +628,39 @@ async def search_instance(
         answer_chars: list[int] = []
         reference_counts: list[int] = []
         attempts_used = 0
+        source_scope: dict[str, Any] | None = None
+        if source_scope_width is not None:
+            eligible_threads = set(instance.get("threadToSources") or {})
+            local_surface = local_candidate_surface(
+                query,
+                source_scope_width,
+                node_path=node_path,
+                codex_root=codex_root,
+                thread_ids=eligible_threads,
+                min_score=0,
+            )
+            selected_threads = [
+                item["threadId"]
+                for item in local_surface.get("candidates") or []
+                if item.get("threadId") in eligible_threads
+            ][:source_scope_width]
+            selected_source_ids = [
+                source_id
+                for thread_id in selected_threads
+                for source_id in (instance.get("threadToSources") or {}).get(thread_id, [])
+            ]
+            source_scope = {
+                "mode": "local-first-source-scoped",
+                "candidateWidth": source_scope_width,
+                "localCandidateCount": len(selected_threads),
+                "sourceCount": len(selected_source_ids),
+                "localElapsedMs": local_surface.get("elapsedMs"),
+                "selectedSourceIds": selected_source_ids,
+            }
+        else:
+            selected_source_ids = []
+        selected_source_id_set = set(selected_source_ids)
+        out_of_scope_reference_count = 0
         for attempt in range(1, max_semantic_attempts + 1):
             attempts_used = attempt
             if disposable:
@@ -596,7 +671,12 @@ async def search_instance(
             try:
                 # Keep the retrieval prompt identical to the benchmark surface. Additional
                 # meta-instructions measurably changed citation ordering on related-task decoys.
-                result = await client.chat.ask(notebook_id, query)
+                if source_scope_width is not None and not selected_source_ids:
+                    break
+                if source_scope_width is not None:
+                    result = await client.chat.ask(notebook_id, query, source_ids=selected_source_ids)
+                else:
+                    result = await client.chat.ask(notebook_id, query)
             except Exception as error:
                 attempt_errors.append(f"attempt {attempt}: {summarize_error(error)}")
                 continue
@@ -605,6 +685,9 @@ async def search_instance(
             answer_chars.append(len(result.answer))
             reference_counts.append(len(references))
             for reference in references:
+                if source_scope_width is not None and reference.source_id not in selected_source_id_set:
+                    out_of_scope_reference_count += 1
+                    continue
                 thread_id = instance["sourceToThread"].get(reference.source_id)
                 if not thread_id:
                     continue
@@ -620,6 +703,9 @@ async def search_instance(
                 candidate["attempts"].append(attempt)
             if len(by_thread) >= min_semantic_candidates:
                 break
+        if source_scope is not None:
+            source_scope["outOfScopeReferenceCount"] = out_of_scope_reference_count
+            source_scope["scopeValid"] = out_of_scope_reference_count == 0
         if not by_thread and attempt_errors:
             raise RuntimeError("; ".join(attempt_errors))
         candidates = sorted(
@@ -641,6 +727,12 @@ async def search_instance(
             "answerSha256": answer_hashes,
             "answerChars": answer_chars,
             "candidates": candidates,
+            "retrievalMode": "local-first-source-scoped" if source_scope_width is not None else "global-semantic",
+            "sourceScope": {
+                key: value
+                for key, value in (source_scope or {}).items()
+                if key != "selectedSourceIds"
+            } if source_scope is not None else None,
         }
 
 
@@ -659,6 +751,11 @@ async def main() -> int:
         help="Keep asking until this many unique source-backed candidates exist (1-10)",
     )
     parser.add_argument(
+        "--source-scope-width",
+        type=int,
+        help="Opt-in local-first source-scoped retrieval width; requires a disposable retrieval notebook",
+    )
+    parser.add_argument(
         "--fast",
         action="store_true",
         help="Use one semantic attempt and disable automatic 429/5xx transport retries",
@@ -675,6 +772,8 @@ async def main() -> int:
         parser.error("--max-semantic-attempts must be between 1 and 3")
     if not 1 <= args.min_semantic_candidates <= 10:
         parser.error("--min-semantic-candidates must be between 1 and 10")
+    if args.source_scope_width is not None and not 1 <= args.source_scope_width <= 200:
+        parser.error("--source-scope-width must be between 1 and 200")
     if args.fast and args.max_semantic_attempts not in (None, 1):
         parser.error("--fast cannot be combined with --max-semantic-attempts greater than 1")
     max_semantic_attempts = 1 if args.fast else (args.max_semantic_attempts or 2)
@@ -689,6 +788,8 @@ async def main() -> int:
         "latencyMode": "fast" if args.fast else "balanced",
         "maxSemanticAttempts": max_semantic_attempts,
         "transportMaxRetries": transport_max_retries,
+        "retrievalMode": "local-first-source-scoped" if args.source_scope_width is not None else "global-semantic",
+        "sourceScopeWidth": args.source_scope_width,
         "instances": [],
         "errors": [],
     }
@@ -705,6 +806,9 @@ async def main() -> int:
                     max_semantic_attempts,
                     transport_max_retries,
                     args.min_semantic_candidates,
+                    args.source_scope_width,
+                    args.codex_root,
+                    args.node,
                 )
             )
         except Exception as error:
