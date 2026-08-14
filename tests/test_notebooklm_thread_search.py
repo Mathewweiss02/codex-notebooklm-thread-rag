@@ -209,6 +209,14 @@ class SearchTests(unittest.TestCase):
     def test_timeout_uses_real_local_fallback(self):
         self.assert_local_fallback(TimeoutError("simulated timeout"))
 
+    def test_remote_error_reports_do_not_echo_request_material(self):
+        secret = "access_token=super-secret-query-value"
+        exit_code, report = self.run_local_fallback_case(RuntimeError(secret))
+        self.assertEqual(exit_code, 0, report)
+        serialized = json.dumps(report)
+        self.assertNotIn(secret, serialized)
+        self.assertIn("details redacted", serialized)
+
     def test_local_authority_can_promote_a_second_semantic_candidate(self):
         candidates = [
             {"threadId": "decoy", "citationRank": 1},

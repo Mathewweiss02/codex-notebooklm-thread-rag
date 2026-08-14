@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 from pathlib import Path
 from typing import Any
@@ -47,3 +48,13 @@ def sanitize_remote_text(value: str) -> tuple[str, dict[str, int]]:
         if count:
             counts[label] = counts.get(label, 0) + count
     return text, counts
+
+
+def summarize_error(error: BaseException) -> str:
+    """Describe an error without echoing a remote request or response."""
+
+    message = str(error)
+    return (
+        f"{type(error).__name__}: details redacted "
+        f"(messageChars={len(message)}; messageSha256={hashlib.sha256(message.encode('utf-8')).hexdigest()})"
+    )

@@ -25,6 +25,7 @@ if str(SCRIPT_DIR) not in sys.path:
 from notebooklm import NotebookLMClient
 from redaction_contract import POLICY as REMOTE_REDACTION_POLICY
 from redaction_contract import sanitize_remote_text
+from redaction_contract import summarize_error
 
 
 REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
@@ -594,7 +595,7 @@ async def search_instance(
                 # meta-instructions measurably changed citation ordering on related-task decoys.
                 result = await client.chat.ask(notebook_id, query)
             except Exception as error:
-                attempt_errors.append(f"attempt {attempt}: {type(error).__name__}: {error}")
+                attempt_errors.append(f"attempt {attempt}: {summarize_error(error)}")
                 continue
             references = sorted(result.references, key=lambda item: item.citation_number)
             answer_hashes.append(hashlib.sha256(result.answer.encode("utf-8")).hexdigest())
@@ -694,7 +695,7 @@ async def main() -> int:
                 )
             )
         except Exception as error:
-            report["errors"].append({"config": str(config_path), "error": f"{type(error).__name__}: {error}"})
+            report["errors"].append({"config": str(config_path), "error": summarize_error(error)})
     merged: dict[tuple[str, str], dict[str, Any]] = {}
     for instance in report["instances"]:
         for candidate in instance["candidates"]:
@@ -736,7 +737,7 @@ async def main() -> int:
                 report["candidates"] = ranked_candidates
         except Exception as error:
             report["candidates"] = []
-            report["localVerification"] = {"attempted": True, "error": f"{type(error).__name__}: {error}"}
+            report["localVerification"] = {"attempted": True, "error": summarize_error(error)}
             report["errors"].append({"config": "local-authority", "error": report["localVerification"]["error"]})
     report["completedAt"] = now_iso()
     output = args.out or args.codex_root / "thread-rag" / "search-runs" / f"search-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"

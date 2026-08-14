@@ -14,6 +14,7 @@ from typing import Any
 
 from notebooklm import NotebookLMClient
 
+from redaction_contract import summarize_error
 from thread_rag_benchmark_contract import normalize_suite, suite_digests, wilson_interval
 
 
@@ -116,7 +117,7 @@ async def main() -> int:
                     try:
                         result = await client.chat.ask(args.notebook_id, case["query"])
                     except Exception as error:
-                        attempts.append({"attempt": attempt, "error": f"{type(error).__name__}: {error}"})
+                        attempts.append({"attempt": attempt, "error": summarize_error(error)})
                         continue
                     references = sorted(result.references, key=lambda item: item.citation_number)
                     attempts.append({
@@ -180,7 +181,7 @@ async def main() -> int:
                     "passedTop1": False,
                     "passedExpectation": False,
                     "abstained": False,
-                    "error": f"{type(error).__name__}: {error}",
+                    "error": summarize_error(error),
                     "elapsedMs": int((datetime.now(UTC) - started).total_seconds() * 1000),
                 }
             report["results"].append(record)
