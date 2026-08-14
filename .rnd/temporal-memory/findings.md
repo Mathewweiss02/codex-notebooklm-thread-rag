@@ -184,3 +184,23 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   abstention, and a bounded latency budget. It must not be counted as raw
   NotebookLM recall and must not modify the default route until it passes the
   same frozen gates.
+
+## Local-first/source-scoped hybrid canary — 2026-08-14
+
+- A sequential 40-case development canary selected the top 80 deterministic
+  local candidates, mapped all current source parts for those candidates, and
+  asked the disposable retrieval notebook with `source_ids` restricted to that
+  set. The returned citations were then locally reranked and required to pass
+  the existing local verification/abstention contract.
+- The canary achieved 32/32 positive candidate recall, 32/32 hybrid Top-1,
+  0/8 hybrid false positives, zero source-scope violations, and zero execution
+  errors. This is a material improvement over the latest global default run
+  (30/32 semantic recall and 30/32 hybrid Top-1).
+- Latency was approximately 48.6 seconds at P50, 87.5 seconds at P95, and
+  249.1 seconds maximum. The maximum was a negative case that abstained after
+  a long remote response, so the route needs a hard per-query deadline and a
+  truthful degraded result before it can be considered operationally ready.
+- The canary is retained as one development pass only. It does not count as
+  raw global NotebookLM recall, does not spend the sealed holdout, and does not
+  justify changing the default until the route is implemented reproducibly,
+  passes three frozen development runs, and passes a fresh holdout.

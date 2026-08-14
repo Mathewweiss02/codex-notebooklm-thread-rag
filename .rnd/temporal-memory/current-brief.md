@@ -161,6 +161,14 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - Conditional local-union calibration reached 31/32 combined candidate
   coverage at small union sizes but never exceeded 30/32 hybrid Top-1, so no
   union or automatic local recovery policy was promoted.
+- A full 40-case local-first/source-scoped hybrid experiment using the top 80
+  deterministic local threads per query passed 32/32 positive candidate recall,
+  32/32 hybrid Top-1, and 0/8 hybrid false positives. All 40 cases stayed
+  inside their selected source scopes with zero execution errors. Latency was
+  approximately 48.6 seconds at P50, 87.5 seconds at P95, and 249.1 seconds
+  maximum. This is one passing development experiment, not a production
+  default or release certificate; the long tail requires a bounded policy and
+  the route still needs three frozen runs plus a fresh holdout.
 
 ## Certification principle
 
