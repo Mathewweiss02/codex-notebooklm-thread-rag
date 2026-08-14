@@ -1512,12 +1512,13 @@
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9d60b57.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
-        ".rnd/temporal-memory/full-gate-run.json"
+        ".rnd/temporal-memory/full-gate-run.json",
+        ".rnd\\temporal-memory\\full-gate-run-20260814-commit-57353b0.json"
       ],
-      "notes": "Committed revision 76601db passed the full local repository gate with 11/11 steps, 48 Node tests, and 202 Python tests; current-commit GitHub CI and final release audit remain required, so this row remains covered.",
-      "executedAt": "2026-08-14T19:32:44Z",
-      "resultDigest": "3d7fcb72d28cf10a43aefef21dfbc0d039d7948d4c51b75e6be944744f333c69"
+      "notes": "Current committed revision 57353b passed the full local gate: 48 Node tests, 206 Python tests, and all 11 operational steps; GitHub CI and final release audit remain required.",
+      "executedAt": "2026-08-14T21:45:27Z",
+      "resultDigest": "f562f1dec3c097a2782d7d9048424d306b86ec1e0aced672035375871752e5c0"
     }
   },
-  "updatedAt": "2026-08-14T19:33:07Z"
+  "updatedAt": "2026-08-14T21:46:02Z"
 }
