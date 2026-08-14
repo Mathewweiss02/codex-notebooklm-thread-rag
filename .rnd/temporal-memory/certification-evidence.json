@@ -1346,8 +1346,8 @@
         ".rnd/temporal-memory/full-gate-run.json"
       ],
       "notes": "Current committed revision has a retained aggregate full-gate report; current-revision GitHub CI and final evidence-hash audit remain required.",
-      "executedAt": "2026-08-14T13:27:12Z",
-      "resultDigest": "cea5a0df19f44bb36d28a9898000cbae24f0b60f1fbb7275d55d999b03191be4"
+      "executedAt": "2026-08-14T13:32:08Z",
+      "resultDigest": "4435fbce613879a53c78d7657eb974755f57c8f3b46c61e3f74dae4670a6be8a"
     }
   },
   "updatedAt": "2026-08-14T13:03:09Z"

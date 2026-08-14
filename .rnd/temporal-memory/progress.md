@@ -280,3 +280,7 @@ explicit replica approval.
 - Added passing and failing unit coverage for the resource requirement. The
   previous timing-only monitor remains available for historical diagnostics;
   it is not sufficient for the final resource-aware soak.
+
+- Reran the full gate at commit `877df8273f32c40cf32e49e9aacf3acadaffbe76`:
+  43 Node tests, 154 Python tests, compilation, parsing, runner, doctor,
+  auth/ACL, installation, configuration, and scheduler integrations passed.
