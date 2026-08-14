@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 import sys
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -14,6 +16,7 @@ from notebooklm_isolated_ramp import (  # noqa: E402
     clone_state_for_replica,
     current_source_map,
     main,
+    run_queries,
     safe_error,
     validate_live_sources,
     validate_retrieval_config,
@@ -132,6 +135,70 @@ class IsolatedRampTests(unittest.TestCase):
             self.assertEqual(source_to_thread, {"parent-source-id": "thread-one"})
             self.assertEqual(titles, frozenset({"thread-one-p1"}))
             self.assertEqual(len(fingerprint), 64)
+
+    def test_query_waves_use_distinct_replicas_and_preserve_scope(self) -> None:
+        class FakeChat:
+            def __init__(self) -> None:
+                self.active = 0
+                self.peak = 0
+
+            async def get_conversation_id(self, _notebook_id: str) -> None:
+                return None
+
+            async def ask(self, notebook_id: str, _query: str) -> object:
+                self.active += 1
+                self.peak = max(self.peak, self.active)
+                await asyncio.sleep(0.01)
+                self.active -= 1
+                source_id = "source-0" if notebook_id == "notebook-0" else "source-1"
+                return SimpleNamespace(
+                    answer="answer",
+                    is_follow_up=False,
+                    references=[SimpleNamespace(citation_number=1, source_id=source_id)],
+                )
+
+            def clear_cache(self) -> None:
+                return None
+
+        class FakeClient:
+            def __init__(self) -> None:
+                self.chat = FakeChat()
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "zero").mkdir()
+            (root / "one").mkdir()
+            state0 = self.make_state(root / "zero")
+            state1 = self.make_state(root / "one")
+            state0["threads"]["thread-one"]["parts"][0]["sourceId"] = "source-0"
+            state1["threads"]["thread-one"]["parts"][0]["sourceId"] = "source-1"
+            paths = []
+            for index, state in enumerate((state0, state1)):
+                state_root = root / str(index)
+                state_root.mkdir(parents=True, exist_ok=True)
+                state_path = state_root / "state.json"
+                state_path.write_text(json.dumps(state), encoding="utf-8")
+                paths.append(state_path)
+            from notebooklm_isolated_ramp import Replica
+
+            replicas = [
+                Replica(0, "notebook-0", paths[0], {"source-0": "thread-one"}, frozenset({"thread-one-p1"}), "a" * 64, True),
+                Replica(1, "notebook-1", paths[1], {"source-1": "thread-one"}, frozenset({"thread-one-p1"}), "b" * 64, False),
+            ]
+            cases = [
+                {"caseId": "case-0", "query": "zero", "expectedThreadIds": ["thread-one"], "expectation": "match"},
+                {"caseId": "case-1", "query": "one", "expectedThreadIds": ["thread-one"], "expectation": "match"},
+            ]
+            fake = FakeClient()
+            with patch("notebooklm_isolated_ramp.local_rerank_candidates", side_effect=lambda _q, candidates, **_kw: (candidates, {"abstained": False})):
+                result = asyncio.run(
+                    run_queries(fake, replicas, cases, runs=1, node_path=None, timeout_seconds=1)
+                )
+            self.assertEqual(fake.chat.peak, 2)
+            self.assertEqual(result["summary"]["total"], 2)
+            self.assertEqual(result["summary"]["passedExpectation"], 2)
+            self.assertEqual(result["summary"]["sourceScopeFailures"], 0)
+            self.assertEqual(result["summary"]["crossTalkReferenceCount"], 0)
 
 
 if __name__ == "__main__":
