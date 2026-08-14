@@ -83,4 +83,6 @@ if ($ReportPath) {
   Set-Content -LiteralPath $temporaryReportPath -Value $json -Encoding UTF8
   Move-Item -LiteralPath $temporaryReportPath -Destination $resolvedReportPath -Force
 }
+# Do not leak a stale native-process exit code to callers after a green run.
+$global:LASTEXITCODE = 0
 Write-Output $json
