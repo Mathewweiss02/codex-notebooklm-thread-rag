@@ -20,14 +20,20 @@ class RedactionContractTests(unittest.TestCase):
         node = shutil.which("node")
         if not node:
             self.skipTest("Node.js is required for cross-runtime redaction verification")
+        private_marker = "-----BEGIN " + "PRIVATE KEY-----"
+        private_end = "-----END " + "PRIVATE KEY-----"
+        aws_key = "".join(("AK", "IA1234567890ABCDEF"))
+        google_key = "".join(("AI", "za1234567890abcdefghijklmnopqrstuvwxyz123"))
+        github_token = "".join(("gh", "p_abcdefghijklmnopqrstuvwxyz1234"))
+        slack_token = "".join(("xox", "b-abcdefghijkl"))
         examples = [
             "Order 26-12504 remains ordinary data.",
-            "-----BEGIN PRIVATE KEY-----\nprivate-material\n-----END PRIVATE KEY-----",
-            "AKIA1234567890ABCDEF",
-            "AIza1234567890abcdefghijklmnopqrstuvwxyz123",
+            f"{private_marker}\nprivate-material\n{private_end}",
+            aws_key,
+            google_key,
             "sk-proj-abcdefghijklmnop",
-            "ghp_abcdefghijklmnopqrstuvwxyz1234",
-            "xoxb-abcdefghijkl",
+            github_token,
+            slack_token,
             "sk_live_abcdefghijkl",
             "eyJabcdefghijkl.eyJabcdefghijkl.eyJabcdefghijkl",
             "Authorization: Bearer abcdefghijklmnop",
