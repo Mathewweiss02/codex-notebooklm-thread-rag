@@ -104,9 +104,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.
-- The resource-aware retrieval soak monitor restarted at the current installed
-  skill boundary with 1 eligible post-install normal run, 0.0 observed hours, zero
-  failures, and zero missing-resource reports. The 168-hour gate is open.
+- The resource-aware retrieval soak monitor now has 6 eligible post-install
+  normal runs, 1.044 observed hours, zero failures, and zero missing-resource
+  reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
   health/observability signal only and is intentionally excluded from the
