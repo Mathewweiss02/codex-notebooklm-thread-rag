@@ -292,6 +292,9 @@ explicit replica approval.
 - Started the retained resource-aware monitor from that run. It is honestly
   `open` at 1 eligible run and 0.0 observed hours; both PERF-011 and OPS-005
   remain pending until the complete 168-hour window is clean.
+- The persistent-chat task separately completed its first post-install normal
+  run with resource telemetry. It is not counted toward the retrieval soak,
+  preserving the temporal-refresh boundary and persistent-chat separation.
 
 ## 2026-08-14 — CI evidence binding
 
