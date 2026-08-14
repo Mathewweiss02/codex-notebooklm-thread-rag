@@ -1130,8 +1130,12 @@
       "status": "pending",
       "scenario": "Idle state",
       "testLevel": "Soak",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/resource-soak-monitor.json"
+      ],
+      "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
+      "executedAt": "2026-08-14T13:33:09Z",
+      "resultDigest": "632e86107785623183898e48f5fd979e728722024e6afacfb837552bc7ce7665"
     },
     "PERF-012": {
       "status": "pass",
@@ -1335,8 +1339,12 @@
       "status": "pending",
       "scenario": "Seven-day soak",
       "testLevel": "Soak",
-      "evidence": [],
-      "notes": "No retained row-specific execution result yet."
+      "evidence": [
+        ".rnd/temporal-memory/resource-soak-monitor.json"
+      ],
+      "notes": "Resource-aware retrieval soak boundary has started after the installed runner revision; the monitor is open at 0 hours and requires 168 hours.",
+      "executedAt": "2026-08-14T13:33:09Z",
+      "resultDigest": "632e86107785623183898e48f5fd979e728722024e6afacfb837552bc7ce7665"
     },
     "OPS-006": {
       "status": "pending",

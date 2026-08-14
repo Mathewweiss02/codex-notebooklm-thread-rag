@@ -96,6 +96,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass;
   the observation boundary must restart after the updated skill is installed.
+- The resource-aware retrieval soak monitor has now started at the first
+  post-install normal run: 1 eligible run, 0.0 observed hours, zero failures,
+  and zero missing-resource reports. The 168-hour gate is open.
 
 ## Certification principle
 

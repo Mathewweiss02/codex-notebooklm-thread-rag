@@ -284,3 +284,11 @@ explicit replica approval.
 - Reran the full gate at commit `877df8273f32c40cf32e49e9aacf3acadaffbe76`:
   43 Node tests, 154 Python tests, compilation, parsing, runner, doctor,
   auth/ACL, installation, configuration, and scheduler integrations passed.
+
+## 2026-08-14 — resource-aware soak boundary
+
+- The retrieval scheduler produced the first post-install normal report with
+  eight resource samples and status `ok`.
+- Started the retained resource-aware monitor from that run. It is honestly
+  `open` at 1 eligible run and 0.0 observed hours; both PERF-011 and OPS-005
+  remain pending until the complete 168-hour window is clean.
