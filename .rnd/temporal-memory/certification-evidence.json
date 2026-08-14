@@ -1187,9 +1187,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak restarted at the installed skill boundary: 1 eligible post-install run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-14T14:36:39.881598Z",
-      "resultDigest": "8E40BCC14615AB79D1BC31D77B9A8321E7CD8CF132BCAAA0367702C5F0EF93BE"
+      "notes": "Resource-aware retrieval soak restarted at the current installed skill boundary: 1 eligible post-install normal run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T14:44:19.9208479Z",
+      "resultDigest": "E4D6AE4165A9A199FCB12D1D0B421A14571983F5852EEBB32992B4DBDCABC0DF"
     },
     "PERF-012": {
       "status": "pass",
@@ -1396,9 +1396,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak restarted at the installed skill boundary: 1 eligible post-install run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-14T14:36:39.881598Z",
-      "resultDigest": "8E40BCC14615AB79D1BC31D77B9A8321E7CD8CF132BCAAA0367702C5F0EF93BE"
+      "notes": "Resource-aware retrieval soak restarted at the current installed skill boundary: 1 eligible post-install normal run, 0 failures, 0 missing-resource reports, 0.0 observed hours of 168 required; covered is not a soak pass.",
+      "executedAt": "2026-08-14T14:44:19.9208479Z",
+      "resultDigest": "E4D6AE4165A9A199FCB12D1D0B421A14571983F5852EEBB32992B4DBDCABC0DF"
     },
     "OPS-006": {
       "status": "covered",
@@ -1408,9 +1408,9 @@
         ".rnd/temporal-memory/full-gate-run.json"
       ],
       "notes": "Full local repository gate passed on the current committed executable revision; GitHub CI and final release audit remain required, so this row is covered rather than certified.",
-      "executedAt": "2026-08-14T14:31:16.6097492Z",
-      "resultDigest": "DDCC99FCE04DD3640CDCE354A9C3AE29620D6C5764D3443C57153BE3B2E4F092"
+      "executedAt": "2026-08-14T14:46:31.6079790Z",
+      "resultDigest": "44EE0BF899CF65ADF0454E04A95EFE74C359190CF5F1DFB49361B25664FDDFF9"
     }
   },
-  "updatedAt": "2026-08-14T14:36:49Z"
+  "updatedAt": "2026-08-14T14:47:07Z"
 }
