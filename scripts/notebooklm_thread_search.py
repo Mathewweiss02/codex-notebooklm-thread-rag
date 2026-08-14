@@ -745,34 +745,13 @@ async def main() -> int:
             ranked_candidates, report["localVerification"] = local_rerank_candidates(safe_query, semantic_candidates, node_path=args.node)
             if report["localVerification"].get("abstained"):
                 report["candidateDiagnostics"] = ranked_candidates
-                try:
-                    fallback = local_fallback_candidates(
-                        safe_query,
-                        args.limit,
-                        node_path=args.node,
-                        codex_root=args.codex_root,
-                    )
-                    report["localFallback"] = {key: value for key, value in fallback.items() if key != "candidates"}
-                    report["candidates"] = fallback["candidates"]
-                    report["localVerification"] = {
-                        **report["localVerification"],
-                        "mode": "local-recovery-after-abstention",
-                        "remoteCandidateCount": len(semantic_candidates),
-                        "recoveredCount": len(fallback["candidates"]),
-                        "abstained": not bool(fallback["candidates"]),
-                    }
-                except Exception as error:
-                    report["candidates"] = []
-                    report["localFallback"] = {
-                        "used": False,
-                        "error": f"{type(error).__name__}: local recovery unavailable",
-                    }
-                    report["localVerification"] = {
-                        **report["localVerification"],
-                        "mode": "local-recovery-unavailable",
-                        "remoteCandidateCount": len(semantic_candidates),
-                        "abstained": True,
-                    }
+                report["candidates"] = []
+                report["localVerification"] = {
+                    **report["localVerification"],
+                    "mode": "local-verification-abstained",
+                    "remoteCandidateCount": len(semantic_candidates),
+                    "abstained": True,
+                }
             else:
                 report["candidates"] = ranked_candidates
         except Exception as error:

@@ -134,6 +134,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
   so it has no quality score; the observed tail confirms that a third remote
   attempt is not suitable as the default UX. The partial run was not promoted
   or mixed into the frozen benchmark evidence.
+- A negative-case audit rejected automatic local recovery after remote
+  candidates failed local verification: it produced weak candidates for all
+  eight negative cases. The final behavior therefore fails closed for an
+  unverified remote result; explicit local fallback remains limited to remote
+  failure or no-candidate paths.
 
 ## Certification principle
 

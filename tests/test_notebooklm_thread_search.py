@@ -268,7 +268,7 @@ class SearchTests(unittest.TestCase):
         self.assertTrue(report["errors"])
         self.assertIn(type(failure).__name__, report["errors"][0]["error"])
 
-    def test_unverified_remote_candidates_trigger_labeled_local_recovery(self):
+    def test_unverified_remote_candidates_fail_closed_after_local_abstention(self):
         node = shutil.which("node")
         if not node:
             self.skipTest("Node.js is required for local recovery integration")
@@ -336,14 +336,14 @@ class SearchTests(unittest.TestCase):
                 search,
                 "local_rerank_candidates",
                 return_value=([], {"attempted": True, "abstained": True, "confidence": {"accepted": False}}),
-            ), patch.object(sys, "argv", argv):
+            ), patch.object(search, "local_fallback_candidates") as fallback, patch.object(sys, "argv", argv):
                 exit_code = asyncio.run(search.main())
             report = json.loads(output.read_text(encoding="utf-8"))
-        self.assertEqual(exit_code, 0, report)
-        self.assertEqual(report["localVerification"]["mode"], "local-recovery-after-abstention")
-        self.assertEqual(report["candidates"][0]["threadId"], thread_id)
-        self.assertTrue(report["candidates"][0]["localFallback"])
+        self.assertEqual(exit_code, 1, report)
+        self.assertEqual(report["localVerification"]["mode"], "local-verification-abstained")
+        self.assertEqual(report["candidates"], [])
         self.assertEqual(report["localVerification"]["remoteCandidateCount"], 1)
+        fallback.assert_not_called()
 
     def test_remote_outage_uses_real_local_fallback(self):
         self.assert_local_fallback(RuntimeError("simulated remote outage"))

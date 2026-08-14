@@ -140,3 +140,14 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   and child benchmark processes were terminated, with no other Python or Node
   process targeted. The result remains private, incomplete evidence and does
   not alter the default two-attempt policy.
+
+## Local recovery safety audit — 2026-08-14
+
+- The proposed automatic local fallback after a remote candidate set failed
+  local verification was rejected. On the frozen development negatives it
+  produced at least one local candidate for all eight no-match queries, with
+  top local scores ranging from 30.66 to 67.36; those scores are not a safe
+  no-match discriminator.
+- The implementation therefore fails closed when remote candidates exist but
+  local authority cannot accept them. Deterministic local fallback remains
+  available for remote outage, auth, timeout, or empty-semantic paths only.
