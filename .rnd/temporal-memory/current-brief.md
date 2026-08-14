@@ -145,6 +145,23 @@ mapping. Treat packing and parallelism as separate experimental branches.
   Top-1 and both took about 65–87 seconds. Source scoping remains a synthesis
   experiment, not a promoted retrieval fix.
 
+## Fresh default live run and full-depth local recall
+
+- A fresh default-policy run on the disposable retrieval notebook completed all
+  40 development cases. It recorded 30/32 semantic candidate recall, 26/32
+  raw citation-order Top-1, 30/32 hybrid Top-1, 0/8 hybrid false positives,
+  and 2/32 false negatives. Latency was approximately 65.8 seconds at P50,
+  127.4 seconds at P95, and 259.7 seconds maximum. The run failed the frozen
+  development gates and remains development evidence only.
+- A separate local-only benchmark searched the current 145-thread projection
+  at candidate limit 145. It found all 32/32 positive cases with zero local
+  search errors. The expected rank reached 78 for the hardest positive, which
+  demonstrates full-corpus coverage but not acceptable local Top-1 ranking or
+  live NotebookLM performance.
+- Conditional local-union calibration reached 31/32 combined candidate
+  coverage at small union sizes but never exceeded 30/32 hybrid Top-1, so no
+  union or automatic local recovery policy was promoted.
+
 ## Certification principle
 
 Certified means zero known P0-P2 defects, zero failed or waived mandatory

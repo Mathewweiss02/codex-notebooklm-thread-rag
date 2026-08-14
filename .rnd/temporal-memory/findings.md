@@ -162,3 +162,25 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
 - The result supports source scoping as a bounded synthesis tool, not as proof
   that local-first source selection fixes global retrieval. No production
   routing or release gate was changed.
+
+## Fresh default live run and full-depth local recall — 2026-08-14
+
+- A fresh default-policy run on the disposable retrieval notebook completed all
+  40 development cases. It recorded 30/32 semantic candidate recall, 26/32
+  raw citation-order Top-1, 30/32 hybrid Top-1, 0/8 hybrid false positives,
+  and 2/32 false negatives. Latency was approximately 65.8 seconds at P50,
+  127.4 seconds at P95, and 259.7 seconds maximum. The run failed the frozen
+  development gates and remains development evidence only.
+- A separate local-only benchmark searched the current 145-thread projection
+  at candidate limit 145. It found all 32/32 positive cases with zero local
+  search errors. The expected rank reached 78 for the hardest positive, which
+  demonstrates full-corpus coverage but not acceptable local Top-1 ranking or
+  live NotebookLM performance.
+- Conditional local-union calibration reached 31/32 combined candidate
+  coverage at small union sizes but never exceeded 30/32 hybrid Top-1, so no
+  union or automatic local recovery policy was promoted.
+- The next quality experiment must test a separately labeled local-first /
+  source-scoped route with full-depth local candidates, explicit negative-case
+  abstention, and a bounded latency budget. It must not be counted as raw
+  NotebookLM recall and must not modify the default route until it passes the
+  same frozen gates.
