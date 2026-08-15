@@ -64,8 +64,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   events while the current projection state had 144 threads and about 16,050
   events.
 - The wall-clock release monitor is active from the protected-evidence reset
-  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 6 clean eligible
-  runs, 0 failures, and 1.0 observed hours of the required 168. The prior
+  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 7 clean eligible
+  runs, 0 failures, and 1.247 observed hours of the required 168. The prior
   pre-mitigation failure remains retained before this boundary; the new
   seven-day gate is correctly open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
@@ -82,7 +82,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 224 Python tests, plus
+- The full repository gate now passes 48 Node tests and 229 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 119 retained passes, 6 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -116,8 +116,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now reads the protected append-only
   evidence surface. The boundary was reset after operational retention removed
-  older reports; its post-mitigation boundary currently has 6 eligible normal
-  runs, 1.0 observed hours, zero failures, zero missing-step runs, and zero
+  older reports; its post-mitigation boundary currently has 7 eligible normal
+  runs, 1.247 observed hours, zero failures, zero missing-step runs, and zero
   missing-resource reports. The 168-hour gate is open; the pre-mitigation
   failure is retained outside this new certification boundary.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
