@@ -1,0 +1,27 @@
+{
+  "contractVersion": "full-gate-run-v1",
+  "status": "passed",
+  "generatedAtUtc": "2026-08-15T02:05:53.7793309Z",
+  "commitSha": "d9d4fb2b047ded299cf8f9a9d85e841d5553138a",
+  "pythonRuntime": "pinned-notebooklm-py-0.8.0",
+  "nodeRuntime": "node",
+  "nodeTests": 48,
+  "pythonTests": 213,
+  "pythonScripts": 38,
+  "testFiles": 7,
+  "runAllExit": 0,
+  "steps": [
+    "node-tests",
+    "python-tests",
+    "python-compile",
+    "powershell-parse",
+    "runner-integration",
+    "doctor-integration",
+    "profile-auth-integration",
+    "profile-acl-integration",
+    "skill-install-integration",
+    "config-integration",
+    "task-scheduler-integration"
+  ],
+  "note": "Exact committed revision passed the complete local repository gate; live NotebookLM quality and release gates remain separate."
+}
