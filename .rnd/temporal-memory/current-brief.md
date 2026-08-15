@@ -109,8 +109,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.
-- The resource-aware retrieval soak monitor now has 6 eligible post-install
-  normal runs, 1.044 observed hours, zero failures, and zero missing-resource
+- The resource-aware retrieval soak monitor now has 11 eligible post-install
+  normal runs, 2.506 observed hours, zero failures, and zero missing-resource
   reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
@@ -169,6 +169,19 @@ mapping. Treat packing and parallelism as separate experimental branches.
   maximum. This is one passing development experiment, not a production
   default or release certificate; the long tail requires a bounded policy and
   the route still needs three frozen runs plus a fresh holdout.
+- The first full adaptive-retry source-scoped run preserved 32/32 positive
+  candidate recall and 32/32 hybrid Top-1 but exposed 1/8 false positives after
+  an empty initial response was followed by one plausible retry citation. A
+  broad quorum fix over-abstained on legitimate one-thread positives, so the
+  committed policy now gates only sparse-initial-response retries. A later
+  live run was invalidated by NotebookLM rate limiting across all semantic
+  attempts; the benchmark now records that as an execution error and applies
+  bounded rate-limit backoff. A post-cooldown smoke is still rate-limited, so
+  no adaptive route pass has been counted.
+- The committed repository gate currently passes 48 Node tests, 210 Python
+  tests, compile checks, and all 11 integration steps. This proves local
+  correctness of the patch, not live NotebookLM availability or final release
+  readiness.
 
 ## Certification principle
 
