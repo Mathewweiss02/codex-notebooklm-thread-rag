@@ -7,6 +7,12 @@ function Assert-True { param([bool] $Condition, [string] $Message) if (-not $Con
 
 $temporary = Join-Path ([System.IO.Path]::GetTempPath()) ("thread-rag-skill-test-" + [guid]::NewGuid().ToString("N"))
 try {
+  $installScript = Join-Path $RepositoryRoot "install.ps1"
+  $preflight = (& $installScript -CheckOnly) | ConvertFrom-Json
+  Assert-True ($preflight.Status -eq "ready") "clean-machine preflight must pass"
+  Assert-True (@($preflight.Preflight.Tools | ForEach-Object Name) -contains "uv") "preflight must verify uv"
+  Assert-True (@($preflight.Preflight.Tools | ForEach-Object Name) -contains "node") "preflight must verify Node.js"
+
   $installer = Join-Path $RepositoryRoot "Install-CodexSkill.ps1"
   $first = (& $installer -CodexRoot $temporary) | ConvertFrom-Json
   Assert-True ($first.Status -eq "installed") "first skill install must succeed"

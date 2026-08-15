@@ -78,13 +78,17 @@ The scheduler polls every 15 minutes. Unchanged tasks are skipped locally, and a
 
 There is no NotebookLM API key, public OAuth scope, or service-account path. Authentication is a credential-bearing Google browser session or a durable master token managed by `notebooklm-py`. Never paste those values into a command, issue, log, or chat.
 
+For the shortest fresh-download setup path, see [docs/QUICKSTART.md](docs/QUICKSTART.md). The quickstart is also safe for a ZIP download; Git is not required after the files are on disk.
+
 ## 1. Install
 
 ```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\install.ps1 -CheckOnly
 .\install.ps1
 ```
 
-This creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, synchronizes the complete hash-bearing `uv.lock` graph, installs the upstream Python API, CLI, headless-auth support, and MCP server, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not modify another `notebooklm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
+The read-only `-CheckOnly` pass verifies the checkout, PowerShell, `uv`, and Node.js before any runtime or skill changes. The install then creates an isolated runtime at `%USERPROFILE%\.codex\runtimes\notebooklm-py-0.8.0`, synchronizes the complete hash-bearing `uv.lock` graph, installs the upstream Python API, CLI, headless-auth support, and MCP server, runs the complete offline test suite, and installs the global `codex-notebooklm-thread-rag` skill under `%USERPROFILE%\.codex\skills`. It does not modify another `notebooklm` installation. Upgrades preserve a rollback copy under `%USERPROFILE%\.codex\skill-backups`.
 
 Verify the installed upstream surfaces:
 
@@ -140,7 +144,14 @@ Profiles live under `%USERPROFILE%\.notebooklm\profiles`. Master tokens are dura
 
 ## 4. Create isolated retrieval and CLI chat notebooks
 
-Create notebooks through the NotebookLM CLI. Use a dedicated `retrieval` notebook for automated semantic searches; its conversation is intentionally disposable. If you want ongoing human CLI conversations over the same corpus, create a second `chat` notebook and a second config/projection root. Automated search ignores `chat` configs and can never reset their conversation history.
+Create notebooks through the NotebookLM CLI. The CLI is the primary user interface; MCP is optional. Use a dedicated `retrieval` notebook for automated semantic searches; its conversation is intentionally disposable. If you want ongoing human CLI conversations over the same corpus, create a second `chat` notebook and a second config/projection root. Automated search ignores `chat` configs and can never reset their conversation history.
+
+```powershell
+$NotebookLm = "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\notebooklm.exe"
+& $NotebookLm -p personal create "Codex Thread Retrieval" --json
+& $NotebookLm -p personal create "Codex Thread Chat" --json
+& $NotebookLm -p personal list --json
+```
 
 Start with a bounded retrieval config:
 
