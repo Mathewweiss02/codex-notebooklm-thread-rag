@@ -204,6 +204,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The scheduler doctor now treats an explicitly active `Running`/`Queued` task
   as healthy while still failing disabled, stale, or failed-ready tasks; direct
   regression coverage and the full 48/213 repository gate pass on the fix.
+- The patched skill was installed globally with a recoverable backup; the
+  repository and installed doctor scripts have matching SHA-256 hashes, and
+  the live retrieval doctor passes all 40 checks.
 
 ## Certification principle
 
