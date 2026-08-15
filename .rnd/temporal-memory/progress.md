@@ -335,3 +335,7 @@ explicit replica approval.
   projection recorded 145 considered, 144 unchanged, one deferred-active,
   and zero errors. The resource monitor was refreshed afterward and remains
   open.
+- Read-only GitHub protection audit shows `main` requires the Windows
+  `test-windows` check, but has zero required approving reviews and admin
+  enforcement disabled. This remains an external publication-governance item;
+  no protection settings were changed.
