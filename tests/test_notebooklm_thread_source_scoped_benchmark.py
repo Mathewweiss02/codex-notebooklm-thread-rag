@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 
@@ -14,6 +15,50 @@ SPEC.loader.exec_module(benchmark)
 
 
 class SourceScopedBenchmarkTests(unittest.TestCase):
+    def test_parser_defaults_transport_retries_to_zero(self):
+        with patch(
+            "sys.argv",
+            [
+                "benchmark",
+                "--state", "state.json",
+                "--cases", "cases.json",
+                "--profile", "personal",
+                "--notebook-id", "notebook",
+                "--out", "report.json",
+                "--confirm-disposable-retrieval-notebook",
+            ],
+        ):
+            args = benchmark.parse_args()
+        self.assertEqual(args.transport_max_retries, 0)
+
+    def test_parser_rejects_unbounded_transport_retries(self):
+        with patch(
+            "sys.argv",
+            [
+                "benchmark",
+                "--state", "state.json",
+                "--cases", "cases.json",
+                "--profile", "personal",
+                "--notebook-id", "notebook",
+                "--out", "report.json",
+                "--transport-max-retries", "4",
+                "--confirm-disposable-retrieval-notebook",
+            ],
+        ):
+            with self.assertRaises(SystemExit):
+                benchmark.parse_args()
+
+    def test_make_client_passes_explicit_transport_retry_budget(self):
+        args = SimpleNamespace(profile="personal", timeout=240, transport_max_retries=0)
+        with patch.object(benchmark.NotebookLMClient, "from_storage", return_value="client") as factory:
+            self.assertEqual(benchmark.make_client(args), "client")
+        factory.assert_called_once_with(
+            profile="personal",
+            chat_timeout=240,
+            rate_limit_max_retries=0,
+            server_error_max_retries=0,
+        )
+
     def test_build_source_map_rejects_unuploaded_parts(self):
         with self.assertRaisesRegex(ValueError, "unuploaded"):
             benchmark.build_source_map({"threads": {"thread-a": {"parts": [{"part": 1}]}}})

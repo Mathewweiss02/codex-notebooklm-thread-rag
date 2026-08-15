@@ -197,6 +197,7 @@ Create a local, gitignored `retrieval_cases.json` with vague remembered queries 
   --notebook-id NOTEBOOK_ID `
   --confirm-disposable-retrieval-notebook `
   --max-semantic-attempts 2 `
+  --transport-max-retries 0 `
   --threshold 0
 ```
 
@@ -217,6 +218,12 @@ Private benchmark suites support `match` and `no_match` expectations, acceptable
 The source-scoped development benchmark is rate-limit circuit-breaker guarded:
 after a terminal classified rate-limit case it stops the run and records an
 incomplete aggregate instead of continuing to spend requests during cooldown.
+Both benchmark entry points set the pinned NotebookLM transport retry budget to
+zero by default. `--transport-max-retries` may be raised to at most `3` for a
+deliberate transport-retry experiment; this is separate from
+`--max-semantic-attempts`, which controls fresh benchmark asks. The selected
+transport budget is recorded in the report so latency and rate-limit evidence
+cannot include hidden middleware retries.
 Holdout aggregate-only scoring is computed from in-memory records before
 per-case results are sealed away, so hidden details never erase latency, error,
 scope, or completion gates.

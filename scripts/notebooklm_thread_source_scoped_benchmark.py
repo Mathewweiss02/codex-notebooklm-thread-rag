@@ -80,6 +80,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-semantic-attempts", type=int, default=1)
     parser.add_argument("--min-semantic-candidates", type=int, default=2)
     parser.add_argument("--timeout", type=int, default=240)
+    parser.add_argument(
+        "--transport-max-retries",
+        type=int,
+        default=0,
+        help="Upstream 429/5xx/network retries per chat ask; 0 keeps benchmark retries explicit",
+    )
     parser.add_argument("--node")
     parser.add_argument("--codex-root", type=Path)
     parser.add_argument("--out", required=True, type=Path)
@@ -114,6 +120,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--min-semantic-candidates must be between 1 and 10")
     if args.timeout < 1:
         parser.error("--timeout must be positive")
+    if not 0 <= args.transport_max_retries <= 3:
+        parser.error("--transport-max-retries must be between 0 and 3")
     return args
 
 
@@ -256,6 +264,16 @@ def enforce_semantic_candidate_gate(
     return by_thread
 
 
+def make_client(args: argparse.Namespace) -> NotebookLMClient:
+    """Construct a client with no hidden transport retries by default."""
+    return NotebookLMClient.from_storage(
+        profile=args.profile,
+        chat_timeout=args.timeout,
+        rate_limit_max_retries=args.transport_max_retries,
+        server_error_max_retries=args.transport_max_retries,
+    )
+
+
 async def main() -> int:
     args = parse_args()
     state = read_json(args.state.resolve())
@@ -279,13 +297,14 @@ async def main() -> int:
         "candidateWidth": args.candidate_width,
         "maxSemanticAttempts": args.max_semantic_attempts,
         "minSemanticCandidates": args.min_semantic_candidates,
+        "transportMaxRetries": args.transport_max_retries,
         "caseCount": len(cases),
         "completedCaseCount": 0,
         "aborted": False,
         "results": [],
     }
     result_records: list[dict[str, Any]] = []
-    async with NotebookLMClient.from_storage(profile=args.profile, chat_timeout=args.timeout) as client:
+    async with make_client(args) as client:
         live_ids = {source.id for source in await client.sources.list(args.notebook_id, strict=True)}
         missing = sorted(set(source_to_thread) - live_ids)
         if missing:

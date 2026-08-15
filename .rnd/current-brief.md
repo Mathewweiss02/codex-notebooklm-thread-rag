@@ -15,7 +15,8 @@
 - Confirmed UX increment: local `--today` returns timestamped evidence, and remote `--fast` now enforces one semantic ask with no 429/5xx retry middleware.
 - Fresh local baseline on the current 145-thread projection recovered all 32/32 development positives at candidate depth 80 with zero local-search errors; this strengthens local candidate selection but is not remote semantic or hybrid quality proof.
 - The controlled offline threshold sweep did not produce a safe promotion candidate: stricter local gates removed the observed false positive only by causing substantial positive abstention, so ranking/acceptance needs a more discriminating signal rather than a blunt threshold.
-- The latest one-case live source-scoped smoke still hit the NotebookLM rate-limit circuit breaker; no new remote quality evidence was counted.
+- Both benchmark entry points now set the pinned NotebookLM transport retry budget explicitly, defaulting to zero; the logical semantic-attempt loop remains separate and is recorded independently.
+- The latest one-case live source-scoped smoke with transport retries set to zero hit the NotebookLM rate-limit circuit breaker after one classified event and failed closed; no new remote quality evidence was counted, and hidden middleware latency was eliminated from the observation.
 - Suspected bottleneck: The largest immediate bottleneck is validation: several important properties work but are not continuously proven.
 - Suspected bottleneck: The first-fit planner preserves task locality and reserve capacity, but stateless full replanning causes 64.62% shared-assignment churn at 5x and 83.08% at 10x; sticky ownership is the scaling bottleneck.
 - Suspected bottleneck: The largest UX bottleneck is multiple low-level scripts without a single CLI-first lifecycle command.
