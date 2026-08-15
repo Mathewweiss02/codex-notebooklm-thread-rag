@@ -26,6 +26,8 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from notebooklm import ChatError, NotebookLMClient  # noqa: E402
 from notebooklm_thread_search import (  # noqa: E402
+    BASELINE_RANKING_POLICY,
+    RANKING_POLICY_NAMES,
     local_candidate_surface,
     local_rerank_candidates,
     sanitize_query,
@@ -80,6 +82,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-semantic-attempts", type=int, default=1)
     parser.add_argument("--min-semantic-candidates", type=int, default=2)
     parser.add_argument("--timeout", type=int, default=240)
+    parser.add_argument(
+        "--ranking-policy",
+        choices=RANKING_POLICY_NAMES,
+        default=BASELINE_RANKING_POLICY.name,
+        help="Named local hybrid ranking policy; non-baseline policies are experimental",
+    )
     parser.add_argument(
         "--transport-max-retries",
         type=int,
@@ -298,6 +306,7 @@ async def main() -> int:
         "maxSemanticAttempts": args.max_semantic_attempts,
         "minSemanticCandidates": args.min_semantic_candidates,
         "transportMaxRetries": args.transport_max_retries,
+        "rankingPolicy": args.ranking_policy,
         "caseCount": len(cases),
         "completedCaseCount": 0,
         "aborted": False,
@@ -406,6 +415,7 @@ async def main() -> int:
                             diagnostic_candidates,
                             node_path=args.node,
                             timeout_seconds=args.timeout,
+                            ranking_policy=args.ranking_policy,
                         )
                         if diagnostic_verification.get("abstained"):
                             record.setdefault("retryReasons", []).append("local-verification-abstention")
@@ -447,6 +457,7 @@ async def main() -> int:
                         semantic_candidates,
                         node_path=args.node,
                         timeout_seconds=args.timeout,
+                        ranking_policy=args.ranking_policy,
                     )
                     hybrid_threads = [item["threadId"] for item in ranked]
                     record["hybridAbstained"] = bool(verification.get("abstained")) or not bool(hybrid_threads) or not record["sourceScopeValid"]

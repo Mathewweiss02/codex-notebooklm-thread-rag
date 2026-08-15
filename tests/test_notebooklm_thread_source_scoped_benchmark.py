@@ -30,6 +30,24 @@ class SourceScopedBenchmarkTests(unittest.TestCase):
         ):
             args = benchmark.parse_args()
         self.assertEqual(args.transport_max_retries, 0)
+        self.assertEqual(args.ranking_policy, "baseline")
+
+    def test_parser_accepts_named_experimental_ranking_policy(self):
+        with patch(
+            "sys.argv",
+            [
+                "benchmark",
+                "--state", "state.json",
+                "--cases", "cases.json",
+                "--profile", "personal",
+                "--notebook-id", "notebook",
+                "--out", "report.json",
+                "--ranking-policy", "generalization-v1",
+                "--confirm-disposable-retrieval-notebook",
+            ],
+        ):
+            args = benchmark.parse_args()
+        self.assertEqual(args.ranking_policy, "generalization-v1")
 
     def test_parser_rejects_unbounded_transport_retries(self):
         with patch(

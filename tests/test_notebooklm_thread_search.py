@@ -471,6 +471,14 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(ranked[0]["finalRank"], 1)
         self.assertTrue(ranked[0]["locallyVerified"])
 
+    def test_ranking_policy_names_are_explicit_and_resolvable(self):
+        self.assertEqual(search.resolve_ranking_policy().name, "baseline")
+        experimental = search.resolve_ranking_policy("generalization-v1")
+        self.assertEqual(experimental.title_evidence_weight, 5.0)
+        self.assertEqual(experimental.near_tie_margin, 0.0)
+        with self.assertRaisesRegex(ValueError, "Unknown ranking policy"):
+            search.resolve_ranking_policy("unapproved")
+
     def test_unmatched_semantic_candidates_are_retained_but_not_verified(self):
         ranked = search.merge_local_ranking(
             [{"threadId": "target"}, {"threadId": "unmatched"}],

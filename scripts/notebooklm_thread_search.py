@@ -16,7 +16,7 @@ import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -50,6 +50,59 @@ def is_rate_limited_error(error: BaseException) -> bool:
     return isinstance(error, ChatError) and "rate limited" in str(error).lower()
 HYBRID_NEAR_TIE_MARGIN = 0.05
 HYBRID_NEAR_TIE_TITLE_MARGIN = 0.01
+
+
+class RankingPolicy(NamedTuple):
+    """Explicit, reportable weights for local hybrid candidate ranking."""
+
+    name: str
+    semantic_rank_weight: float
+    local_evidence_weight: float
+    title_evidence_weight: float
+    duplicate_title_group_bonus: float
+    near_tie_margin: float
+    near_tie_title_margin: float
+
+
+BASELINE_RANKING_POLICY = RankingPolicy(
+    name="baseline",
+    semantic_rank_weight=SEMANTIC_RANK_WEIGHT,
+    local_evidence_weight=LOCAL_EVIDENCE_WEIGHT,
+    title_evidence_weight=TITLE_EVIDENCE_WEIGHT,
+    duplicate_title_group_bonus=DUPLICATE_TITLE_GROUP_BONUS,
+    near_tie_margin=HYBRID_NEAR_TIE_MARGIN,
+    near_tie_title_margin=HYBRID_NEAR_TIE_TITLE_MARGIN,
+)
+
+# Development-only candidate retained from rnd-014 offline replay. It is
+# selectable for provenance-preserving experiments, but baseline remains the
+# default until independent live development and holdout evidence supports a
+# promotion.
+GENERALIZATION_RANKING_POLICY = RankingPolicy(
+    name="generalization-v1",
+    semantic_rank_weight=1.5,
+    local_evidence_weight=1.0,
+    title_evidence_weight=5.0,
+    duplicate_title_group_bonus=3.0,
+    near_tie_margin=0.0,
+    near_tie_title_margin=0.0,
+)
+
+RANKING_POLICIES = {
+    BASELINE_RANKING_POLICY.name: BASELINE_RANKING_POLICY,
+    GENERALIZATION_RANKING_POLICY.name: GENERALIZATION_RANKING_POLICY,
+}
+RANKING_POLICY_NAMES = tuple(RANKING_POLICIES)
+
+
+def resolve_ranking_policy(policy: str | RankingPolicy | None = None) -> RankingPolicy:
+    if isinstance(policy, RankingPolicy):
+        return policy
+    name = policy or BASELINE_RANKING_POLICY.name
+    try:
+        return RANKING_POLICIES[name]
+    except KeyError as error:
+        raise ValueError(f"Unknown ranking policy: {name}") from error
 
 
 def now_iso() -> str:
@@ -213,8 +266,10 @@ def merge_local_ranking(
     local_results: list[dict[str, Any]],
     *,
     query: str | None = None,
+    ranking_policy: str | RankingPolicy | None = None,
 ) -> list[dict[str, Any]]:
     """Promote locally verified candidates while retaining semantic provenance."""
+    policy = resolve_ranking_policy(ranking_policy)
     by_id = {item["threadId"]: item for item in candidates}
     output: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -284,16 +339,16 @@ def merge_local_ranking(
         item["duplicateGroupCompetingTitleOverlap"] = competing_title_overlap
         item["duplicateGroupBlockedByCompetingEvidence"] = competing_evidence
         duplicate_group_score = (
-            DUPLICATE_TITLE_GROUP_BONUS + (DUPLICATE_TITLE_GROUP_OVERLAP_WEIGHT * duplicate_overlap)
+            policy.duplicate_title_group_bonus + (DUPLICATE_TITLE_GROUP_OVERLAP_WEIGHT * duplicate_overlap)
             if duplicate_count >= 2
             and duplicate_overlap >= DUPLICATE_TITLE_GROUP_ACCEPT_THRESHOLD
             and not competing_evidence
             else 0.0
         )
         item["hybridScore"] = round(
-            (SEMANTIC_RANK_WEIGHT * semantic_score)
-            + (LOCAL_EVIDENCE_WEIGHT * normalized_local_score)
-            + (TITLE_EVIDENCE_WEIGHT * title_overlap)
+            (policy.semantic_rank_weight * semantic_score)
+            + (policy.local_evidence_weight * normalized_local_score)
+            + (policy.title_evidence_weight * title_overlap)
             + duplicate_group_score,
             6,
         )
@@ -303,7 +358,7 @@ def merge_local_ranking(
             return -1 if left["exactTitleMatch"] else 1
         score_delta = float(left["hybridScore"]) - float(right["hybridScore"])
         title_delta = abs(float(left["titleQueryOverlap"]) - float(right["titleQueryOverlap"]))
-        if abs(score_delta) <= HYBRID_NEAR_TIE_MARGIN and title_delta <= HYBRID_NEAR_TIE_TITLE_MARGIN:
+        if abs(score_delta) <= policy.near_tie_margin and title_delta <= policy.near_tie_title_margin:
             semantic_delta = int(left["semanticRank"]) - int(right["semanticRank"])
             if semantic_delta:
                 return semantic_delta
@@ -327,8 +382,10 @@ def local_rerank_candidates(
     node_path: str | None = None,
     script_path: Path | None = None,
     timeout_seconds: int = 240,
+    ranking_policy: str | RankingPolicy | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Rerank NotebookLM candidates against authoritative local Codex JSONL files."""
+    policy = resolve_ranking_policy(ranking_policy)
     unique: list[dict[str, Any]] = []
     seen: set[str] = set()
     for semantic_rank, candidate in enumerate(candidates, 1):
@@ -338,7 +395,13 @@ def local_rerank_candidates(
         seen.add(thread_id)
         unique.append({**candidate, "semanticRank": semantic_rank})
     if not unique:
-        return [], {"attempted": False, "reason": "no-semantic-candidates", "abstained": True, "confidence": candidate_confidence(None)}
+        return [], {
+            "attempted": False,
+            "reason": "no-semantic-candidates",
+            "abstained": True,
+            "rankingPolicy": policy.name,
+            "confidence": candidate_confidence(None),
+        }
     node = node_path or shutil.which("node")
     if not node:
         raise RuntimeError("Node.js was not found for local candidate verification")
@@ -382,10 +445,11 @@ def local_rerank_candidates(
     except json.JSONDecodeError as error:
         raise RuntimeError("Local candidate verification returned invalid JSON") from error
     local_results = local_report.get("results") or []
-    reranked = merge_local_ranking(unique, local_results, query=query)
+    reranked = merge_local_ranking(unique, local_results, query=query, ranking_policy=policy)
     confidence = candidate_confidence(reranked[0] if reranked else None, candidate_count=len(reranked))
     return reranked, {
         "attempted": True,
+        "rankingPolicy": policy.name,
         "engine": local_report.get("stats", {}).get("engine"),
         "elapsedMs": local_report.get("stats", {}).get("elapsedMs"),
         "filesSearched": local_report.get("stats", {}).get("filesSearched"),
@@ -599,7 +663,9 @@ async def search_instance(
     source_scope_width: int | None = None,
     codex_root: Path | None = None,
     node_path: str | None = None,
+    ranking_policy: str | RankingPolicy | None = None,
 ) -> dict[str, Any]:
+    policy = resolve_ranking_policy(ranking_policy)
     if not 1 <= min_semantic_candidates <= 10:
         raise ValueError("min_semantic_candidates must be between 1 and 10")
     if source_scope_width is not None and source_scope_width < 1:
@@ -735,6 +801,7 @@ async def search_instance(
                         query,
                         diagnostic_candidates,
                         node_path=node_path,
+                        ranking_policy=policy,
                     )
                     if diagnostic_verification.get("abstained"):
                         source_scope["retryReasons"].append("local-verification-abstention")
@@ -763,6 +830,7 @@ async def search_instance(
             "maxSemanticAttempts": max_semantic_attempts,
             "minSemanticCandidates": min_semantic_candidates,
             "transportMaxRetries": transport_max_retries,
+            "rankingPolicy": policy.name,
             "attemptErrors": attempt_errors,
             "referenceCounts": reference_counts,
             "answerSha256": answer_hashes,
@@ -803,6 +871,12 @@ async def main() -> int:
     )
     parser.add_argument("--allow-unmonitored", action="store_true")
     parser.add_argument("--allow-followup", action="store_true")
+    parser.add_argument(
+        "--ranking-policy",
+        choices=RANKING_POLICY_NAMES,
+        default=BASELINE_RANKING_POLICY.name,
+        help="Named local hybrid ranking policy; non-baseline policies are experimental",
+    )
     parser.add_argument("--no-local-rerank", action="store_true", help="Diagnostic only: preserve raw NotebookLM citation order")
     parser.add_argument("--node", help="Node.js executable used for local candidate verification")
     parser.add_argument("--out", type=Path)
@@ -829,6 +903,7 @@ async def main() -> int:
         "latencyMode": "fast" if args.fast else "balanced",
         "maxSemanticAttempts": max_semantic_attempts,
         "transportMaxRetries": transport_max_retries,
+        "rankingPolicy": args.ranking_policy,
         "retrievalMode": "local-first-source-scoped" if args.source_scope_width is not None else "global-semantic",
         "sourceScopeWidth": args.source_scope_width,
         "instances": [],
@@ -850,6 +925,7 @@ async def main() -> int:
                     args.source_scope_width,
                     args.codex_root,
                     args.node,
+                    args.ranking_policy,
                 )
             )
         except Exception as error:
@@ -895,7 +971,12 @@ async def main() -> int:
         report["localVerification"] = {"attempted": False, "reason": "explicitly-disabled"}
     else:
         try:
-            ranked_candidates, report["localVerification"] = local_rerank_candidates(safe_query, semantic_candidates, node_path=args.node)
+            ranked_candidates, report["localVerification"] = local_rerank_candidates(
+                safe_query,
+                semantic_candidates,
+                node_path=args.node,
+                ranking_policy=args.ranking_policy,
+            )
             if report["localVerification"].get("abstained"):
                 report["candidateDiagnostics"] = ranked_candidates
                 report["candidates"] = []

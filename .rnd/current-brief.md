@@ -16,6 +16,7 @@
 - Confirmed UX increment: local `--today` returns timestamped evidence, and remote `--fast` now enforces one semantic ask with no 429/5xx retry middleware.
 - Fresh local baseline on the current 145-thread projection recovered all 32/32 development positives at candidate depth 80 with zero local-search errors; this strengthens local candidate selection but is not remote semantic or hybrid quality proof.
 - The controlled offline threshold sweep did not produce a safe promotion candidate: stricter local gates removed the observed false positive only by causing substantial positive abstention, so ranking/acceptance needs a more discriminating signal rather than a blunt threshold.
+- A broader visible-development replay compared 6,480 explicit ranking policies. The opt-in `generalization-v1` candidate improved one related-decoy run while preserving zero visible false positives; it remains experimental and the `baseline` policy remains the default.
 - Both benchmark entry points now set the pinned NotebookLM transport retry budget explicitly, defaulting to zero; the logical semantic-attempt loop remains separate and is recorded independently.
 - The latest one-case live source-scoped smoke with transport retries set to zero hit the NotebookLM rate-limit circuit breaker after one classified event and failed closed; no new remote quality evidence was counted, and hidden middleware latency was eliminated from the observation.
 - Publication remains intentionally pending: the local branch is clean, but draft PR #3 still points to the older remote commit and has only its historical Windows check; no push or merge has been performed.
@@ -40,4 +41,4 @@
 
 ## Recommended next lane
 
-- Keep holdout-v2 sealed. Resolve the development-only related-candidate ranking failure in `rnd-014`, compare `--fast` and balanced single-query latency on the same queries, then run a larger packed development sample. Provision isolated replicas only with explicit approval and ramp 1/2/4 before 8.
+- Keep holdout-v2 sealed. Run the explicit `generalization-v1` policy against the visible development suite after the upstream cooldown, compare `--fast` and balanced single-query latency on the same queries, then run a larger packed development sample. Provision isolated replicas only with explicit approval and ramp 1/2/4 before 8.

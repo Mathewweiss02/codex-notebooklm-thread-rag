@@ -228,6 +228,13 @@ Holdout aggregate-only scoring is computed from in-memory records before
 per-case results are sealed away, so hidden details never erase latency, error,
 scope, or completion gates.
 
+Local hybrid ranking is explicitly policy-selectable for reproducible
+development experiments. `baseline` remains the default. `generalization-v1`
+is the opt-in `rnd-014` candidate retained from offline visible-development
+replay; it is not a release promotion and every report records the selected
+policy. Compare it only on the visible development suite until a live policy
+run, three frozen passes, and a fresh sealed holdout support promotion.
+
 Require 100% semantic candidate recall, at least 97.5% hybrid Top-1, at most 5% false-positive and false-negative rates, and three consecutive frozen runs. Do not tune on holdout case details or relabel hard cases after scoring.
 
 The experimental `notebooklm_thread_batch_benchmark.py` can measure 2/4/8 independently numbered questions in one disposable ask. It maps citations to each answer section, reranks each section locally, and stores no answer text. Do not treat prompt packing as production-ready from a small smoke test, and do not race concurrent null-conversation asks against one notebook: upstream intentionally serializes those asks and separate processes can race the server's mutable current conversation.

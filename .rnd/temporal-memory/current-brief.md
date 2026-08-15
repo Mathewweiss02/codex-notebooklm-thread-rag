@@ -200,6 +200,20 @@ mapping. Treat packing and parallelism as separate experimental branches.
   because the live retrieval, soak, concurrency, and final CI gates remain
   open.
 
+## RND-014 policy checkpoint
+
+- A development-only replay compared 6,480 explicit ranking policies across
+  the visible dev1/dev2/dev3 and sibling-v3 reports without opening the sealed
+  holdout. The current baseline scored 31/32, 30/32, 32/32, and 12/12 hybrid
+  Top-1 respectively, with zero visible false positives.
+- The best zero-visible-false-positive candidate preserved dev3 and sibling
+  passes and improved dev2 from 30/32 to 31/32. Its weights are captured as
+  the named opt-in `generalization-v1` policy; baseline remains the default
+  because the candidate cannot repair missing remote references and has no
+  live or holdout evidence yet.
+- The benchmark and CLI now record an explicit `rankingPolicy` field. No
+  production default has been promoted from this replay.
+
 ## Current continuation checkpoint
 
 - The current local candidate baseline recovered all 32/32 development positives
@@ -212,7 +226,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   retrieval gate remains unmeasured rather than falsely scored.
 - The scheduler doctor now treats an explicitly active `Running`/`Queued` task
   as healthy while still failing disabled, stale, or failed-ready tasks; direct
-  regression coverage and the full 48/213 repository gate pass on the fix.
+  regression coverage and the full 48/219 repository gate pass on the fix.
 - The patched skill was installed globally with a recoverable backup; the
   repository and installed doctor scripts have matching SHA-256 hashes, and
   the live retrieval doctor passes all 40 checks.
