@@ -2,23 +2,24 @@
   "contractVersion": "temporal-release-monitor-v1",
   "status": "open",
   "minimumHours": 168.0,
-  "observedHours": 2.492,
-  "observationStart": "2026-08-14T23:16:56.805544Z",
-  "observationEnd": "2026-08-15T01:46:28.304907Z",
-  "evaluatedAt": "2026-08-15T01:47:03.462239Z",
-  "eligibleRunCount": 11,
+  "observedHours": 0.04,
+  "observationStart": "2026-08-15T02:44:07.084458Z",
+  "observationEnd": "2026-08-15T02:46:32.741969Z",
+  "evaluatedAt": "2026-08-15T02:50:05.091071Z",
+  "eligibleRunCount": 2,
   "failedRunCount": 0,
   "malformedRunCount": 0,
   "skippedNonproductionRunCount": 0,
   "missingStepRunCount": 0,
   "missingResourceRunCount": 0,
   "resourceRequired": true,
-  "maxGapHours": 0.259,
+  "maxGapHours": 0.04,
   "maxGapHoursAllowed": 2.0,
   "requiredSteps": [
     "projection",
     "retention",
     "sync",
     "temporal-refresh"
-  ]
+  ],
+  "sourceKind": "protected-soak-evidence"
 }

@@ -80,7 +80,7 @@ The baseline, contracts, ADR evidence, synthetic extractor/oracle parity, crash-
   steps with 145 projected threads, 147 current source parts, 16,597 temporal
   events, zero quarantines, matching handoff/index digests, and both retrieval
   and persistent-chat doctors passing. Source and installed script parity is
-  exact at 63/63 files. The full repository gate is now 48 Node and 213 Python
+  exact at 63/63 files. The full repository gate is now 48 Node and 214 Python
   tests plus operational integrations.
 - A scheduled run using an older installed skill briefly reverted the live
   derived index to schema v1 after a source refresh. Installing the current

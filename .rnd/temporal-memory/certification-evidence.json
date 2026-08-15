@@ -1267,9 +1267,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak currently has 11 eligible post-install runs, 0 failures, 0 malformed runs, 0 missing-resource reports, and 2.492 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-15T01:47:03.462239Z",
-      "resultDigest": "8da67bb59476a4a3c8e5a59c97ab7dc97c1a1a2e4b55ec86922abfdd8425c996"
+      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 2 eligible normal runs, 0.04 observed hours of 168 required, 0 failures, 0 malformed runs, and 0 missing-resource reports; the prior operational-only boundary was reset after retention removed older reports. Covered is not a soak pass.",
+      "executedAt": "2026-08-15T02:50:05.091071Z",
+      "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
     },
     "PERF-012": {
       "status": "pass",
@@ -1498,9 +1498,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Resource-aware retrieval soak currently has 11 eligible post-install runs, 0 failures, 0 malformed runs, 0 missing-resource reports, and 2.492 observed hours of 168 required; covered is not a soak pass.",
-      "executedAt": "2026-08-15T01:47:03.462239Z",
-      "resultDigest": "8da67bb59476a4a3c8e5a59c97ab7dc97c1a1a2e4b55ec86922abfdd8425c996"
+      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 2 eligible normal runs, 0.04 observed hours of 168 required, 0 failures, 0 malformed runs, and 0 missing-resource reports; the prior operational-only boundary was reset after retention removed older reports. Covered is not a soak pass.",
+      "executedAt": "2026-08-15T02:50:05.091071Z",
+      "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
     },
     "OPS-006": {
       "status": "covered",
@@ -1520,12 +1520,13 @@
         ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json"
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json"
       ],
-      "notes": "Current code revision 994facf passed the full repository gate with 48 Node tests, 213 Python tests, compile and integration checks after the scheduler-health fix.",
-      "executedAt": "2026-08-15T02:20:07.0340526Z",
-      "resultDigest": "f117f506e41a6bf6967fa6cf901d869ac84e49a2e83e5789eea398d2f3295590"
+      "notes": "Current committed revision f462a4b passed the full repository gate with 48 Node tests, 214 Python tests, compile and integration checks after protecting aggregate soak evidence from retention.",
+      "executedAt": "2026-08-15T02:47:01.3505922Z",
+      "resultDigest": "FB211A9877E4E5046C96EAEE298177396D534EB89020B891D017FA4B311159B1"
     }
   },
-  "updatedAt": "2026-08-15T02:20:07Z"
+  "updatedAt": "2026-08-15T02:50:05Z"
 }

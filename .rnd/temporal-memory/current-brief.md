@@ -43,7 +43,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 48 Node tests and 213 Python tests, plus
+- The full repository gate passed 48 Node tests and 214 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -78,7 +78,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 213 Python tests, plus
+- The full repository gate now passes 48 Node tests and 214 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -110,9 +110,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.
-- The resource-aware retrieval soak monitor now has 11 eligible post-install
-  normal runs, 2.492 observed hours, zero failures, and zero missing-resource
-  reports. The 168-hour gate is open.
+- The resource-aware retrieval soak monitor now reads the protected append-only
+  evidence surface. The boundary was reset after operational retention removed
+  older reports; it currently has 2 eligible normal runs, 0.04 observed hours,
+  zero failures, and zero missing-resource reports. The 168-hour gate is open.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
   84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
   repo-runner memory-growth signal. The separate large Node process group on
@@ -185,10 +186,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `d9d4fb2` currently passes 48 Node tests,
-  213 Python tests, compile checks, and all 11 integration steps; the exact
+- The committed repository gate at `f462a4b` currently passes 48 Node tests,
+  214 Python tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
 

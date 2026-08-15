@@ -193,7 +193,6 @@ def main(argv: list[str] | None = None) -> int:
             require_resource=args.require_resource,
         )
         result["sourceKind"] = source_kind
-        result["sourceRoot"] = str(source_root)
         write_json(args.out.resolve(), result)
         print(json.dumps({"status": result["status"], "eligibleRunCount": result["eligibleRunCount"], "observedHours": result["observedHours"], "out": str(args.out.resolve())}, separators=(",", ":")))
         return 0 if result["status"] == "pass" else 1

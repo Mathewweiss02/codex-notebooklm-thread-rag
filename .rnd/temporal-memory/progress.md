@@ -343,3 +343,24 @@ explicit replica approval.
   133 evidence rows, with zero missing, extra, or duplicate IDs. The honest
   status remains 117 pass, 8 covered, 8 pending, and zero fail/blocked; the
   audit is retained in `certification-ledger-audit-20260814.json`.
+
+## 2026-08-15 - protected soak evidence boundary
+
+- Retention had removed the oldest operational runner reports before the
+  required 168-hour window could be recomputed. This was treated as an
+  evidence-integrity defect; the old 2.492-hour operational-only boundary is
+  not carried forward.
+- Commit `f462a4bf6fc6ef2e2f3d91ba5d33fa4c7524f141` adds sanitized,
+  append-only `ProjectionRoot\soak-evidence` records, explicit retention
+  protection, and a release-monitor `--evidence-root` source. The records
+  contain only completion/status/step/resource aggregates and no notebook
+  identifiers, prompts, messages, or child output.
+- The global installed runner matches the committed runner byte-for-byte. The
+  real console-free scheduled task completed one normal six-step run with
+  status `ok`, eight resource samples, and a protected evidence record.
+- The protected monitor is honestly open at 2 eligible runs and 0.04/168 hours;
+  PERF-011 and OPS-005 remain covered rather than passed. The certification
+  ledger remains 117 pass, 8 covered, 8 pending, and zero fail/blocked.
+- The exact committed-revision full gate passed 48 Node tests, 214 Python
+  tests, compilation, parsing, and all operational integrations. Evidence is
+  retained in `full-gate-run-20260815-commit-f462a4b.json`.
