@@ -322,7 +322,7 @@ explicit replica approval.
 - The personal passive auth check remains `status=ok` and both scheduled
   retrieval/chat tasks last returned 0. The certification ledger remains
   117 pass, 8 covered, and 8 pending; the resource-aware soak remains open at
-  11 eligible runs and 2.506 observed hours of 168 required.
+  11 eligible runs and 2.492 observed hours of 168 required.
 - NotebookLM live source-scoped retrieval is still rate-limited. No new
   quality run, holdout, replica, or concurrency result is being counted until
   a one-case cooldown smoke succeeds.
@@ -330,3 +330,8 @@ explicit replica approval.
   found zero non-fixture token, private-key, bearer-token, or credential
   assignment matches across 272 tracked files and zero matching history
   commits. This is retained as scoped evidence, not the final privacy audit.
+- The scheduled 21:45 pilot run briefly reported Windows `0x41301`
+  (`267009`) while still running, then completed with result `0`; its
+  projection recorded 145 considered, 144 unchanged, one deferred-active,
+  and zero errors. The resource monitor was refreshed afterward and remains
+  open.

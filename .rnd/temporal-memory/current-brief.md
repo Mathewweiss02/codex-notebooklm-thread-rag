@@ -111,7 +111,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now has 11 eligible post-install
-  normal runs, 2.506 observed hours, zero failures, and zero missing-resource
+  normal runs, 2.492 observed hours, zero failures, and zero missing-resource
   reports. The 168-hour gate is open.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
