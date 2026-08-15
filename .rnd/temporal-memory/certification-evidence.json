@@ -1106,11 +1106,12 @@
       "testLevel": "Mock + canary",
       "evidence": [
         ".rnd/temporal-memory/local-certification-run.json",
-        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815.json"
+        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815.json",
+        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815T0628Z.json"
       ],
-      "notes": "Mock adaptive-limiter tests plus live one-case canary passed the operational rate-limit contract: bounded local backoff is proven; the live 429 path failed closed with one classified event, zero scope violations, and no persistent-chat mutation. No retrieval-quality score was counted.",
-      "executedAt": "2026-08-15T05:45:00Z",
-      "resultDigest": "41cb7799fb71bc0179868c4d99cf8fbbbae4b3e981b036c71a501b3b319cd470"
+      "notes": "Latest bounded generalization-v1 one-case canary hit one classified NotebookLM rate-limit response after 7.6 seconds; zero scope violations, no persistent-chat mutation, and zero quality counted. Retained as fail-closed operational evidence only.",
+      "executedAt": "2026-08-15T06:28:08Z",
+      "resultDigest": "a0db8f7b35dc40bcec091cf1b3a74227bccf7f27eceead1a89c4bc02e1b8c9e0"
     },
     "PAR-020": {
       "status": "pass",
@@ -1535,5 +1536,5 @@
       "resultDigest": "39780b234305782503f43c5a684aba63ad81c0bfd084836d2bb8401df011e872"
     }
   },
-  "updatedAt": "2026-08-15T06:17:12Z"
+  "updatedAt": "2026-08-15T06:28:56Z"
 }

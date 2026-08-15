@@ -1,0 +1,33 @@
+{
+  "contractVersion": "source-scoped-rate-limit-canary-v1",
+  "auditedCommit": "18bfd454ae7c9d83f29fb3495c1867a01567ab8e",
+  "privateReportSha256": "4495bf565cc22caf439c773abd43426712eefdbf416ed41f8bff393d5982e87a",
+  "suiteId": "ads-pc-development-v1",
+  "split": "development",
+  "rankingPolicy": "generalization-v1",
+  "candidateWidth": 80,
+  "transportMaxRetries": 0,
+  "maxSemanticAttempts": 1,
+  "caseCount": 1,
+  "completedCaseCount": 1,
+  "status": "execution-error-no-quality-evidence",
+  "failureClass": "rate-limit-circuit-breaker",
+  "rateLimitEvents": 1,
+  "errors": 1,
+  "candidateHits": 0,
+  "hybridTop1Hits": 0,
+  "scopeViolations": 0,
+  "persistentChatTouched": false,
+  "qualityCounted": false,
+  "elapsedMs": 7599.098,
+  "causalAssessment": {
+    "cause": "NotebookLM returned a classified rate-limit response before a usable candidate set was produced.",
+    "supportingSignals": [
+      "one classified rate-limit event",
+      "zero scope violations",
+      "one bounded case completed without a quality result",
+      "persistent CLI chat was not touched"
+    ],
+    "interpretation": "This is fail-closed transport evidence, not a retrieval-quality pass or fail. The live quality gate remains unmeasured until the upstream cooldown permits a clean run."
+  }
+}

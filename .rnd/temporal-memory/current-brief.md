@@ -203,16 +203,15 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `46c197d` passes 48 Node tests, 219 Python
+- The committed repository gate at `938fea6` passes 48 Node tests, 229 Python
   tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-938fea6.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
-- GitHub draft PR #3 remains at the older remote head and has only its
-  historical Windows check; the current branch has not been pushed or merged
-  because the live retrieval, soak, concurrency, and final CI gates remain
-  open.
+- GitHub draft PR #3 is current at `18bfd45` and its latest Windows check is
+  green; the PR remains draft and unmerged because the live retrieval, soak,
+  concurrency, and final release gates remain open.
 
 ## RND-014 policy checkpoint
 
@@ -238,12 +237,14 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no live quality score was counted and persistent chat was not touched.
 - The first post-policy `generalization-v1` one-case canary was also
   rate-limited and failed closed after one classified event in about 6.99
-  seconds. It is execution evidence only; the policy remains unpromoted.
+  seconds. A later cooldown canary at 2026-08-15T06:28Z repeated the
+  fail-closed result after one case in 7.6 seconds. Both are execution
+  evidence only; the policy remains unpromoted.
 - The post-cooldown smoke is sealed as execution-error evidence only; the live
   retrieval gate remains unmeasured rather than falsely scored.
 - The scheduler doctor now treats an explicitly active `Running`/`Queued` task
   as healthy while still failing disabled, stale, or failed-ready tasks; direct
-  regression coverage and the full 48/221 repository gate pass on the fix.
+  regression coverage and the full 48/229 repository gate pass on the fix.
 - The patched skill was installed globally with a recoverable backup; the
   repository and installed doctor scripts have matching SHA-256 hashes, and
   the live retrieval doctor passes all 40 checks.
