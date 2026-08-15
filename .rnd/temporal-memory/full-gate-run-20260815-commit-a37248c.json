@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "generatedAtUtc": "2026-08-15T01:02:59.4359226Z",
+  "commitSha": "a37248c9b100caebf747be1d89a297089d185428",
+  "pythonRuntime": "pinned-notebooklm-py-0.8.0",
+  "nodeTests": 48,
+  "pythonTests": 210,
+  "steps": {
+    "nodeTests": true,
+    "pythonTests": true,
+    "pythonCompile": true,
+    "powershellParse": true,
+    "runnerIntegration": true,
+    "doctorIntegration": true,
+    "profileAuthIntegration": true,
+    "profileAclIntegration": true,
+    "skillInstallIntegration": true,
+    "configIntegration": true,
+    "taskSchedulerIntegration": true
+  }
+}
