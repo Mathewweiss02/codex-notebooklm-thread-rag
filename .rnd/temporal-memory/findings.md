@@ -239,3 +239,7 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   partial run cannot pass because hidden case records were omitted.
 - The new behavior is covered by deterministic unit tests. No live quality
   score changed, and the rate-limited cooldown smoke remains invalid evidence.
+- A later one-case smoke through the hardened harness still received one
+  classified rate-limit response, completed exactly one case, and stopped with
+  `abortReason=rate-limit-circuit-breaker`. This confirms the safety behavior;
+  it does not count as a retrieval pass or a quality failure.
