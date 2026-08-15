@@ -156,6 +156,20 @@ an observed outcome and cause class, and cite an independent replay or
 counterfactual for each miss and claimed improvement. Do not create a public
 packet from a sealed holdout report.
 
+Create the promotion certificate only after both the quantitative score and
+the causal audit pass:
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\thread_rag_benchmark_promote.py" `
+  --score-report ".rnd\temporal-memory\score.json" `
+  --causal-packet ".rnd\temporal-memory\causal-evidence.json" `
+  --out ".rnd\temporal-memory\promotion-certificate.json"
+```
+
+The certificate requires the scorer's complete four-gate set, binds both
+input digests, and records the audited case/check counts. A failed or
+incomplete score, a mismatched packet, or an unexplained miss exits nonzero.
+
 ## Schedule
 
 ```powershell
