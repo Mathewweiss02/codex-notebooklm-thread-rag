@@ -63,11 +63,12 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - REL-001 initially found a stale handoff representing 140 threads and 15,990
   events while the current projection state had 144 threads and about 16,050
   events.
-- The wall-clock release monitor is active from the protected-evidence reset
-  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 8 clean eligible
-  runs, 0 failures, and 1.499 observed hours of the required 168. The prior
-  pre-mitigation failure remains retained before this boundary; the new
-  seven-day gate is correctly open.
+- The wall-clock release monitor is currently failed, not silently open: its
+  latest protected-evidence evaluation has 19 eligible runs over 4.04 hours,
+  with one failed run at 2026-08-15T04:32:01Z that stopped after a successful
+  temporal refresh and therefore lacked sync/retention steps. The safe runner
+  record contains no remote error or secret; a bounded post-refresh state
+  fingerprint retry is being validated before a new soak boundary is allowed.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
   refresh completed successfully with 16,671 temporal events, 145 path-free
@@ -126,12 +127,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The runner now retains aggregate resource diagnostics in each new report:
   working-set, private bytes, handle count, and processor-time samples. This
   is implementation readiness for the idle/resource soak, not a soak pass.
-- The resource-aware retrieval soak monitor now reads the protected append-only
-  evidence surface. The boundary was reset after operational retention removed
-  older reports; its post-mitigation boundary currently has 8 eligible normal
-  runs, 1.499 observed hours, zero failures, zero missing-step runs, and zero
-  missing-resource reports. The 168-hour gate is open; the pre-mitigation
-  failure is retained outside this new certification boundary.
+- The resource-aware retrieval soak monitor reads the protected append-only
+  evidence surface and fails closed on the newly observed missing-step run:
+  19 eligible runs, 4.04 observed hours, 1 failed run, 1 missing-step run, and
+  zero missing-resource reports. The 168-hour gate is not open; the failed
+  boundary remains retained while the runner hardening is verified.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
   84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
   repo-runner memory-growth signal. The separate large Node process group on

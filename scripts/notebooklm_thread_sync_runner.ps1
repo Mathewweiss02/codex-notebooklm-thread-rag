@@ -66,6 +66,10 @@ function Convert-ToSafeErrorMessage {
   if ($match.Success) {
     return "{0} failed with exit code {1}." -f $match.Groups['label'].Value, $match.Groups['code'].Value
   }
+  $match = [regex]::Match($message, '^(?<label>[A-Za-z0-9_-]+) failed after (?<attempts>[0-9]+) attempts\.')
+  if ($match.Success) {
+    return "{0} failed after {1} attempts." -f $match.Groups['label'].Value, $match.Groups['attempts'].Value
+  }
   return "runner failure: {0}" -f (Convert-ToSafeDiagnosticLine $message)
 }
 
@@ -118,34 +122,43 @@ function Get-ResourceSummary {
 }
 
 function Get-ProjectionSyncFingerprint {
-  param([string] $StatePath)
-  if (-not (Test-Path -LiteralPath $StatePath)) { return "" }
-  $state = Get-Content -Raw -LiteralPath $StatePath | ConvertFrom-Json
-  $threads = @($state.threads.PSObject.Properties | Sort-Object Name | ForEach-Object {
-      $thread = $_.Value
-      [ordered]@{
-        ThreadId = [string]$_.Name
-        Revision = [string]$thread.revision
-        ContentDigest = [string]$thread.contentDigest
-        Parts = @($thread.parts | Sort-Object title | ForEach-Object {
-            [ordered]@{
-              Title = [string]$_.title
-              Sha256 = [string]$_.sha256
-              Bytes = [int64]$_.bytes
-              Words = [int]$_.words
-            }
-          })
+  param([string] $StatePath, [int] $MaxAttempts = 3)
+  for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+    try {
+      if (-not (Test-Path -LiteralPath $StatePath)) { return "" }
+      $state = Get-Content -Raw -LiteralPath $StatePath | ConvertFrom-Json
+      $threads = @($state.threads.PSObject.Properties | Sort-Object Name | ForEach-Object {
+          $thread = $_.Value
+          [ordered]@{
+            ThreadId = [string]$_.Name
+            Revision = [string]$thread.revision
+            ContentDigest = [string]$thread.contentDigest
+            Parts = @($thread.parts | Sort-Object title | ForEach-Object {
+                [ordered]@{
+                  Title = [string]$_.title
+                  Sha256 = [string]$_.sha256
+                  Bytes = [int64]$_.bytes
+                  Words = [int]$_.words
+                }
+              })
+          }
+        })
+      $canonical = [ordered]@{
+        PolicyVersion = [string]$state.policyVersion
+        Threads = $threads
+      } | ConvertTo-Json -Depth 12 -Compress
+      $hasher = [System.Security.Cryptography.SHA256]::Create()
+      try {
+        return ([System.BitConverter]::ToString($hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical)))).Replace('-', '').ToLowerInvariant()
+      } finally {
+        $hasher.Dispose()
       }
-    })
-  $canonical = [ordered]@{
-    PolicyVersion = [string]$state.policyVersion
-    Threads = $threads
-  } | ConvertTo-Json -Depth 12 -Compress
-  $hasher = [System.Security.Cryptography.SHA256]::Create()
-  try {
-    return ([System.BitConverter]::ToString($hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical)))).Replace('-', '').ToLowerInvariant()
-  } finally {
-    $hasher.Dispose()
+    } catch {
+      if ($attempt -ge $MaxAttempts) {
+        throw "sync-fingerprint failed after $MaxAttempts attempts."
+      }
+      Start-Sleep -Milliseconds (250 * $attempt)
+    }
   }
 }
 
