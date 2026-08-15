@@ -1267,9 +1267,9 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 4 eligible normal runs, 0.541 observed hours of 168 required, 0 failures, 0 malformed runs, and 0 missing-resource reports; the prior operational-only boundary was reset after retention removed older reports. Covered is not a soak pass.",
-      "executedAt": "2026-08-15T03:25:06.607666Z",
-      "resultDigest": "6A129555AD567BF57B2780F57B810F3F25C0ACE0F10D034E370CEB66782E7FAA"
+      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 5 eligible normal runs, 0.79 observed hours of 168 required, 0 failures, 0 malformed runs, and 0 missing-resource reports; the prior operational-only boundary was reset after retention removed older reports. Covered is not a soak pass.",
+      "executedAt": "2026-08-15T03:32:23.832537Z",
+      "resultDigest": "394BFDD09493F50DFA1BC9C47E861F9724075101922BC30456BFC8BC4E7E5749"
     },
     "PERF-012": {
       "status": "pass",
@@ -1530,5 +1530,5 @@
       "resultDigest": "44BA1FBA52F1B7C556B281907BD4AAF6291EC54763E07DD3AE360417CD31FB52"
     }
   },
-  "updatedAt": "2026-08-15T03:25:06Z"
+  "updatedAt": "2026-08-15T03:32:23Z"
 }
