@@ -1524,8 +1524,9 @@
         ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json"
+        ,".rnd/temporal-memory/full-gate-run-20260815-commit-6e4df33.json"
       ],
-      "notes": "Current committed revision 46c197d passed the full repository gate with 48 Node tests, 219 Python tests, compile and integration checks after making benchmark transport retries explicit and recording the retry budget in reports.",
+      "notes": "Current committed revision 6e4df33 passed the full repository gate with 48 Node tests, 221 Python tests, compile and integration checks; the exact report is retained for the release audit.",
       "executedAt": "2026-08-15T03:18:43.9155265Z",
       "resultDigest": "44BA1FBA52F1B7C556B281907BD4AAF6291EC54763E07DD3AE360417CD31FB52"
     }
