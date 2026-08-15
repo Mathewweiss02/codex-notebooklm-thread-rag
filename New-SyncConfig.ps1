@@ -50,6 +50,7 @@ $config = [ordered]@{
   MaxMessageChars = 100000
   MaxLineBytes = 8388608
   WaitTimeout = 300
+  SkipUnchangedSync = $true
   RefreshAuth = $true
   SwapOld = $true
   ReconcileHour = 3

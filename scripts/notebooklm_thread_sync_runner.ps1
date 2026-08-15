@@ -117,6 +117,38 @@ function Get-ResourceSummary {
   }
 }
 
+function Get-ProjectionSyncFingerprint {
+  param([string] $StatePath)
+  if (-not (Test-Path -LiteralPath $StatePath)) { return "" }
+  $state = Get-Content -Raw -LiteralPath $StatePath | ConvertFrom-Json
+  $threads = @($state.threads.PSObject.Properties | Sort-Object Name | ForEach-Object {
+      $thread = $_.Value
+      [ordered]@{
+        ThreadId = [string]$_.Name
+        Revision = [string]$thread.revision
+        ContentDigest = [string]$thread.contentDigest
+        Parts = @($thread.parts | Sort-Object title | ForEach-Object {
+            [ordered]@{
+              Title = [string]$_.title
+              Sha256 = [string]$_.sha256
+              Bytes = [int64]$_.bytes
+              Words = [int]$_.words
+            }
+          })
+      }
+    })
+  $canonical = [ordered]@{
+    PolicyVersion = [string]$state.policyVersion
+    Threads = $threads
+  } | ConvertTo-Json -Depth 12 -Compress
+  $hasher = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    return ([System.BitConverter]::ToString($hasher.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($canonical)))).Replace('-', '').ToLowerInvariant()
+  } finally {
+    $hasher.Dispose()
+  }
+}
+
 function Invoke-Checked {
   param([string] $Executable, [string[]] $Arguments, [string] $Label)
   $started = Get-Date
@@ -256,17 +288,32 @@ try {
       $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $temporalArgs -Label "temporal-refresh"
     }
 
-    $syncArgs = @(
-      [string]$settings.SyncScript,
-      "--state", (Join-Path $root "state.json"),
-      "--profile", [string]$settings.Profile,
-      "--notebook-id", [string]$settings.NotebookId,
-      "--wait-timeout", [string]$settings.WaitTimeout
-    )
-    if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
-    if ($settings.RejectUntrackedSources -eq $true) { $syncArgs += "--reject-untracked-sources" }
-    if ($DryRun) { $syncArgs += "--dry-run" }
-    $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label "sync"
+    $statePath = Join-Path $root "state.json"
+    $syncFingerprint = Get-ProjectionSyncFingerprint -StatePath $statePath
+    $skipUnchanged = $settings.SkipUnchangedSync -ne $false
+    if (-not $DryRun -and $skipUnchanged -and $syncFingerprint -and [string]$runnerState.LastSuccessfulSyncFingerprint -eq $syncFingerprint) {
+      $run.Steps += [pscustomobject]@{
+        Label = "sync-skipped"
+        ExitCode = 0
+        DurationMs = 0
+        OutputTail = @("projection-fingerprint-match")
+      }
+    } else {
+      $syncArgs = @(
+        [string]$settings.SyncScript,
+        "--state", $statePath,
+        "--profile", [string]$settings.Profile,
+        "--notebook-id", [string]$settings.NotebookId,
+        "--wait-timeout", [string]$settings.WaitTimeout
+      )
+      if ($settings.SwapOld -ne $false) { $syncArgs += "--swap-old" }
+      if ($settings.RejectUntrackedSources -eq $true) { $syncArgs += "--reject-untracked-sources" }
+      if ($DryRun) { $syncArgs += "--dry-run" }
+      $run.Steps += Invoke-Checked -Executable ([string]$settings.PythonPath) -Arguments $syncArgs -Label "sync"
+      if (-not $DryRun) {
+        $runnerState | Add-Member -NotePropertyName LastSuccessfulSyncFingerprint -NotePropertyValue $syncFingerprint -Force
+      }
+    }
   }
 
   if (($ReconcileOnly -or $isReconcileDue) -and -not $DryRun) {

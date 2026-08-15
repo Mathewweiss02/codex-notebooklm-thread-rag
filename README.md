@@ -65,7 +65,7 @@ local Codex evidence verification
         +--> deterministic ThreadOps search fallback
 ```
 
-The scheduler polls every 15 minutes. Unchanged tasks are skipped. A changed task normally waits until it has been quiet for 60 minutes; a previously projected task still changing for six hours becomes eligible at the hard ceiling. With the default profile, “live” therefore means eventually available after quiescence, not real-time. Shorter 15- and 5-minute profiles are research experiments and must earn promotion through measured churn, reliability, and retrieval results.
+The scheduler polls every 15 minutes. Unchanged tasks are skipped locally, and an unchanged projection fingerprint also skips the remote NotebookLM sync and capacity/listing calls; nightly strict reconciliation remains the drift detector. A changed task normally waits until it has been quiet for 60 minutes; a previously projected task still changing for six hours becomes eligible at the hard ceiling. With the default profile, “live” therefore means eventually available after quiescence, not real-time. Shorter 15- and 5-minute profiles are research experiments and must earn promotion through measured churn, reliability, and retrieval results.
 
 ## Requirements
 
