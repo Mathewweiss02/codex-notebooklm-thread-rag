@@ -253,7 +253,7 @@ test("retries a transient Windows file lock and publishes one complete handoff",
       });
     });
     const out = join(root, "handoff.jsonl");
-    await runExtractor(manifest, out, ["--file-retries", "4", "--file-retry-delay-ms", "100"]);
+    await runExtractor(manifest, out, ["--file-retry-delay-ms", "100"]);
     const records = (await readFile(out, "utf8")).trim().split(/\r?\n/).map((line) => JSON.parse(line));
     const trailer = records.find((record) => record.recordType === "trailer");
     assert.ok(trailer.fileRetryCount >= 1);

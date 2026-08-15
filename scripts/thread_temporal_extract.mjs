@@ -20,7 +20,7 @@ Options:
   --thread-manifest FILE  JSON array or {threads:[...]} with id, path, and updatedAt
   --out FILE              Atomic NDJSON handoff destination
   --include-subagents     Include explicitly requested subagent sources
-  --file-retries N        Bounded retries for transient Windows file access (default: 4)
+  --file-retries N        Bounded retries for transient Windows file access (default: 6)
   --file-retry-delay-ms N Initial retry delay with exponential backoff (default: 100)
   --max-message-chars N   Match projection truncation ceiling
   --max-line-bytes N      Match projection line ceiling
@@ -32,7 +32,7 @@ function parseArgs(argv) {
     manifest: null,
     out: null,
     includeSubagents: false,
-    fileRetries: 4,
+    fileRetries: 6,
     fileRetryDelayMs: 100,
     maxMessageChars: 100_000,
     maxLineBytes: 8 * 1024 * 1024,
@@ -216,7 +216,7 @@ export async function extractManifest(manifestPath, outPath, options = {}) {
         if (before.size !== after.size || before.mtimeMs !== after.mtimeMs) throw new Error(`source-changed-during-scan:${thread.id}`);
         return { visible, sourceFileDigest };
       }, {
-        maxRetries: options.fileRetries ?? 4,
+        maxRetries: options.fileRetries ?? 6,
         baseDelayMs: options.fileRetryDelayMs ?? 100,
       });
       fileRetryCount += scanned.retries;
