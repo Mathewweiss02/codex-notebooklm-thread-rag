@@ -113,6 +113,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The resource-aware retrieval soak monitor now has 11 eligible post-install
   normal runs, 2.492 observed hours, zero failures, and zero missing-resource
   reports. The 168-hour gate is open.
+- Across the latest 10 resource-bearing retrieval runs, the runner peaked at
+  84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
+  repo-runner memory-growth signal. The separate large Node process group on
+  the desktop is `xcodebuildmcp`, not the NotebookLM sync runner.
 - The separate persistent-chat scheduler has also produced its first
   post-install resource-bearing normal report with status `ok`. It remains a
   health/observability signal only and is intentionally excluded from the
