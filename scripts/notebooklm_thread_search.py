@@ -22,7 +22,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from notebooklm import NotebookLMClient
+from notebooklm import ChatError, NotebookLMClient
 from redaction_contract import POLICY as REMOTE_REDACTION_POLICY
 from redaction_contract import sanitize_remote_text
 from redaction_contract import summarize_error
@@ -43,6 +43,11 @@ DUPLICATE_TITLE_GROUP_ACCEPT_THRESHOLD = 0.1
 DUPLICATE_COMPETING_LOCAL_ACCEPT_THRESHOLD = 40.0
 DUPLICATE_COMPETING_COVERAGE_ACCEPT_THRESHOLD = 0.5
 DUPLICATE_GROUP_OVERRIDE_MIN_OVERLAP = 0.5
+
+
+def is_rate_limited_error(error: BaseException) -> bool:
+    """Classify the pinned upstream chat rate-limit message without logging it."""
+    return isinstance(error, ChatError) and "rate limited" in str(error).lower()
 HYBRID_NEAR_TIE_MARGIN = 0.05
 HYBRID_NEAR_TIE_TITLE_MARGIN = 0.01
 
@@ -629,6 +634,7 @@ async def search_instance(
         reference_counts: list[int] = []
         attempts_used = 0
         source_scope: dict[str, Any] | None = None
+        semantic_candidate_quorum = min_semantic_candidates
         if source_scope_width is not None:
             eligible_threads = set(instance.get("threadToSources") or {})
             local_surface = local_candidate_surface(
@@ -644,6 +650,10 @@ async def search_instance(
                 for item in local_surface.get("candidates") or []
                 if item.get("threadId") in eligible_threads
             ][:source_scope_width]
+            semantic_candidate_quorum = min(
+                min_semantic_candidates,
+                max(1, len(selected_threads)),
+            )
             selected_source_ids = [
                 source_id
                 for thread_id in selected_threads
@@ -654,6 +664,8 @@ async def search_instance(
                 "candidateWidth": source_scope_width,
                 "localCandidateCount": len(selected_threads),
                 "sourceCount": len(selected_source_ids),
+                "requestedMinSemanticCandidates": min_semantic_candidates,
+                "minSemanticCandidates": semantic_candidate_quorum,
                 "localElapsedMs": local_surface.get("elapsedMs"),
                 "selectedSourceIds": selected_source_ids,
                 "retryReasons": [],
@@ -680,6 +692,10 @@ async def search_instance(
                     result = await client.chat.ask(notebook_id, query)
             except Exception as error:
                 attempt_errors.append(f"attempt {attempt}: {summarize_error(error)}")
+                if is_rate_limited_error(error) and attempt < max_semantic_attempts:
+                    if source_scope is not None:
+                        source_scope["retryReasons"].append("remote-rate-limit")
+                    await asyncio.sleep(min(2 ** (attempt - 1), 8))
                 continue
             references = sorted(result.references, key=lambda item: item.citation_number)
             answer_hashes.append(hashlib.sha256(result.answer.encode("utf-8")).hexdigest())
@@ -702,7 +718,7 @@ async def search_instance(
                 })
                 candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
                 candidate["attempts"].append(attempt)
-            if len(by_thread) >= min_semantic_candidates:
+            if len(by_thread) >= semantic_candidate_quorum:
                 if source_scope_width is not None and attempt < max_semantic_attempts:
                     diagnostic_candidates = [
                         {
@@ -727,6 +743,10 @@ async def search_instance(
         if source_scope is not None:
             source_scope["outOfScopeReferenceCount"] = out_of_scope_reference_count
             source_scope["scopeValid"] = out_of_scope_reference_count == 0
+            initial_reference_count = reference_counts[0] if reference_counts else None
+            if (initial_reference_count is None or initial_reference_count == 0) and len(by_thread) < semantic_candidate_quorum:
+                source_scope["semanticAbstentionReason"] = "sparse-initial-response-gate"
+                by_thread = {}
         if not by_thread and attempt_errors:
             raise RuntimeError("; ".join(attempt_errors))
         candidates = sorted(
@@ -842,7 +862,15 @@ async def main() -> int:
             merged[key] = {**candidate, "device": instance["device"], "score": round(score, 6)}
     semantic_candidates = sorted(merged.values(), key=lambda item: (-item["score"], item["device"], item["threadId"]))
     report["semanticCandidates"] = semantic_candidates
-    if not args.no_local_rerank and not semantic_candidates:
+    if not args.no_local_rerank and not semantic_candidates and args.source_scope_width is not None:
+        report["candidates"] = []
+        report["localVerification"] = {
+            "attempted": False,
+            "mode": "source-scoped-minimum-candidate-abstained",
+            "abstained": True,
+            "reason": "minimum-semantic-candidate-gate",
+        }
+    elif not args.no_local_rerank and not semantic_candidates:
         try:
             fallback = local_fallback_candidates(
                 safe_query,

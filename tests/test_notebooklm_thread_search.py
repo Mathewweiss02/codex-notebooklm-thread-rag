@@ -132,6 +132,32 @@ class SearchTests(unittest.TestCase):
         self.assertEqual(result["sourceScope"]["scopeValid"], True)
         self.assertEqual([item["threadId"] for item in result["candidates"]], ["thread-b"])
 
+    def test_source_scoped_mode_abstains_below_minimum_candidate_quorum(self):
+        context = FakeClientContext([
+            [],
+            [SimpleNamespace(source_id="source-a", citation_number=1)],
+        ])
+        local_surface = {
+            "candidates": [{"threadId": "thread-a"}, {"threadId": "thread-b"}],
+            "elapsedMs": 3,
+        }
+        with patch.object(search.NotebookLMClient, "from_storage", return_value=context), patch.object(
+            search, "local_candidate_surface", return_value=local_surface
+        ):
+            result = asyncio.run(search.search_instance(
+                self.retry_instance(),
+                "query",
+                False,
+                5,
+                max_semantic_attempts=2,
+                min_semantic_candidates=2,
+                source_scope_width=2,
+                codex_root=Path("C:/codex"),
+                node_path="node",
+            ))
+        self.assertEqual(result["candidates"], [])
+        self.assertEqual(result["sourceScope"]["semanticAbstentionReason"], "sparse-initial-response-gate")
+
     def test_source_scoped_mode_retries_after_local_abstention(self):
         context = FakeClientContext([[
             SimpleNamespace(source_id="source-a", citation_number=1),

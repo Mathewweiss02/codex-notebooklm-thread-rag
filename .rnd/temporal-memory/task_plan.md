@@ -451,4 +451,16 @@ The remaining work is deliberately sequential. A later phase cannot be used to h
 5. **Run the parallel-query experiment under isolation.** First test packed asks and explicit conversation IDs without destructive reset. If neither is safe, request explicit approval for disposable isolated notebook replicas, validate one replica, then ramp 1 → 2 → 4 → 8. Advance to 16, 32, or 50 only after repeated quality, isolation, rate-limit, memory, cancellation, and account-health passes. Fifty is an experiment ceiling, never a default.
 6. **Operate and certify.** Complete the 168-hour soak (extend to 14 days after any scheduler/index/concurrency defect), prove console-free scheduling and overlap suppression, rehearse rollback and rebuild, run a fresh-task end-to-end test from the committed revision, perform the final dirty-tree/dependency/source reconciliation audit, and issue a release certificate listing residual risks.
 
+### Live source-scoped route status
+
+- The initial source-scoped canary passed once, but the first reproducible
+  adaptive-retry run exposed a negative-case false positive after an empty
+  initial response. A broad quorum fix over-abstained on legitimate one-thread
+  positives and was narrowed to the sparse-initial-response pattern.
+- The next full run was rate-limited by NotebookLM after repeated live asks;
+  it is invalid evidence, not a quality pass or fail. The code now records
+  execution errors and uses bounded rate-limit backoff. Cooldown smoke,
+  three consecutive frozen development runs, holdout, and isolated concurrency
+  remain open.
+
 The release decision is binary: all required gates pass with evidence, or the system remains explicitly uncertified and uses the safe local/degraded path. “Zero bugs” is represented honestly as zero known P0–P2 defects and zero failed required gates; unknown defects cannot be mathematically ruled out.

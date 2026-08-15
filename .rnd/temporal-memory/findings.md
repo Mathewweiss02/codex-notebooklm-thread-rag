@@ -204,3 +204,25 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   raw global NotebookLM recall, does not spend the sealed holdout, and does not
   justify changing the default until the route is implemented reproducibly,
   passes three frozen development runs, and passes a fresh holdout.
+
+## Source-scoped retry and rate-limit findings - 2026-08-14
+
+- The first complete adaptive-retry harness run achieved 32/32 positive raw
+  candidate hits and 32/32 hybrid Top-1, but produced 1/8 hybrid false
+  positives. The false positive came from an empty first response followed by
+  a single plausible citation on the retry; accepting a one-candidate local
+  consensus after that sequence was unsafe.
+- A broad minimum-candidate quorum fix removed the false-positive pattern but
+  also abstained on legitimate one-thread positive cases. That policy was not
+  promoted. The retained rule is narrower: a sparse initial response followed
+  by an under-quorum retry fails closed, while ordinary one-candidate results
+  with non-empty initial evidence remain eligible for local verification.
+- A subsequent full run was invalidated by upstream NotebookLM rate limiting:
+  all 80 semantic attempts returned the pinned ChatError rate-limit response.
+  Authentication and source enumeration remained healthy. The benchmark now
+  records all-attempts-failed as an execution error, classifies rate-limit
+  retries without exposing the message, and applies bounded backoff.
+- No source-scoped route is certified or promoted from these runs. A fresh
+  cooldown smoke must pass before another 40-case run is counted; then three
+  consecutive frozen development passes and a fresh sealed holdout remain
+  required.

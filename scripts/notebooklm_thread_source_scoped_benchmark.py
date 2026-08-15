@@ -24,7 +24,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from notebooklm import NotebookLMClient  # noqa: E402
+from notebooklm import ChatError, NotebookLMClient  # noqa: E402
 from notebooklm_thread_search import (  # noqa: E402
     local_candidate_surface,
     local_rerank_candidates,
@@ -39,6 +39,11 @@ from thread_rag_benchmark_contract import (  # noqa: E402
 
 
 CONTRACT = "source-scoped-hybrid-development-v1"
+
+
+def is_rate_limited_error(error: BaseException) -> bool:
+    """Classify the pinned upstream chat rate-limit message without logging it."""
+    return isinstance(error, ChatError) and "rate limited" in str(error).lower()
 
 
 def now_iso() -> str:
@@ -169,6 +174,19 @@ def percentile(values: list[float], fraction: float) -> float | None:
     return round(ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower), 3)
 
 
+def enforce_semantic_candidate_gate(
+    by_thread: dict[str, dict[str, Any]],
+    minimum: int,
+    record: dict[str, Any],
+    initial_reference_count: int | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Fail closed when a sparse initial response later yields too few candidates."""
+    if (initial_reference_count is None or initial_reference_count == 0) and len(by_thread) < minimum:
+        record["semanticAbstentionReason"] = "sparse-initial-response-gate"
+        return {}
+    return by_thread
+
+
 async def main() -> int:
     args = parse_args()
     state = read_json(args.state.resolve())
@@ -228,7 +246,13 @@ async def main() -> int:
                     timeout=args.timeout,
                 )
                 allowed_source_ids = set(scope["sourceIds"])
+                semantic_candidate_quorum = min(
+                    args.min_semantic_candidates,
+                    max(1, int(scope.get("localCandidateCount") or 0)),
+                )
                 record["sourceScope"] = {key: value for key, value in scope.items() if key != "sourceIds"}
+                record["sourceScope"]["requestedMinSemanticCandidates"] = args.min_semantic_candidates
+                record["sourceScope"]["minSemanticCandidates"] = semantic_candidate_quorum
                 by_thread: dict[str, dict[str, Any]] = {}
                 out_of_scope_references = 0
                 for attempt in range(1, args.max_semantic_attempts + 1):
@@ -242,7 +266,13 @@ async def main() -> int:
                             source_ids=list(scope["sourceIds"]),
                         )
                     except Exception as error:
-                        record["attempts"].append({"attempt": attempt, "error": summarize_error(error)})
+                        attempt_record = {"attempt": attempt, "error": summarize_error(error)}
+                        if is_rate_limited_error(error):
+                            attempt_record["kind"] = "rate-limit"
+                            record.setdefault("retryReasons", []).append("remote-rate-limit")
+                        record["attempts"].append(attempt_record)
+                        if is_rate_limited_error(error) and attempt < args.max_semantic_attempts:
+                            await asyncio.sleep(min(2 ** (attempt - 1), 8))
                         continue
                     references = sorted(result.references, key=lambda item: item.citation_number)
                     record["attempts"].append({
@@ -265,7 +295,7 @@ async def main() -> int:
                             "firstAttempt": attempt,
                         })
                         candidate["citationRank"] = min(candidate["citationRank"], reference.citation_number)
-                    if len(by_thread) >= args.min_semantic_candidates and attempt < args.max_semantic_attempts:
+                    if len(by_thread) >= semantic_candidate_quorum and attempt < args.max_semantic_attempts:
                         diagnostic_candidates = [
                             {
                                 "threadId": item["threadId"],
@@ -286,7 +316,7 @@ async def main() -> int:
                         if diagnostic_verification.get("abstained"):
                             record.setdefault("retryReasons", []).append("local-verification-abstention")
                             continue
-                    if len(by_thread) >= args.min_semantic_candidates:
+                    if len(by_thread) >= semantic_candidate_quorum:
                         break
                 record["sourceScopeValid"] = out_of_scope_references == 0
                 referenced_threads = [
@@ -304,6 +334,19 @@ async def main() -> int:
                     {"threadId": thread_id, "title": state["threads"].get(thread_id, {}).get("title"), "citationRank": rank}
                     for rank, thread_id in enumerate(referenced_threads, 1)
                 ]
+                semantic_candidates_by_thread = enforce_semantic_candidate_gate(
+                    {item["threadId"]: item for item in semantic_candidates},
+                    semantic_candidate_quorum,
+                    record,
+                    int(record["attempts"][0].get("referenceCount", 0)) if record["attempts"] else None,
+                )
+                semantic_candidates = [
+                    {"threadId": item["threadId"], "title": item.get("title"), "citationRank": item["citationRank"]}
+                    for item in sorted(
+                        semantic_candidates_by_thread.values(),
+                        key=lambda item: (item["citationRank"], item["threadId"]),
+                    )
+                ]
                 if semantic_candidates:
                     ranked, verification = local_rerank_candidates(
                         safe_query,
@@ -320,6 +363,8 @@ async def main() -> int:
                 record["semanticCandidateThreadIds"] = referenced_threads
                 record["hybridThreadIds"] = [item["threadId"] for item in ranked] if semantic_candidates else []
                 record["outOfScopeReferenceCount"] = out_of_scope_references
+                if record["attempts"] and all("error" in item for item in record["attempts"]):
+                    record["error"] = "all semantic attempts failed"
             except Exception as error:
                 record["error"] = summarize_error(error)
             record["elapsedMs"] = round((time.perf_counter() - started) * 1000, 3)

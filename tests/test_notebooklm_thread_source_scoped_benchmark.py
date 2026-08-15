@@ -43,3 +43,18 @@ class SourceScopedBenchmarkTests(unittest.TestCase):
         self.assertEqual(benchmark.percentile([3.0, 1.0, 2.0], 0.5), 2.0)
         self.assertEqual(benchmark.percentile([3.0], 0.95), 3.0)
         self.assertIsNone(benchmark.percentile([], 0.5))
+
+    def test_sparse_semantic_output_abstains_at_the_candidate_gate(self):
+        record = {}
+        gated = benchmark.enforce_semantic_candidate_gate(
+            {"thread-a": {"threadId": "thread-a"}},
+            2,
+            record,
+            0,
+        )
+        self.assertEqual(gated, {})
+        self.assertEqual(record["semanticAbstentionReason"], "sparse-initial-response-gate")
+
+    def test_rate_limit_classifier_is_specific_to_pinned_chat_error(self):
+        self.assertTrue(benchmark.is_rate_limited_error(benchmark.ChatError("rate limited")))
+        self.assertFalse(benchmark.is_rate_limited_error(RuntimeError("rate limited")))
