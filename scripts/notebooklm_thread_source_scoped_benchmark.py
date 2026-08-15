@@ -77,6 +77,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--codex-root", type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument(
+        "--allow-holdout",
+        action="store_true",
+        help="Permit a sealed holdout only when combined with --aggregate-only",
+    )
+    parser.add_argument(
+        "--aggregate-only",
+        action="store_true",
+        help="Never write per-case records; required for holdout runs",
+    )
+    parser.add_argument(
         "--confirm-disposable-retrieval-notebook",
         action="store_true",
         help="Required acknowledgement because every case resets the retrieval conversation",
@@ -192,16 +202,19 @@ async def main() -> int:
     state = read_json(args.state.resolve())
     source_to_thread, thread_to_sources = build_source_map(state)
     suite = normalize_suite(read_json(args.cases.resolve()))
-    if suite["split"] != "development":
-        raise ValueError("source-scoped benchmark is development-only; holdout details must remain sealed")
+    if suite["split"] != "development" and not (
+        suite["split"] == "holdout" and args.allow_holdout and args.aggregate_only
+    ):
+        raise ValueError("holdout requires both --allow-holdout and --aggregate-only")
     cases = suite["cases"][: args.limit] if args.limit is not None else suite["cases"]
     report: dict[str, Any] = {
         "contractVersion": CONTRACT,
         "startedAt": now_iso(),
         "profile": args.profile,
-        "notebookId": args.notebook_id,
+        "notebookId": None if args.aggregate_only else args.notebook_id,
         "suiteId": suite["suiteId"],
         "split": suite["split"],
+        "aggregateOnly": args.aggregate_only,
         **suite_digests(suite),
         "retrievalMode": "local-first-source-scoped",
         "candidateWidth": args.candidate_width,
@@ -210,6 +223,7 @@ async def main() -> int:
         "caseCount": len(cases),
         "results": [],
     }
+    result_records: list[dict[str, Any]] = []
     async with NotebookLMClient.from_storage(profile=args.profile, chat_timeout=args.timeout) as client:
         live_ids = {source.id for source in await client.sources.list(args.notebook_id, strict=True)}
         missing = sorted(set(source_to_thread) - live_ids)
@@ -368,12 +382,14 @@ async def main() -> int:
             except Exception as error:
                 record["error"] = summarize_error(error)
             record["elapsedMs"] = round((time.perf_counter() - started) * 1000, 3)
-            report["results"].append(record)
-            atomic_json(args.out.resolve(), report)
+            result_records.append(record)
+            if not args.aggregate_only:
+                report["results"] = result_records
+                atomic_json(args.out.resolve(), report)
             passed = record["hybridTop1"] if case["expectation"] == "match" else record["hybridAbstained"]
             print(f"[{index}/{len(cases)}] {'PASS' if passed else 'FAIL'} {record['elapsedMs']}ms", flush=True)
-    positives = [item for item in report["results"] if item["expectation"] == "match"]
-    negatives = [item for item in report["results"] if item["expectation"] == "no_match"]
+    positives = [item for item in result_records if item["expectation"] == "match"]
+    negatives = [item for item in result_records if item["expectation"] == "no_match"]
     candidate_hits = sum(bool(item.get("remoteCandidateHit")) for item in positives)
     hybrid_hits = sum(bool(item.get("hybridTop1")) for item in positives)
     false_positives = sum(not bool(item.get("hybridAbstained")) for item in negatives)
@@ -405,6 +421,7 @@ async def main() -> int:
     }
     report["gates"] = gates
     report["passed"] = all(gates.values())
+    report["results"] = [] if args.aggregate_only else result_records
     atomic_json(args.out.resolve(), report)
     print(json.dumps({"report": str(args.out.resolve()), "summary": report["summary"], "gates": gates, "passed": report["passed"]}, indent=2))
     return 0 if report["passed"] else 1
