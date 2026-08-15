@@ -363,4 +363,4 @@ explicit replica approval.
   ledger remains 117 pass, 8 covered, 8 pending, and zero fail/blocked.
 - The exact committed-revision full gate passed 48 Node tests, 214 Python
   tests, compilation, parsing, and all operational integrations. Evidence is
-  retained in `full-gate-run-20260815-commit-f462a4b.json`.
+  retained in `full-gate-run-20260815-commit-791dfbd.json`.
