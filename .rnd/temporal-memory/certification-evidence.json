@@ -1267,7 +1267,7 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 10 eligible normal runs, 2.04 observed hours of 168 required, 1 failed run, 1 missing-step run, 0 malformed runs, and 0 missing-resource reports; the post-mitigation sync boundary is clean, but the observation window is not a soak pass. Covered is not a soak pass.",
+      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 11 eligible normal runs, 2.146 observed hours of 168 required, 1 failed run, 1 missing-step run, 0 malformed runs, and 0 missing-resource reports; the post-mitigation full-sync and sync-skipped boundaries are clean, but the observation window is not a soak pass. Covered is not a soak pass.",
       "executedAt": "2026-08-15T03:32:23.832537Z",
       "resultDigest": "394BFDD09493F50DFA1BC9C47E861F9724075101922BC30456BFC8BC4E7E5749"
     },
@@ -1498,7 +1498,7 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 10 eligible normal runs, 2.04 observed hours of 168 required, 1 failed run, 1 missing-step run, 0 malformed runs, and 0 missing-resource reports; the post-mitigation sync boundary is clean, but the observation window is not a soak pass. Covered is not a soak pass.",
+      "notes": "Protected aggregate-only soak evidence now starts at 2026-08-15T02:44:07Z. It has 11 eligible normal runs, 2.146 observed hours of 168 required, 1 failed run, 1 missing-step run, 0 malformed runs, and 0 missing-resource reports; the post-mitigation full-sync and sync-skipped boundaries are clean, but the observation window is not a soak pass. Covered is not a soak pass.",
       "executedAt": "2026-08-15T02:50:05.091071Z",
       "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
     },

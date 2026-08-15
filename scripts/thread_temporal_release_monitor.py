@@ -13,6 +13,12 @@ from typing import Any
 
 CONTRACT = "temporal-release-monitor-v1"
 REQUIRED_STEPS = {"projection", "temporal-refresh", "sync", "retention"}
+REQUIRED_STEP_ALIASES = {
+    "projection": {"projection"},
+    "temporal-refresh": {"temporal-refresh"},
+    "sync": {"sync", "sync-skipped"},
+    "retention": {"retention"},
+}
 REQUIRED_RESOURCE_FIELDS = {
     "SampleCount",
     "Available",
@@ -63,6 +69,10 @@ def has_resource_evidence(report: dict[str, Any]) -> bool:
         )
     except (TypeError, ValueError):
         return False
+
+
+def has_required_steps(labels: set[str]) -> bool:
+    return all(aliases & labels for aliases in REQUIRED_STEP_ALIASES.values())
 
 
 def evaluate(
@@ -117,7 +127,7 @@ def evaluate(
         if str(report.get("Status") or "").casefold() != "ok":
             failed += 1
         labels = {str(step.get("Label")) for step in report.get("Steps") or [] if isinstance(step, dict)}
-        if not REQUIRED_STEPS.issubset(labels):
+        if not has_required_steps(labels):
             missing_steps += 1
         if require_resource and not has_resource_evidence(report):
             missing_resource += 1

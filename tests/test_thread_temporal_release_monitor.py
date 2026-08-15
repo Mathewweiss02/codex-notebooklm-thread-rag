@@ -65,6 +65,19 @@ class TemporalReleaseMonitorTests(unittest.TestCase):
         self.assertEqual(result["status"], "pass")
         self.assertGreaterEqual(result["observedHours"], 168)
 
+    def test_sync_skipped_counts_as_a_valid_sync_boundary(self) -> None:
+        start = datetime(2026, 8, 1, tzinfo=UTC)
+        records = [report(start + timedelta(hours=3 * index)) for index in range(57)]
+        records[-1]["Steps"] = [
+            {"Label": "projection"},
+            {"Label": "temporal-refresh"},
+            {"Label": "sync-skipped"},
+            {"Label": "retention"},
+        ]
+        result = monitor.evaluate(records, now=start + timedelta(hours=171), max_gap_hours=3)
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["missingStepRunCount"], 0)
+
     def test_failure_or_missing_step_fails_even_after_long_window(self) -> None:
         start = datetime(2026, 8, 1, tzinfo=UTC)
         result = monitor.evaluate(
