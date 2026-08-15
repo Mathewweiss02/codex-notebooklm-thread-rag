@@ -45,6 +45,8 @@ Require all applicable gates before expanding a pilot or publishing a release.
 - Require 100% semantic candidate recall and record raw citation-order Top-1 separately.
 - Require at least 97.5% end-to-end hybrid Top-1 after candidate-only local reranking, at most 5% false positives, and at most 5% false negatives.
 - Require three consecutive frozen threshold-passing runs and a fresh unspent holdout after the final retrieval-policy change.
+- A score is not sufficient evidence by itself: retain a case-level result map and a causal analysis for every miss and every claimed improvement. The analysis must distinguish transport/rate-limit failure, source-scope failure, semantic candidate omission, raw citation-order error, local-reranker error, abstention, and true no-match behavior.
+- The proposed explanation must agree with independent evidence: replay or counterfactual checks must test at least one prediction made by the explanation, and any contradiction keeps the run non-promotable. Do not mark a benchmark pass when the result is favorable but the mechanism is unknown, circular, or explained only by the benchmark's own aggregate.
 - Suppress holdout case details. Aggregate holdout evidence may guide the next development stratum, but the exposed holdout is then spent and cannot prove the final release.
 - Verify the winning candidate locally; maintain deterministic fallback and exact-title/near-duplicate regressions.
 
