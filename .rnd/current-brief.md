@@ -21,7 +21,7 @@
 - The latest one-case live source-scoped smoke with transport retries set to zero hit the NotebookLM rate-limit circuit breaker after one classified event and failed closed; no new remote quality evidence was counted, and hidden middleware latency was eliminated from the observation.
 - The first `generalization-v1` policy canary was also rate-limited after one classified event and failed closed in about 6.99 seconds; it is execution evidence only and does not count toward quality.
 - The latest `generalization-v1` cooldown canary at 2026-08-15T06:28Z was also rate-limited after one bounded case in 7.6 seconds; it is sealed as fail-closed execution evidence and does not count toward quality.
-- Publication remains intentionally pending: branch `codex/recursive-eval-loop-publish` is pushed at `18bfd45`, draft PR #3 is open with green Windows CI, and no merge or release has been performed.
+- Publication remains intentionally pending: branch `codex/recursive-eval-loop-publish` is pushed at `3e44ded`, draft PR #3 is open, and GitHub Actions run `31870090633` is green for the exact revision. No merge or release has been performed.
 - Suspected bottleneck: The largest immediate bottleneck is validation: several important properties work but are not continuously proven.
 - Suspected bottleneck: The first-fit planner preserves task locality and reserve capacity, but stateless full replanning causes 64.62% shared-assignment churn at 5x and 83.08% at 10x; sticky ownership is the scaling bottleneck.
 - Suspected bottleneck: The largest UX bottleneck is multiple low-level scripts without a single CLI-first lifecycle command.

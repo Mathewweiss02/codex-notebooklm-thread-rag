@@ -1514,6 +1514,7 @@
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9d60b57.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-3e44ded.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json",
@@ -1531,10 +1532,10 @@
         ".rnd\\temporal-memory\\full-gate-run-20260814-commit-b860167.json",
         ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json"
       ],
-      "notes": "Exact committed revision 938fea6 passed the full repository gate: 48 Node tests, 229 Python tests, compile, PowerShell parse, and all 11 operational integration steps.",
-      "executedAt": "2026-08-15T06:15:00Z",
-      "resultDigest": "39780b234305782503f43c5a684aba63ad81c0bfd084836d2bb8401df011e872"
+      "notes": "Exact committed revision 3e44ded passed 48 Node tests, 232 Python tests, compile, PowerShell parse, and all 11 operational integrations; GitHub Actions run 31870090633 passed the revision-bound Windows suite, locked export, and pip-audit.",
+      "executedAt": "2026-08-15T06:44:00Z",
+      "resultDigest": "50F0FCCACE5E70BDA9465B6996233D2DD8518BF8E3031E5C9FAFCF0EA071D9DD"
     }
   },
-  "updatedAt": "2026-08-15T06:28:56Z"
+  "updatedAt": "2026-08-15T06:44:50Z"
 }

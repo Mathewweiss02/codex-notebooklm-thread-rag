@@ -43,8 +43,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The exact committed benchmark-hardening gate at `46c197d` passed 48 Node tests
-  and 219 Python tests, plus
+- The exact committed promotion-hardening gate at `3e44ded` passed 48 Node tests
+  and 232 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -82,12 +82,13 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 229 Python tests, plus
+- The full repository gate now passes 48 Node tests and 232 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The exact committed revision 938fea6 has a retained full-gate packet with
-  48 Node tests, 229 Python tests, compile and parse checks, and all 11
-  operational integration steps passing; the matching GitHub Actions run is
-  also green.
+- The exact committed revision `3e44ded` has a retained full-gate packet with
+  48 Node tests, 232 Python tests, compile and parse checks, and all 11
+  operational integration steps passing; GitHub Actions run `31870090633`
+  independently passed the revision-bound Windows suite, locked export, and
+  dependency audit.
 - CI run 31868664726 supplied a useful failure cause rather than a vague
   flake: the hosted Windows extractor received `EBUSY` after exhausting the
   old four-retry/1.5-second backoff budget. The exact external lock holder is
@@ -203,13 +204,13 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `938fea6` passes 48 Node tests, 229 Python
+- The committed repository gate at `3e44ded` passes 48 Node tests, 232 Python
   tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-938fea6.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-3e44ded.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
-- GitHub draft PR #3 is current at `18bfd45` and its latest Windows check is
+- GitHub draft PR #3 is current at `3e44ded` and its latest Windows check is
   green; the PR remains draft and unmerged because the live retrieval, soak,
   concurrency, and final release gates remain open.
 
