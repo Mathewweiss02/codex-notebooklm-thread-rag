@@ -77,7 +77,7 @@ The baseline, contracts, ADR evidence, synthetic extractor/oracle parity, crash-
   144 threads, 146 current source parts, 16,058 temporal events, and zero
   quarantines.
 - Latest post-enrollment validation refresh completed all six retrieval-runner
-  steps with 145 projected threads, 147 current source parts, 16,301 temporal
+  steps with 145 projected threads, 147 current source parts, 16,597 temporal
   events, zero quarantines, matching handoff/index digests, and both retrieval
   and persistent-chat doctors passing. Source and installed script parity is
   exact at 63/63 files. The full repository gate is now 48 Node and 213 Python

@@ -43,7 +43,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 48 Node tests and 202 Python tests, plus
+- The full repository gate passed 48 Node tests and 213 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -66,8 +66,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   seven-day gate is correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
-  refresh completed successfully with 16,301 temporal events and source
-  references, 145 path-free thread metadata records, zero quarantines, nine
+  refresh completed successfully with 16,597 temporal events, 145 path-free
+  thread metadata records, zero quarantines, nine
   allowed non-visible overflow lines, and matching index/handoff digests.
 - Schema version 1 was migrated in place to schema version 2 and the migration
   ledger is verified. A paired derived-state rollback rehearsal restores a
@@ -78,7 +78,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 202 Python tests, plus
+- The full repository gate now passes 48 Node tests and 213 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -181,12 +181,20 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `5bb6e7f` currently passes 48 Node tests,
+- The committed repository gate at `d9d4fb2` currently passes 48 Node tests,
   213 Python tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
+
+## Current continuation checkpoint
+
+- The current local candidate baseline recovered all 32/32 development positives
+  at candidate depth 80 on the 145-thread projection with zero local-search
+  errors. This is local candidate evidence, not remote semantic or hybrid proof.
+- The latest one-case source-scoped smoke was rate-limited and failed closed;
+  no live quality score was counted and persistent chat was not touched.
 
 ## Certification principle
 
