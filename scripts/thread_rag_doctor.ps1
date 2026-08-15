@@ -8,6 +8,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "notebooklm_auth_helpers.ps1")
+. (Join-Path $PSScriptRoot "thread_rag_doctor_lib.ps1")
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
 $checks = @()
@@ -107,8 +108,8 @@ if ($TaskName) {
   try {
     $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
     $taskInfo = Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction Stop
-    $schedulerHealthy = $taskInfo.LastTaskResult -eq 0 -and [string]$task.State -ne "Disabled"
-    Add-Check "scheduled-task" $schedulerHealthy ("name={0}; state={1}; lastResult={2}; next={3}" -f $TaskName, $task.State, $taskInfo.LastTaskResult, $taskInfo.NextRunTime)
+    $schedulerHealth = Test-ScheduledTaskHealth -State ([string]$task.State) -LastTaskResult ([int]$taskInfo.LastTaskResult)
+    Add-Check "scheduled-task" $schedulerHealth.Passed ("name={0}; state={1}; lastResult={2}; active={3}; next={4}" -f $TaskName, $task.State, $taskInfo.LastTaskResult, $schedulerHealth.Active, $taskInfo.NextRunTime)
     $matchingAction = @($task.Actions | Where-Object { [string]$_.Arguments -like "*$configPath*" } | Select-Object -First 1)
     $actionExecutable = if ($matchingAction.Count) { [string]$matchingAction[0].Execute } else { "" }
     $actionArguments = if ($matchingAction.Count) { [string]$matchingAction[0].Arguments } else { "" }
