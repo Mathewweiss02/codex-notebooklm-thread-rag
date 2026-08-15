@@ -1503,7 +1503,7 @@
       "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
     },
     "OPS-006": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Committed-revision proof",
       "testLevel": "Release gate",
       "evidence": [
@@ -1512,25 +1512,26 @@
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9d60b57.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
         ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e4df33.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-8a4a517.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-a8e8390.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json",
         ".rnd/temporal-memory/full-gate-run.json",
         ".rnd\\temporal-memory\\full-gate-run-20260814-commit-57353b0.json",
         ".rnd\\temporal-memory\\full-gate-run-20260814-commit-b860167.json",
-        ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e4df33.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-8a4a517.json"
+        ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json"
       ],
-      "notes": "Current committed revision 00e04e2 passed the full repository gate with 48 Node tests, 224 Python tests, compile and integration checks; the exact report is retained for the release audit.",
-      "executedAt": "2026-08-15T03:18:43.9155265Z",
-      "resultDigest": "44BA1FBA52F1B7C556B281907BD4AAF6291EC54763E07DD3AE360417CD31FB52"
+      "notes": "Exact committed revision a8e8390 passed the full repository gate with 48 Node tests, 224 Python tests, compile, and all integration checks.",
+      "executedAt": "2026-08-15T05:33:32.4351240Z",
+      "resultDigest": "0d22e49c27d7e1e601fcdd64083c66c3890615489c3e1904281ddb00b838abb0"
     }
   },
-  "updatedAt": "2026-08-15T03:32:23Z"
+  "updatedAt": "2026-08-15T05:35:23Z"
 }
