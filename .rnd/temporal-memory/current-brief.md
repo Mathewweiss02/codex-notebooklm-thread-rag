@@ -65,7 +65,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   events.
 - The wall-clock release monitor is active from the protected-evidence reset
   boundary at 2026-08-15T02:44:07Z: 9 eligible runs, 1 failed run, 1 missing-step
-  run, and 1.799 observed hours of the required 168. The seven-day gate is
+  run, and 2.04 observed hours of the required 168. The seven-day gate is
   correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
@@ -115,9 +115,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now reads the protected append-only
   evidence surface. The boundary was reset after operational retention removed
-  older reports; it currently has 9 eligible normal runs, 1.799 observed hours,
+  older reports; it currently has 10 eligible normal runs, 2.04 observed hours,
   one failed run, one missing-step run, and zero missing-resource reports. The
-  168-hour gate is not passed.
+  post-mitigation run is clean, but the 168-hour gate is not passed.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
   84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
   repo-runner memory-growth signal. The separate large Node process group on
