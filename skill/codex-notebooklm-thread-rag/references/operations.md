@@ -158,7 +158,16 @@ Retention is dry-run-first and exact-root constrained:
 & "PYTHON_PATH" "$Skill\scripts\thread_rag_retention.py" --root "PROJECTION_ROOT" --search-root "SEARCH_RUNS_ROOT"
 ```
 
-Review the report before `--apply` or setting `RetentionApply=true`. Current parts, previous lineage, and the configured revision floor remain protected.
+Review the report before `--apply` or setting `RetentionApply=true`. Current parts, previous lineage, and the configured revision floor remain protected. The runner's aggregate-only `ProjectionRoot\soak-evidence` records are append-only and explicitly outside retention deletion; use them for the 168-hour resource-aware soak monitor.
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\thread_temporal_release_monitor.py" `
+  --evidence-root "PROJECTION_ROOT\soak-evidence" `
+  --out "$Repo\.rnd\temporal-memory\resource-soak-monitor.json" `
+  --minimum-hours 168 `
+  --max-gap-hours 2 `
+  --require-resource
+```
 
 ## Recovery
 

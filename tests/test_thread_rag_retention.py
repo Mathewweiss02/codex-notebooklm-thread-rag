@@ -26,6 +26,10 @@ class RetentionTests(unittest.TestCase):
             projections.mkdir(parents=True)
             runs.mkdir(parents=True)
             search.mkdir()
+            soak_evidence = root / "soak-evidence"
+            soak_evidence.mkdir()
+            protected_evidence = soak_evidence / "soak-0001.json"
+            protected_evidence.write_text('{"ContractVersion":"temporal-soak-evidence-v1"}\n', encoding="utf-8")
             parts = []
             for revision in (1, 2, 3):
                 path = projections / f"r{revision:04d}-p001.md"
@@ -70,6 +74,7 @@ class RetentionTests(unittest.TestCase):
             self.assertTrue(parts[2].is_file())
             self.assertLessEqual(len(list(runs.glob("*.json"))), 2)
             self.assertLessEqual(len(list(search.glob("*.json"))), 1)
+            self.assertTrue(protected_evidence.is_file(), "protected soak evidence must survive retention")
 
     def test_state_cannot_protect_a_file_outside_projection_root(self):
         with tempfile.TemporaryDirectory() as temporary:

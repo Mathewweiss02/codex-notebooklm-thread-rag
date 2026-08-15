@@ -32,6 +32,14 @@ def report(at: datetime, status: str = "ok", missing: bool = False, resource: bo
 
 
 class TemporalReleaseMonitorTests(unittest.TestCase):
+    def test_protected_evidence_reader_uses_soak_prefix(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "soak-0001.json").write_text(json.dumps(report(datetime(2026, 8, 1, tzinfo=UTC))), encoding="utf-8")
+            (root / "runner-0001.json").write_text(json.dumps(report(datetime(2026, 8, 2, tzinfo=UTC))), encoding="utf-8")
+            records = monitor.read_reports(root, "soak-*.json")
+            self.assertEqual(len(records), 1)
+
     def test_short_clean_window_is_open(self) -> None:
         start = datetime(2026, 8, 1, tzinfo=UTC)
         result = monitor.evaluate([report(start), report(start + timedelta(hours=1))], now=start + timedelta(hours=2))

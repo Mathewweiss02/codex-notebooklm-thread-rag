@@ -34,6 +34,7 @@ $config = [ordered]@{
   SyncScript = Join-Path $scriptRoot "notebooklm_thread_sync.py"
   EnrollmentScript = Join-Path $scriptRoot "notebooklm_thread_enroll.py"
   RetentionScript = Join-Path $scriptRoot "thread_rag_retention.py"
+  SoakEvidenceRoot = Join-Path $projectionRoot "soak-evidence"
   TemporalRefresh = $NotebookRole -eq "retrieval"
   TemporalRoot = Join-Path (Join-Path $CodexRoot "thread-rag") "temporal"
   TemporalRefreshScript = Join-Path $scriptRoot "thread_temporal_refresh.py"

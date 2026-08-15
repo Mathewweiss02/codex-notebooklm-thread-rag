@@ -16,6 +16,41 @@ function Write-AtomicJson {
   Move-Item -LiteralPath $temporary -Destination $Path -Force
 }
 
+function Write-AppendOnlyJson {
+  param([string] $Path, [object] $Value)
+  $directory = Split-Path -Parent $Path
+  if (-not (Test-Path -LiteralPath $directory)) { New-Item -ItemType Directory -Path $directory -Force | Out-Null }
+  if (Test-Path -LiteralPath $Path) { throw "Append-only evidence already exists: $Path" }
+  $temporary = Join-Path $directory (".{0}.{1}.{2}.tmp" -f (Split-Path -Leaf $Path), $PID, [guid]::NewGuid().ToString("N"))
+  try {
+    $Value | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $temporary -Encoding UTF8
+    [System.IO.File]::Move($temporary, $Path)
+  } catch {
+    if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Force -ErrorAction SilentlyContinue }
+    throw
+  }
+}
+
+function New-SoakEvidence {
+  param([object] $Run)
+  $steps = @($Run.Steps | ForEach-Object {
+      [ordered]@{
+        Label = [string]$_.Label
+        ExitCode = [int]$_.ExitCode
+        DurationMs = [int]$_.DurationMs
+      }
+    })
+  return [ordered]@{
+    ContractVersion = "temporal-soak-evidence-v1"
+    CompletedAt = [string]$Run.CompletedAt
+    Status = [string]$Run.Status
+    DryRun = [bool]$Run.DryRun
+    ReconcileOnly = [bool]$Run.ReconcileOnly
+    Steps = $steps
+    Resource = $Run.Resource
+  }
+}
+
 function Convert-ToSafeDiagnosticLine {
   param([object] $Value)
   $line = [string]$Value
@@ -130,16 +165,28 @@ $run = [ordered]@{
   Steps = @()
   Status = "running"
 }
+$root = [string]$settings.ProjectionRoot
+$soakEvidenceRoot = if ($settings.SoakEvidenceRoot) { [string]$settings.SoakEvidenceRoot } else { Join-Path $root "soak-evidence" }
 Add-ResourceSample
 
 try {
+  $root = [System.IO.Path]::GetFullPath([string]$settings.ProjectionRoot)
+  $soakEvidenceRoot = if ($settings.SoakEvidenceRoot) {
+    [System.IO.Path]::GetFullPath([string]$settings.SoakEvidenceRoot)
+  } else {
+    [System.IO.Path]::GetFullPath((Join-Path $root "soak-evidence"))
+  }
+  $rootPrefix = $root.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+  if (-not $soakEvidenceRoot.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "SoakEvidenceRoot must remain inside ProjectionRoot."
+  }
+
   $hasMutex = $mutex.WaitOne(0)
   if (-not $hasMutex) {
     $run.Status = "skipped-overlap"
     return
   }
 
-  $root = [string]$settings.ProjectionRoot
   $runsDir = Join-Path $root "runs"
   $runnerStatePath = Join-Path $root "runner_state.json"
   $runnerState = if (Test-Path -LiteralPath $runnerStatePath) { Get-Content -Raw -LiteralPath $runnerStatePath | ConvertFrom-Json } else { [pscustomobject]@{} }
@@ -266,6 +313,8 @@ try {
   $runsDir = Join-Path ([string]$settings.ProjectionRoot) "runs"
   $runPath = Join-Path $runsDir ("runner-{0}-{1}.json" -f (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssfffZ"), $PID)
   Write-AtomicJson -Path $runPath -Value $run
+  $soakEvidencePath = Join-Path $soakEvidenceRoot ("soak-{0}-{1}.json" -f (Get-Date).ToUniversalTime().ToString("yyyyMMddTHHmmssfffZ"), $PID)
+  Write-AppendOnlyJson -Path $soakEvidencePath -Value (New-SoakEvidence -Run $run)
   if ($hasMutex) { $mutex.ReleaseMutex() }
   $mutex.Dispose()
   [pscustomobject]@{ Status = $run.Status; Run = $runPath } | ConvertTo-Json

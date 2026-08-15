@@ -56,6 +56,11 @@ try {
   Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch [regex]::Escape("fixture-notebook")) "runner report must not persist notebook identifiers"
   Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch "private prompt|private answer") "runner report must not persist arbitrary child output"
   Assert-True ((Test-Path -LiteralPath (Join-Path $root "runner_state.json"))) "runner checkpoint must be written"
+  $evidenceLog = Get-ChildItem -LiteralPath (Join-Path $root "soak-evidence") -Filter "soak-*.json" | Select-Object -First 1
+  Assert-True ($null -ne $evidenceLog) "normal run must write protected soak evidence"
+  $evidence = Get-Content -Raw -LiteralPath $evidenceLog.FullName | ConvertFrom-Json
+  Assert-True ($evidence.ContractVersion -eq "temporal-soak-evidence-v1") "soak evidence must declare its contract"
+  Assert-True (($evidence | ConvertTo-Json -Depth 12) -notmatch "fixture-notebook|private prompt|private answer") "soak evidence must be aggregate-only"
 
   $dryResult = (& $Runner -Config $configPath -DryRun) | ConvertFrom-Json
   $dryRun = Get-Content -Raw -LiteralPath $dryResult.Run | ConvertFrom-Json

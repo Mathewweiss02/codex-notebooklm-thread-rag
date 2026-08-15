@@ -255,7 +255,7 @@ The task runs only while that Windows user has an interactive session. Its top-l
 
 ## Retention
 
-Generated data is bounded. The runner plans retention by default and applies it only when `RetentionApply=true`. Current and previous source lineage are always protected; any path outside the configured projection root or explicit `search-runs` directory is rejected.
+Generated data is bounded. The runner plans retention by default and applies it only when `RetentionApply=true`. Current and previous source lineage are always protected; any path outside the configured projection root or explicit `search-runs` directory is rejected. The runner also writes sanitized, append-only aggregate records under `ProjectionRoot\soak-evidence`; retention explicitly guards that directory because the 168-hour resource-aware soak must outlive disposable operational report cleanup.
 
 ```powershell
 & "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\thread_rag_retention.py `
@@ -264,6 +264,19 @@ Generated data is bounded. The runner plans retention by default and applies it 
 ```
 
 Review the report before adding `--apply` or enabling scheduled application.
+
+The resource-aware soak monitor reads the protected evidence surface:
+
+```powershell
+& "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\thread_temporal_release_monitor.py `
+  --evidence-root "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\soak-evidence" `
+  --out ".rnd\temporal-memory\resource-soak-monitor.json" `
+  --minimum-hours 168 `
+  --max-gap-hours 2 `
+  --require-resource
+```
+
+The evidence records contain only completion time, status, step labels/timings, and aggregate process-resource values. They do not contain notebook IDs, prompts, messages, or child-process output.
 
 ## Search contract
 

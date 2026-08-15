@@ -33,11 +33,11 @@ def parse_time(value: Any) -> datetime | None:
     return parsed.astimezone(UTC) if parsed.tzinfo else None
 
 
-def read_reports(runs_root: Path) -> list[dict[str, Any]]:
+def read_reports(runs_root: Path, pattern: str = "runner-*.json") -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
     if not runs_root.is_dir():
         return reports
-    for path in sorted(runs_root.glob("runner-*.json")):
+    for path in sorted(runs_root.glob(pattern)):
         try:
             value = json.loads(path.read_text(encoding="utf-8-sig"))
         except (OSError, json.JSONDecodeError):
@@ -164,7 +164,9 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runs-root", required=True, type=Path)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--runs-root", type=Path, help="disposable operational runner reports")
+    source.add_argument("--evidence-root", type=Path, help="protected append-only aggregate soak evidence")
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--minimum-hours", type=float, default=168.0)
     parser.add_argument("--max-gap-hours", type=float, default=2.0)
@@ -175,13 +177,23 @@ def main(argv: list[str] | None = None) -> int:
         start_at = parse_time(args.start_at) if args.start_at else None
         if args.start_at and start_at is None:
             raise ValueError("invalid --start-at timestamp")
+        if args.evidence_root:
+            source_root = args.evidence_root.resolve()
+            reports = read_reports(source_root, "soak-*.json")
+            source_kind = "protected-soak-evidence"
+        else:
+            source_root = args.runs_root.resolve()
+            reports = read_reports(source_root)
+            source_kind = "operational-run-reports"
         result = evaluate(
-            read_reports(args.runs_root.resolve()),
+            reports,
             start_at=start_at,
             minimum_hours=args.minimum_hours,
             max_gap_hours=args.max_gap_hours,
             require_resource=args.require_resource,
         )
+        result["sourceKind"] = source_kind
+        result["sourceRoot"] = str(source_root)
         write_json(args.out.resolve(), result)
         print(json.dumps({"status": result["status"], "eligibleRunCount": result["eligibleRunCount"], "observedHours": result["observedHours"], "out": str(args.out.resolve())}, separators=(",", ":")))
         return 0 if result["status"] == "pass" else 1
