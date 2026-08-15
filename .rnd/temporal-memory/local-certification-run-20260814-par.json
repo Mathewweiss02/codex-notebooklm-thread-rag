@@ -1,0 +1,821 @@
+{
+  "contractVersion": "temporal-local-certification-v1",
+  "generatedAt": "2026-08-14T15:07:36Z",
+  "scope": "deterministic-focused-tests-only",
+  "status": "pass",
+  "caseCount": 90,
+  "passedCaseCount": 90,
+  "failedCaseCount": 0,
+  "cases": [
+    {
+      "id": "TIME-001",
+      "label": "today local midnight to capture",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 727,
+      "outputBytes": 98,
+      "outputDigest": "5fe99dec77a979adf965610c4a5a04322f1bc3f5f46a235464bdc8527a0c2a33"
+    },
+    {
+      "id": "TIME-002",
+      "label": "yesterday calendar day",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 746,
+      "outputBytes": 98,
+      "outputDigest": "e2489ef34799d5ce9637de6dbe7081fad35813da86195d707615f5fb8ead503f"
+    },
+    {
+      "id": "TIME-003",
+      "label": "past 24 hours rolling window",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 686,
+      "outputBytes": 98,
+      "outputDigest": "4c036c27da30476c5905cd6a91a996d1b4f0c946808a40279bc47a4608a80922"
+    },
+    {
+      "id": "TIME-004",
+      "label": "past 7 days rolling window",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 705,
+      "outputBytes": 98,
+      "outputDigest": "32d0c72ffb2949e3d2a0df808b0c86730296c42454bc818722dd19f2005812a2"
+    },
+    {
+      "id": "TIME-005",
+      "label": "last configured calendar week",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 745,
+      "outputBytes": 98,
+      "outputDigest": "38f62533f6b8cf4be94680daabc6dedd37f1e750b445ffe1971e7813a84a903e"
+    },
+    {
+      "id": "TIME-006",
+      "label": "week to date capture bound",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 731,
+      "outputBytes": 98,
+      "outputDigest": "d56aea3a002edcde172fa9a80d7b1fa311c2b860df8c503079c49058849be5d0"
+    },
+    {
+      "id": "TIME-007",
+      "label": "explicit local date",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 736,
+      "outputBytes": 98,
+      "outputDigest": "3ae5621203bf6cca21e1f27abbba80c44ff2176ec6e4cdcec7a57cb32011b7e5"
+    },
+    {
+      "id": "TIME-008",
+      "label": "explicit half-open timestamp range",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 697,
+      "outputBytes": 98,
+      "outputDigest": "2c9612fff79e172624b215f22a8773bbc8926718681834e3fe0b97fd4df122b3"
+    },
+    {
+      "id": "TIME-009",
+      "label": "adjacent midnight ranges do not overlap",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1180,
+      "outputBytes": 98,
+      "outputDigest": "c8d83a6626f091c64868674f0a42254d2d7a0cc7fe5483cc610298ce19a41142"
+    },
+    {
+      "id": "TIME-010",
+      "label": "end-of-day millisecond",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 685,
+      "outputBytes": 98,
+      "outputDigest": "7f0aa3729093a62c5d52fa2849222b092fb676f0bf5c8aa3906c0ebbe70dee0b"
+    },
+    {
+      "id": "TIME-011",
+      "label": "DST spring gap",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 716,
+      "outputBytes": 98,
+      "outputDigest": "dc475d9114c52d74fbb53e6ef4ae038173f919c98bbf8f0a47d61f9fe6dacc3a"
+    },
+    {
+      "id": "TIME-012",
+      "label": "DST fall overlap",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 717,
+      "outputBytes": 98,
+      "outputDigest": "8c01189b3404f0b090a0cb18a445310f895e032878435d262fc3113ba358e9ce"
+    },
+    {
+      "id": "TIME-013",
+      "label": "leap day",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 738,
+      "outputBytes": 98,
+      "outputDigest": "5bd201fa76ed7bce2b8cad68e5396ce4c02a9913b18508929ee9ffbc8d87ab65"
+    },
+    {
+      "id": "TIME-014",
+      "label": "month and year boundary",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 754,
+      "outputBytes": 98,
+      "outputDigest": "8a6caee5c2ee232ffc613714babcbbd2dcfbb96544c01271f86f4b4b6d256d52"
+    },
+    {
+      "id": "TIME-015",
+      "label": "timezone override",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1193,
+      "outputBytes": 98,
+      "outputDigest": "808a12d3019fc70550f762687e4dab5f7e485597b1940569170ae335a88fd329"
+    },
+    {
+      "id": "TIME-016",
+      "label": "invalid natural phrase",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 688,
+      "outputBytes": 98,
+      "outputDigest": "56ce7299eed0d27f9633641f6b1dcf49d1e612c9a7ea179e533f8953e078c874"
+    },
+    {
+      "id": "TIME-017",
+      "label": "safe default period",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 860,
+      "outputBytes": 98,
+      "outputDigest": "baaa5e2db428b13381c3e2193b0b052770d4b7aefc7b2702ad40d2f92fe1959c"
+    },
+    {
+      "id": "TIME-018",
+      "label": "future period disclosure",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 758,
+      "outputBytes": 98,
+      "outputDigest": "11214fca7bb4efc32e36933e202cb89b1af9f34004f3eb0773853b9c8a54e15d"
+    },
+    {
+      "id": "IDX-001",
+      "label": "new session visible-message inventory",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 494,
+      "outputBytes": 190,
+      "outputDigest": "24f00109ad6b466bb64f2adea9f504a15ab3a80e0c5d83ab0b9d1c8f11fbe47f"
+    },
+    {
+      "id": "IDX-002",
+      "label": "unchanged incremental no-op",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 567,
+      "outputBytes": 98,
+      "outputDigest": "c21cb63648cf149f87afca6ee11580b030dc80d6d3492b1ab83f14c117f77da0"
+    },
+    {
+      "id": "IDX-003",
+      "label": "appended canonical events",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 602,
+      "outputBytes": 98,
+      "outputDigest": "f3c58c0453491ac16773c26225744f020c209e9e2d9738be9c6e9b93ced7cd84"
+    },
+    {
+      "id": "IDX-004",
+      "label": "active to archive move",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 674,
+      "outputBytes": 202,
+      "outputDigest": "768085a8f8326dabd9bbaf649e0b7b7afea2fe5bbcdab8a4c828bf4c9a02bccb"
+    },
+    {
+      "id": "IDX-005",
+      "label": "active/archive duplicate canonicalization",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 574,
+      "outputBytes": 98,
+      "outputDigest": "1de6ecf0d697d79c3df1c8a42338798c31313705d18a2a67f513a8f2e0925826"
+    },
+    {
+      "id": "IDX-010",
+      "label": "tool and reasoning payload exclusion",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 492,
+      "outputBytes": 195,
+      "outputDigest": "5fda1517aa04a611dd73b1dfb0d85c9794f5ba80e2d46b7feea1c6255ea5c997"
+    },
+    {
+      "id": "IDX-011",
+      "label": "duplicate message identity",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 552,
+      "outputBytes": 98,
+      "outputDigest": "c84e8543b798ece37a47a7874441a7c2212ee664bf3eaf0b32602755f1050c4a"
+    },
+    {
+      "id": "IDX-013",
+      "label": "missing timestamp quarantine",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 493,
+      "outputBytes": 196,
+      "outputDigest": "6540a51f3954b49655eabf27eb57f7a2800b9162da8bde71f7b8d63afd67ec34"
+    },
+    {
+      "id": "IDX-014",
+      "label": "invalid timestamp quarantine",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 509,
+      "outputBytes": 197,
+      "outputDigest": "5ea5ca297b3b1cd4a3b15b5ee0a9b9827205982446f7f489f0f0ae408a349857"
+    },
+    {
+      "id": "IDX-006",
+      "label": "resumed old thread",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 514,
+      "outputBytes": 183,
+      "outputDigest": "d51818058df8672070a02acbc098d6e47454cbf097b6a26a2e70c0c2ca3741f5"
+    },
+    {
+      "id": "IDX-007",
+      "label": "forked thread identity",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 551,
+      "outputBytes": 197,
+      "outputDigest": "ec33011bf9a0d637ca2e56c57b14121217794337b7a8009f020fb3794140487f"
+    },
+    {
+      "id": "IDX-008",
+      "label": "subagent policy",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 662,
+      "outputBytes": 211,
+      "outputDigest": "e66d04b4cc745fdc409f0964c3238af73c0e06c302540068e63c171d1eea4667"
+    },
+    {
+      "id": "IDX-009",
+      "label": "compaction exclusion",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 499,
+      "outputBytes": 197,
+      "outputDigest": "af96820e71e60d2721bc63f6f1e6cb9244d09f853e9714eb24e221363197ead3"
+    },
+    {
+      "id": "IDX-012",
+      "label": "same text at different time",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 489,
+      "outputBytes": 189,
+      "outputDigest": "cd7e6c02ee3c48a9772986c52a82a249f1bb739d836eebad407a789493df6f78"
+    },
+    {
+      "id": "IDX-015",
+      "label": "malformed JSONL",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 489,
+      "outputBytes": 215,
+      "outputDigest": "2b77f83c876dbcbd6cc329b8c856c85758fcb4a00eaaa5c2c1e2d45b9a4cb5b1"
+    },
+    {
+      "id": "IDX-016",
+      "label": "partial final line",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 486,
+      "outputBytes": 216,
+      "outputDigest": "6f308f38a627c2d194761223805e5b5c68e865c0e51450df05baeb4e5b4c309c"
+    },
+    {
+      "id": "IDX-018",
+      "label": "Unicode and bidi",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 482,
+      "outputBytes": 216,
+      "outputDigest": "81ef776379e5e6a1b75a4739513b670cf76eb12238317c158f9337e7ec4895d7"
+    },
+    {
+      "id": "IDX-019",
+      "label": "transient Windows file lock retry",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 2422,
+      "outputBytes": 205,
+      "outputDigest": "41ceb1c54cd46e99a0b65812ec26d840fb147febc9214a9edfb4a995d25496e4"
+    },
+    {
+      "id": "IDX-017",
+      "label": "oversized visible line",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 478,
+      "outputBytes": 202,
+      "outputDigest": "6a6a1e83acc2fdfff0bd1da019e0a357c0d7f49a0b8b539b2c27b82982d31b81"
+    },
+    {
+      "id": "IDX-020",
+      "label": "concurrent index writers",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 687,
+      "outputBytes": 98,
+      "outputDigest": "b25c56c1faf2125d6dcb875dae2000b95982e7302f41ea80e94867ffb89d5abc"
+    },
+    {
+      "id": "IDX-021",
+      "label": "process kill during transaction",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 901,
+      "outputBytes": 98,
+      "outputDigest": "ad1c2477e590aef3abe33921feb7ab6c3bf0ed4e1f161cc3f93727ef4f345abe"
+    },
+    {
+      "id": "IDX-022",
+      "label": "database corruption and rebuild",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 680,
+      "outputBytes": 98,
+      "outputDigest": "6249146287fe38bf0b1fb3d144fb631e57d77e55c4f0265618beebb73b1f4914"
+    },
+    {
+      "id": "IDX-023",
+      "label": "disk-full rollback",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 582,
+      "outputBytes": 98,
+      "outputDigest": "83daaab804948bc71e473e7e8bed9710508e89ef4b58dda0267ed7b5a560e519"
+    },
+    {
+      "id": "IDX-024",
+      "label": "schema v1 to v2 migration and rebuild recovery",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 983,
+      "outputBytes": 100,
+      "outputDigest": "6677dfcd1b7547110134d6b17e99367ab9768bc2cc0b7fc321c350300ad0d2c4"
+    },
+    {
+      "id": "IDX-025",
+      "label": "redaction policy change requires rebuild",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 673,
+      "outputBytes": 98,
+      "outputDigest": "19b067baef02047d03060a889831f3a424a9731cc18b22c0ff5b8546a46d80d5"
+    },
+    {
+      "id": "PAR-022",
+      "label": "overlapping temporal refreshes serialize",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1240,
+      "outputBytes": 98,
+      "outputDigest": "c653869a44242603f23a16b6aa62be4016f9fa4fc950416e98b099e6c7428151"
+    },
+    {
+      "id": "CTX-001",
+      "label": "empty period is explicit",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 772,
+      "outputBytes": 98,
+      "outputDigest": "157efc14f85284448f0f78aa9584dbfc65e604e4f19f4934228078a8a09ba434"
+    },
+    {
+      "id": "CTX-003",
+      "label": "one thread many messages is chronological and exhaustive",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 618,
+      "outputBytes": 98,
+      "outputDigest": "5580c203fdb6f98c54cfbe64dc3df566ae5fe91c775f9138ffdccd4d9e0cb0bd"
+    },
+    {
+      "id": "CTX-005",
+      "label": "cross-midnight activity retains local-day membership",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 610,
+      "outputBytes": 98,
+      "outputDigest": "efea4212fff34c9af87413f860bea7d6b0008c0e55192b3c3ba3e96f94659e68"
+    },
+    {
+      "id": "CTX-006",
+      "label": "activity segmentation is reproducible",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 614,
+      "outputBytes": 98,
+      "outputDigest": "e67edac62d023684a9338753fa99651a34f4d225eadbc85dfb4f52a1729c7922"
+    },
+    {
+      "id": "CTX-008",
+      "label": "giant-thread budget disclosure",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 947,
+      "outputBytes": 98,
+      "outputDigest": "fbc74d86a1c29f282f0bbca8249b80400f54bddff634788deaa06b3cbaf03852"
+    },
+    {
+      "id": "CTX-009",
+      "label": "giant-period budget disclosure",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 951,
+      "outputBytes": 98,
+      "outputDigest": "5f06998eaa2d0a6e1f107a29148c408dc85d63ff5e92d6964ff474de695cfb7d"
+    },
+    {
+      "id": "CTX-018",
+      "label": "scoped drill-down preserves parent segment",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 785,
+      "outputBytes": 98,
+      "outputDigest": "a953179b3f38c8941e286945087968fab33c4425de3d70a4e067657fc7ab39be"
+    },
+    {
+      "id": "CTX-019",
+      "label": "context budget omissions are explicit",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 972,
+      "outputBytes": 98,
+      "outputDigest": "5f7d6cba106e2e6c90811328ccce55363008043fb554ea00e168b7baa0861497"
+    },
+    {
+      "id": "CTX-020",
+      "label": "current thread inclusion is explicit",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 613,
+      "outputBytes": 206,
+      "outputDigest": "5e29a6d786c4eac30888ad451ce797dff9486629a862bfd6322c40d05a212d6c"
+    },
+    {
+      "id": "CTX-017",
+      "label": "period comparison keeps evidence separate",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 2661,
+      "outputBytes": 98,
+      "outputDigest": "d8bcfdc1796551c0f2222a91e6e115c09d39015965697f3c789b20ace901e474"
+    },
+    {
+      "id": "NLM-005",
+      "label": "stale projection blocks remote use",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 478,
+      "outputBytes": 98,
+      "outputDigest": "93003cfaa99ffe7cee037e3673f8954e87036172fd19ce8d39befdbc225ba50d"
+    },
+    {
+      "id": "NLM-001",
+      "label": "current ready source maps",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 476,
+      "outputBytes": 98,
+      "outputDigest": "93003cfaa99ffe7cee037e3673f8954e87036172fd19ce8d39befdbc225ba50d"
+    },
+    {
+      "id": "NLM-002",
+      "label": "missing mapped thread degrades",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 483,
+      "outputBytes": 98,
+      "outputDigest": "493315c336def2961d5878322e2e2189617b6d0b4e410dccddd3b417469e0348"
+    },
+    {
+      "id": "NLM-004",
+      "label": "previous source lineage remains non-current",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 465,
+      "outputBytes": 98,
+      "outputDigest": "7f3d458e373a6b50da562466bf3fe22f0d1a7f547e923a31ae2eaf2d308c2b17"
+    },
+    {
+      "id": "NLM-006",
+      "label": "untracked extra source is rejected",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 458,
+      "outputBytes": 98,
+      "outputDigest": "f753dde9c8ab678a1c25d6cdd07e2e495634df08c867ba7ba99600a813486bc6"
+    },
+    {
+      "id": "NLM-014",
+      "label": "persistent chat notebook is excluded from search targets",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1435,
+      "outputBytes": 98,
+      "outputDigest": "fb7db4f7849ff8ba9e8500299391256a5432c5873a52c83bc79adea6139056ba"
+    },
+    {
+      "id": "NLM-003",
+      "label": "split thread source parts are all current",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 555,
+      "outputBytes": 98,
+      "outputDigest": "c9ded7f5eeb7f847b67624316f6f0e808f96dfbb1251457333ee86f0917632fc"
+    },
+    {
+      "id": "NLM-015",
+      "label": "disposable retrieval reset policy",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1379,
+      "outputBytes": 98,
+      "outputDigest": "46df4f0edcf4a6f9a32504da3478dd3a1a7db82b7890d0c616cbb1a0a9b16b2a"
+    },
+    {
+      "id": "NLM-016",
+      "label": "exact period routes to local authority",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 258,
+      "outputBytes": 98,
+      "outputDigest": "d10ffbd9f0faa72cd6837063279524e199b59fbc3d035051302a1e8dbc4b36ad"
+    },
+    {
+      "id": "PAR-005",
+      "label": "missing packed section degrades independently",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 291,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-007",
+      "label": "citation offset drift uses marker-first mapping",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 286,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-006",
+      "label": "reordered or duplicate headings do not create false sections",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 286,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-008",
+      "label": "shared conversation concurrency is rejected",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 290,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-017",
+      "label": "one child failure is explicit and non-partial",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 288,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-018",
+      "label": "global cancellation stops before the next request",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 276,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-020",
+      "label": "cross-question citations do not count as expected hits",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1307,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "PAR-021",
+      "label": "duplicate notebook identity is rejected before query",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1351,
+      "outputBytes": 98,
+      "outputDigest": "d0bbd3fb4fcf80c9cbf5ce59bf4ce44bb927e9e40a6269d0b33dc8c4a94c4755"
+    },
+    {
+      "id": "NLM-007",
+      "label": "wrong-day citation rejection",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 285,
+      "outputBytes": 98,
+      "outputDigest": "d10ffbd9f0faa72cd6837063279524e199b59fbc3d035051302a1e8dbc4b36ad"
+    },
+    {
+      "id": "NLM-008",
+      "label": "wrong-thread citation rejection",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 308,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "NLM-009",
+      "label": "citation-free claim rejection",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 299,
+      "outputBytes": 98,
+      "outputDigest": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5"
+    },
+    {
+      "id": "NLM-010",
+      "label": "remote outage uses verified local fallback",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1705,
+      "outputBytes": 1158,
+      "outputDigest": "20c337e5b85800d32bc72b56ca8343409af56fd081aeb45dd66c42cc8ac18874"
+    },
+    {
+      "id": "NLM-011",
+      "label": "expired auth uses verified local fallback",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1687,
+      "outputBytes": 1161,
+      "outputDigest": "36fce3f0d2a3207444173f31427fc856c2bca12fe6fd77bea9d95da718a9d2e2"
+    },
+    {
+      "id": "NLM-012",
+      "label": "429 and 5xx use verified local fallback",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1966,
+      "outputBytes": 2218,
+      "outputDigest": "c11c81db3d5eef56c6e70ff15e9543dc4f15ce1bd39f89bae9dfdbaa13930ec0"
+    },
+    {
+      "id": "NLM-013",
+      "label": "remote timeout uses verified local fallback",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1655,
+      "outputBytes": 1158,
+      "outputDigest": "8eb5b21716d436129fac87ca765fc193a6a57fee1a6886f5a85b94717b7a0d87"
+    },
+    {
+      "id": "PAR-019",
+      "label": "bounded adaptive rate-limit mock",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 286,
+      "outputBytes": 101,
+      "outputDigest": "921b60a7fd52e978fbb551cacd29df2d6708879400278e1fcc70fceeb0c6f8e0"
+    },
+    {
+      "id": "CTX-011",
+      "label": "heuristic user intent extraction with provenance",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 606,
+      "outputBytes": 98,
+      "outputDigest": "8e93004b7df1ef3dc93c326ef0d884efa5074b91c1237a1d68946f088a16160c"
+    },
+    {
+      "id": "CTX-012",
+      "label": "heuristic completion extraction with provenance",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 597,
+      "outputBytes": 98,
+      "outputDigest": "fff39cd0cd57d85ee0e2d7e85ca1c2072c386877bf55c74b0a2d6a1ef42391b2"
+    },
+    {
+      "id": "CTX-013",
+      "label": "heuristic unresolved-item extraction with provenance",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 595,
+      "outputBytes": 98,
+      "outputDigest": "1b662568b9cfc71badc26eb3e0493bd103a953c35dbdcaa43753c88828b9d6ed"
+    },
+    {
+      "id": "CTX-014",
+      "label": "heuristic artifact extraction with provenance",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 609,
+      "outputBytes": 98,
+      "outputDigest": "fff39cd0cd57d85ee0e2d7e85ca1c2072c386877bf55c74b0a2d6a1ef42391b2"
+    },
+    {
+      "id": "CTX-015",
+      "label": "path-free project filter and fail-closed metadata",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 1482,
+      "outputBytes": 101,
+      "outputDigest": "ac30e6837547d8d01d1bad10926d4dc27eb3c3fe3f6bea9919bc6b8796980f2c"
+    },
+    {
+      "id": "SEC-002",
+      "label": "private path projection redaction",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 880,
+      "outputBytes": 242,
+      "outputDigest": "a1a4cc4af08d450d466d8740c89bdd2145ebaffee0750232c441ba9453d7d3f2"
+    },
+    {
+      "id": "SEC-006",
+      "label": "bounded retention keeps recovery floor",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 397,
+      "outputBytes": 98,
+      "outputDigest": "884398754d4055c030688dd51df8e20f09ab15610d928f513a3f03bf8835322f"
+    },
+    {
+      "id": "SEC-005",
+      "label": "query error redaction",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 309,
+      "outputBytes": 187,
+      "outputDigest": "fd1a40e33a5a3fa2ce2d1757b58230b705b6d35023351f70519d8c4cce8a9e37"
+    },
+    {
+      "id": "SEC-007",
+      "label": "derived index removal and rebuild",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 666,
+      "outputBytes": 98,
+      "outputDigest": "b85b68a561cba24f53922bac1797f94d954950264039928c51d9436dd8a792c0"
+    },
+    {
+      "id": "UX-003",
+      "label": "ambiguous local time disclosure",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 699,
+      "outputBytes": 98,
+      "outputDigest": "5febe4f36c335396a891a5ad654301be8a2d46c275eb94d74731e8221645db59"
+    },
+    {
+      "id": "OPS-004",
+      "label": "digest-paired rollback rehearsal",
+      "status": "pass",
+      "returnCode": 0,
+      "durationMs": 793,
+      "outputBytes": 100,
+      "outputDigest": "9999c122569097e7022ca391a4fa94d672bb1306187a078b89f7214bf7802ec4"
+    }
+  ]
+}

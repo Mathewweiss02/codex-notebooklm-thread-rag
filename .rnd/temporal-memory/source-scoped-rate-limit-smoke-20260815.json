@@ -1,0 +1,22 @@
+{
+  "contractVersion": "source-scoped-rate-limit-smoke-v1",
+  "startedAt": "2026-08-15T02:13:14.673855Z",
+  "completedAt": "2026-08-15T02:13:28.108300Z",
+  "auditedCommit": "5971ad6806b9a1dde07a700e0373381d270dd145",
+  "suiteId": "ads-pc-development-v1",
+  "suiteSha256": "5b00e0743bc359a25d5351cf8bb14ea71f1bf9a058c882d56fd5a9a776e9b127",
+  "querySha256": "10841b998a0188d31646e2faf787f8caa53652be6b0c617cd7c1016c8f6a606e",
+  "labelSha256": "26ce0a0f711718e18fa5ba323f4143db6330ad7031b6cee393c305a1caac3063",
+  "caseCount": 1,
+  "completedCaseCount": 1,
+  "aborted": true,
+  "abortReason": "rate-limit-circuit-breaker",
+  "errors": 1,
+  "rateLimitEvents": 1,
+  "candidateHits": 0,
+  "hybridTop1Hits": 0,
+  "scopeViolations": 0,
+  "privateReportSha256": "93d90e7247d5348f1f95fb7040affc5971b978cf855ef4945d224cbc74071813",
+  "status": "execution-error-no-quality-evidence",
+  "note": "One disposable development smoke only; no holdout details, answer text, identifiers, or persistent-chat state were retained."
+}

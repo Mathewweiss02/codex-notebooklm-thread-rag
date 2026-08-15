@@ -1,0 +1,19 @@
+{
+  "contractVersion": "local-candidate-baseline-v1",
+  "generatedAt": "2026-08-15T02:02:29.936100Z",
+  "auditedCommit": "663b6f4b6bcee7bd96e238206bd28e9eee76bbaf",
+  "suiteId": "ads-pc-development-v1",
+  "suiteSha256": "5b00e0743bc359a25d5351cf8bb14ea71f1bf9a058c882d56fd5a9a776e9b127",
+  "querySha256": "10841b998a0188d31646e2faf787f8caa53652be6b0c617cd7c1016c8f6a606e",
+  "labelSha256": "26ce0a0f711718e18fa5ba323f4143db6330ad7031b6cee393c305a1caac3063",
+  "stateSha256": "22f09b6a768e84f2088d6316c11b310816e15a52e90f869262427ae7527c451f",
+  "candidateLimit": 80,
+  "projectedTaskCount": 145,
+  "positiveCases": 32,
+  "candidateHits": 32,
+  "candidateRecall": 1.0,
+  "localSearchErrors": 0,
+  "privateReportSha256": "af98bda64d480c76c38bc7e61cd78da97e8f540a0703ee50a6c0070614960a9c",
+  "status": "passed",
+  "note": "Aggregate-only local candidate evidence; this is not NotebookLM semantic recall or final hybrid Top-1 evidence."
+}

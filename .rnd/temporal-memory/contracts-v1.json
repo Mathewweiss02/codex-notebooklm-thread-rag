@@ -1,0 +1,137 @@
+{
+  "contractVersion": "temporal-memory-v1",
+  "schemaVersion": 1,
+  "status": "approved",
+  "approvedAt": "2026-08-14T06:30:00Z",
+  "authority": "local-canonical-codex-history",
+  "event": {
+    "allowedRoles": ["user", "assistant"],
+    "visibilityPolicy": "visible-messages-secrets-redacted-v4",
+    "requiredFields": ["eventId", "threadId", "role", "timestampUtc", "text", "sourceRef"],
+    "timestampStorage": "UTC ISO-8601 with Z suffix",
+    "identity": {
+      "algorithm": "sha256",
+      "keyFields": ["threadId", "role", "timestampUtc", "sanitizedText"],
+      "separator": "NUL",
+      "policyVersionIsPartOfIndexContract": true
+    },
+    "lineage": {
+      "deduplicateAcross": ["active", "archive"],
+      "canonicalSourcePreference": ["active", "archive", "stable-lineage-order"],
+      "forksRemainDistinct": true
+    },
+    "sourceRef": {
+      "requiredFields": ["sourceKind", "sourceFileDigest", "lineNumber"],
+      "rawPathMayLeaveLocalAuthority": false
+    },
+    "invalidTimestamp": "quarantine-and-report",
+    "missingTimestamp": "quarantine-and-report",
+    "emptyVisibleText": "exclude",
+    "nonVisiblePayload": "exclude"
+  },
+  "timeRange": {
+    "boundary": "half-open [start,end)",
+    "storage": "UTC instants",
+    "interpretation": "explicit IANA time zone",
+    "nowCapturedOncePerCommand": true,
+    "defaultWeekStart": "monday",
+    "phrases": {
+      "today": "local-midnight through captured-now",
+      "yesterday": "previous-local-calendar-day",
+      "past-hours-or-days": "rolling-duration-through-captured-now",
+      "last-week": "previous-configured-calendar-week",
+      "week-to-date": "current-week-start-through-captured-now",
+      "explicit-date": "that-local-calendar-day",
+      "explicit-range": "caller-supplied-instants-or-local-times"
+    },
+    "naiveExplicitTimestamp": "reject-unless-timezone-supplied",
+    "ambiguousLocalTimestamp": "reject-unless-offset-supplied",
+    "nonexistentLocalTimestamp": "reject",
+    "futureRange": "return-empty-with-resolved-range",
+    "responseMustInclude": ["requestedExpression", "timezone", "startUtc", "endUtc", "boundary", "durationSeconds"]
+  },
+  "contextPack": {
+    "hierarchy": ["period", "local-day", "activity-segment", "message-evidence"],
+    "selectionOrder": "complete-temporal-selection-before-semantic-ranking",
+    "sortOrder": ["timestampUtc", "threadId", "eventId"],
+    "budget": {
+      "modes": ["brief", "standard", "deep"],
+      "artifact": "context-pack-policy-v1.json",
+      "omissionsMustBeExplicit": true,
+      "drillDownMustPreserveEventIdentity": true
+    },
+    "coverage": ["canonicalEventCount", "includedEventCount", "omittedEventCount", "segmentCount"],
+    "provenanceRequiredForClaims": true,
+    "redaction": "reuse-projection-policy",
+    "segmentationPolicy": {
+      "contract": "activity-segmentation-v1",
+      "artifact": "segmentation-policy-v1.json",
+      "selectedBy": "TM-006"
+    }
+  },
+  "remoteSynthesis": {
+    "authority": "local-evidence-verifier",
+    "sourceScope": "current-ready-mapped-parts-only",
+    "sourceMapping": {
+      "contract": "temporal-source-map-v1",
+      "artifact": "source-map-contract-v1.json",
+      "chatRoleExcluded": true,
+      "liveVerification": "read-only optional before ask; required for promotion"
+    },
+    "persistentChatNotebook": "never-selected-by-automation",
+    "retrievalNotebook": "disposable-only-under-explicit-policy",
+    "missingOrStaleSource": "block-remote-and-degrade-local",
+    "defaultParallelism": 1,
+    "ramp": [1, 2, 4, 8, 16],
+    "extendedRamp": [32, 50],
+    "extendedRampRequiresSeparateApproval": true,
+    "sharedMutableConversation": "serialize-or-reject",
+    "retry": "bounded-and-mode-visible",
+    "orphanProcess": "release-blocking-failure"
+  },
+  "verification": {
+    "contract": "temporal-claim-verifier-v1",
+    "artifact": "temporal-claim-verifier-contract-v1.json",
+    "acceptedRemoteClaimRequires": ["localEventEvidence", "currentSourceMapping", "citationOrExplicitLocalFallback"],
+    "wrongDay": "reject",
+    "wrongThread": "reject",
+    "staleSource": "reject",
+    "citationFreeClaim": "unverified-unless-local-only-mode",
+    "remoteUnavailable": "deterministic-local-fallback",
+    "unverifiableAnswer": "abstain-with-diagnostic"
+  },
+  "result": {
+    "statuses": ["ok", "empty", "degraded", "abstained", "error"],
+    "mustInclude": ["mode", "resolvedRange", "coverage", "provenance", "verification", "latency"],
+    "errorIsNotEmpty": true,
+    "staleSuccessIsForbidden": true
+  },
+  "localCli": {
+    "contract": "temporal-cli-v1",
+    "artifact": "cli-contract-v1.json",
+    "exactTemporalCommands": ["when", "recap", "context", "compare"],
+    "lexicalCommand": "find"
+  },
+  "failure": {
+    "lastKnownGood": "retain-until-new-commit-is-atomic-and-verified",
+    "indexCorruption": "fail-closed-and-offer-rebuild",
+    "schemaMismatch": "fail-closed-and-require-migration",
+    "sourceDrift": "block-remote-and-report",
+    "authFailure": "no-secret-output-and-local-fallback",
+    "rateLimit": "bounded-backoff-or-degrade",
+    "cancellation": "terminate-owned-work-and-report-partial-results",
+    "requiredErrorCodes": [
+      "INVALID_TIME_RANGE",
+      "AMBIGUOUS_LOCAL_TIME",
+      "NONEXISTENT_LOCAL_TIME",
+      "INDEX_CORRUPT",
+      "INDEX_SCHEMA_MISMATCH",
+      "SOURCE_DRIFT",
+      "AUTH_UNAVAILABLE",
+      "REMOTE_TIMEOUT",
+      "RATE_LIMITED",
+      "CONVERSATION_UNSAFE",
+      "BUDGET_EXCEEDED"
+    ]
+  }
+}

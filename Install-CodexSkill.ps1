@@ -35,7 +35,7 @@ if (Test-Path -LiteralPath $validator) {
   $python = Get-Command python -ErrorAction SilentlyContinue
   if (-not $python) { $python = Get-Command py -ErrorAction SilentlyContinue }
   if ($python) {
-    & $python.Source $validator $stage | Out-Null
+    & $python.Source -X utf8 $validator $stage | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "Bundled Codex skill validation failed with code $LASTEXITCODE" }
   }
 }

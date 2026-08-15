@@ -1,0 +1,1542 @@
+{
+  "contractVersion": "temporal-certification-evidence-v1",
+  "matrixPath": "certification-matrix.md",
+  "matrixDigest": "c6391a4f81a55aa450e40f8246dedd6983258c4bbc282ecfc5cec3dd45a9acdf",
+  "generatedAt": "2026-08-14T09:54:09Z",
+  "rows": {
+    "TIME-001": {
+      "status": "pass",
+      "scenario": "Today",
+      "testLevel": "Unit + E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-002": {
+      "status": "pass",
+      "scenario": "Yesterday",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-003": {
+      "status": "pass",
+      "scenario": "Past 24 hours",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-004": {
+      "status": "pass",
+      "scenario": "Past 7 days",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-005": {
+      "status": "pass",
+      "scenario": "Last week",
+      "testLevel": "Unit + UX",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-006": {
+      "status": "pass",
+      "scenario": "Week to date",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-007": {
+      "status": "pass",
+      "scenario": "Explicit date",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-008": {
+      "status": "pass",
+      "scenario": "Explicit timestamp range",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-009": {
+      "status": "pass",
+      "scenario": "Midnight event",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-010": {
+      "status": "pass",
+      "scenario": "End-of-day millisecond",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-011": {
+      "status": "pass",
+      "scenario": "DST spring gap",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-012": {
+      "status": "pass",
+      "scenario": "DST fall overlap",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-013": {
+      "status": "pass",
+      "scenario": "Leap day",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-014": {
+      "status": "pass",
+      "scenario": "Month/year boundary",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-015": {
+      "status": "pass",
+      "scenario": "Time-zone override",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-016": {
+      "status": "pass",
+      "scenario": "Invalid natural phrase",
+      "testLevel": "Unit + UX",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-017": {
+      "status": "pass",
+      "scenario": "No period specified",
+      "testLevel": "UX",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "TIME-018": {
+      "status": "pass",
+      "scenario": "Future period",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/val-001-result.md"
+      ],
+      "notes": "Exact CLI-level deterministic certification case passed in the local certification packet.",
+      "executedAt": "2026-08-14T14:57:56Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-001": {
+      "status": "pass",
+      "scenario": "New session",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-002": {
+      "status": "pass",
+      "scenario": "Unchanged rerun",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-003": {
+      "status": "pass",
+      "scenario": "Appended messages",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-004": {
+      "status": "pass",
+      "scenario": "Active → archived move",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-005": {
+      "status": "pass",
+      "scenario": "Active/archive duplicate",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-006": {
+      "status": "pass",
+      "scenario": "Resumed old thread",
+      "testLevel": "Replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-007": {
+      "status": "pass",
+      "scenario": "Forked thread",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-008": {
+      "status": "pass",
+      "scenario": "Subagent thread",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-009": {
+      "status": "pass",
+      "scenario": "Compaction summary",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-010": {
+      "status": "pass",
+      "scenario": "Tool/reasoning payload",
+      "testLevel": "Security regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-011": {
+      "status": "pass",
+      "scenario": "Duplicate message",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-012": {
+      "status": "pass",
+      "scenario": "Same text, different time",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-013": {
+      "status": "pass",
+      "scenario": "Missing timestamp",
+      "testLevel": "Unit",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-014": {
+      "status": "pass",
+      "scenario": "Invalid timestamp",
+      "testLevel": "Fuzz",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-015": {
+      "status": "pass",
+      "scenario": "Malformed JSONL line",
+      "testLevel": "Fuzz + integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-016": {
+      "status": "pass",
+      "scenario": "Partial final line",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-017": {
+      "status": "pass",
+      "scenario": "Oversized visible line",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/thread_temporal_extract.test.mjs"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-018": {
+      "status": "pass",
+      "scenario": "Unicode/emoji/bidi",
+      "testLevel": "Fuzz",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-019": {
+      "status": "pass",
+      "scenario": "File locked during scan",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-020": {
+      "status": "pass",
+      "scenario": "Concurrent index writers",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-021": {
+      "status": "pass",
+      "scenario": "Process kill during commit",
+      "testLevel": "Crash injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-022": {
+      "status": "pass",
+      "scenario": "Database corruption",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-023": {
+      "status": "pass",
+      "scenario": "Disk full",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-024": {
+      "status": "pass",
+      "scenario": "Schema migration",
+      "testLevel": "Migration suite",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "IDX-025": {
+      "status": "pass",
+      "scenario": "Redaction contract change",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-001": {
+      "status": "pass",
+      "scenario": "Empty period",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-002": {
+      "status": "pass",
+      "scenario": "Single message",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "CTX-003": {
+      "status": "pass",
+      "scenario": "One thread, many messages",
+      "testLevel": "Replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-004": {
+      "status": "pass",
+      "scenario": "Many threads, one day",
+      "testLevel": "Replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "CTX-005": {
+      "status": "pass",
+      "scenario": "One thread crosses midnight",
+      "testLevel": "Replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-006": {
+      "status": "pass",
+      "scenario": "Multiple sessions in one thread/day",
+      "testLevel": "Unit + replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-007": {
+      "status": "pass",
+      "scenario": "Concurrent threads",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "CTX-008": {
+      "status": "pass",
+      "scenario": "Giant thread",
+      "testLevel": "Scale replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-009": {
+      "status": "pass",
+      "scenario": "Giant day/week",
+      "testLevel": "Scale replay",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-010": {
+      "status": "pass",
+      "scenario": "Brief/standard/deep",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "CTX-011": {
+      "status": "pass",
+      "scenario": "User intent extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-012": {
+      "status": "pass",
+      "scenario": "Completion extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-013": {
+      "status": "pass",
+      "scenario": "Unresolved item extraction",
+      "testLevel": "Factuality suite",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-014": {
+      "status": "pass",
+      "scenario": "Artifact/path extraction",
+      "testLevel": "Security + factuality",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-015": {
+      "status": "pass",
+      "scenario": "Project filter",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-016": {
+      "status": "pass",
+      "scenario": "Topic within period",
+      "testLevel": "Differential",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "CTX-017": {
+      "status": "pass",
+      "scenario": "Compare periods",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-018": {
+      "status": "pass",
+      "scenario": "Drill-down",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-019": {
+      "status": "pass",
+      "scenario": "Context budget exhausted",
+      "testLevel": "Property",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "CTX-020": {
+      "status": "pass",
+      "scenario": "Current thread inclusion",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-context.json",
+        "tests/test_thread_temporal_context.py"
+      ],
+      "notes": "Exact deterministic context or current-thread certification case passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:01:31Z",
+      "resultDigest": "854510e2d38e179e6cbe390fac6fd89971e9fa9e471850d512bf7fad792876f6"
+    },
+    "NLM-001": {
+      "status": "pass",
+      "scenario": "All selected threads mapped",
+      "testLevel": "Live + fixture",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-002": {
+      "status": "pass",
+      "scenario": "Missing mapped thread",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-003": {
+      "status": "pass",
+      "scenario": "Split thread sources",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-nlm.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Exact deterministic NotebookLM boundary or routing case passed in the versioned local packet; no remote state mutation was performed.",
+      "executedAt": "2026-08-14T15:04:14Z",
+      "resultDigest": "59713a9bea9a7f853728f0a5e72eb6e75acda6e0c6f029b239e4cb41c2f943be"
+    },
+    "NLM-004": {
+      "status": "pass",
+      "scenario": "Previous revision present",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-005": {
+      "status": "pass",
+      "scenario": "Stale/missing source",
+      "testLevel": "Live canary",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-006": {
+      "status": "pass",
+      "scenario": "Untracked extra source",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-007": {
+      "status": "pass",
+      "scenario": "Wrong-day remote citation",
+      "testLevel": "Adversarial live",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-008": {
+      "status": "pass",
+      "scenario": "Wrong-thread remote citation",
+      "testLevel": "Adversarial fixture",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-009": {
+      "status": "pass",
+      "scenario": "Citation-free claim",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-010": {
+      "status": "pass",
+      "scenario": "Remote outage",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-011": {
+      "status": "pass",
+      "scenario": "Auth expired",
+      "testLevel": "Live recovery",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-012": {
+      "status": "pass",
+      "scenario": "429/5xx",
+      "testLevel": "Mock + live canary",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-013": {
+      "status": "pass",
+      "scenario": "Timeout",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-014": {
+      "status": "pass",
+      "scenario": "Persistent chat notebook",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "NLM-015": {
+      "status": "pass",
+      "scenario": "Disposable retrieval notebook",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-nlm.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Exact deterministic NotebookLM boundary or routing case passed in the versioned local packet; no remote state mutation was performed.",
+      "executedAt": "2026-08-14T15:04:14Z",
+      "resultDigest": "59713a9bea9a7f853728f0a5e72eb6e75acda6e0c6f029b239e4cb41c2f943be"
+    },
+    "NLM-016": {
+      "status": "pass",
+      "scenario": "No NotebookLM benefit",
+      "testLevel": "Routing test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-nlm.json",
+        "tests/test_notebooklm_temporal_source_map.py"
+      ],
+      "notes": "Exact deterministic NotebookLM boundary or routing case passed in the versioned local packet; no remote state mutation was performed.",
+      "executedAt": "2026-08-14T15:04:14Z",
+      "resultDigest": "59713a9bea9a7f853728f0a5e72eb6e75acda6e0c6f029b239e4cb41c2f943be"
+    },
+    "PAR-001": {
+      "status": "covered",
+      "scenario": "One question baseline",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
+    },
+    "PAR-002": {
+      "status": "covered",
+      "scenario": "Pack size 2",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
+    },
+    "PAR-003": {
+      "status": "covered",
+      "scenario": "Pack size 4",
+      "testLevel": "Live benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
+    },
+    "PAR-004": {
+      "status": "covered",
+      "scenario": "Pack size 8",
+      "testLevel": "Gated live benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/pq-007-live-packed-summary.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Live packed experiment retained row-aligned aggregate evidence: pack sizes 1/2/4 passed 4/4 expectations; size 8 passed 7/8. Coverage remains non-certified because the sample is underpowered and size 8 has a real miss.",
+      "executedAt": "2026-08-14T15:37:25Z",
+      "resultDigest": "87a23afa61f18fcceb6b5b7f2ba8e14ba96bdeda040e99c9a49fff3e0ac8e668"
+    },
+    "PAR-005": {
+      "status": "pass",
+      "scenario": "Missing section",
+      "testLevel": "Parser test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "PAR-006": {
+      "status": "pass",
+      "scenario": "Reordered headings",
+      "testLevel": "Parser fuzz",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-par.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Exact deterministic parallel-safety or adversarial packing case passed in the versioned local packet; live NotebookLM concurrency remains separately gated.",
+      "executedAt": "2026-08-14T15:07:46Z",
+      "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
+    },
+    "PAR-007": {
+      "status": "pass",
+      "scenario": "Citation offset drift",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "PAR-008": {
+      "status": "pass",
+      "scenario": "Shared null conversation",
+      "testLevel": "Concurrency test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-par.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Exact deterministic parallel-safety or adversarial packing case passed in the versioned local packet; live NotebookLM concurrency remains separately gated.",
+      "executedAt": "2026-08-14T15:07:46Z",
+      "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
+    },
+    "PAR-009": {
+      "status": "pending",
+      "scenario": "Distinct explicit conversations",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-010": {
+      "status": "pending",
+      "scenario": "Shared conversation follow-ups",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-011": {
+      "status": "pending",
+      "scenario": "Replica notebooks",
+      "testLevel": "Live experiment",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-012": {
+      "status": "pending",
+      "scenario": "Concurrency 2",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-013": {
+      "status": "pending",
+      "scenario": "Concurrency 4",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-014": {
+      "status": "pending",
+      "scenario": "Concurrency 8",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-015": {
+      "status": "pending",
+      "scenario": "Concurrency 16",
+      "testLevel": "Live ramp",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-016": {
+      "status": "pending",
+      "scenario": "Concurrency 32/50",
+      "testLevel": "Research gate",
+      "evidence": [],
+      "notes": "No retained row-specific execution result yet."
+    },
+    "PAR-017": {
+      "status": "pass",
+      "scenario": "One child failure",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "PAR-018": {
+      "status": "pass",
+      "scenario": "Global cancellation",
+      "testLevel": "Failure injection",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-par.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Exact deterministic parallel-safety or adversarial packing case passed in the versioned local packet; live NotebookLM concurrency remains separately gated.",
+      "executedAt": "2026-08-14T15:07:46Z",
+      "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
+    },
+    "PAR-019": {
+      "status": "pass",
+      "scenario": "Rate-limit burst",
+      "testLevel": "Mock + canary",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815.json",
+        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815T0628Z.json"
+      ],
+      "notes": "Latest bounded generalization-v1 one-case canary hit one classified NotebookLM rate-limit response after 7.6 seconds; zero scope violations, no persistent-chat mutation, and zero quality counted. Retained as fail-closed operational evidence only.",
+      "executedAt": "2026-08-15T06:28:08Z",
+      "resultDigest": "a0db8f7b35dc40bcec091cf1b3a74227bccf7f27eceead1a89c4bc02e1b8c9e0"
+    },
+    "PAR-020": {
+      "status": "pass",
+      "scenario": "Cross-question citation",
+      "testLevel": "Adversarial benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-par.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Exact deterministic parallel-safety or adversarial packing case passed in the versioned local packet; live NotebookLM concurrency remains separately gated.",
+      "executedAt": "2026-08-14T15:07:46Z",
+      "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
+    },
+    "PAR-021": {
+      "status": "pass",
+      "scenario": "Conversation mutation",
+      "testLevel": "Live safety gate",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-par.json",
+        "tests/test_notebooklm_temporal_executor.py"
+      ],
+      "notes": "Exact deterministic parallel-safety or adversarial packing case passed in the versioned local packet; live NotebookLM concurrency remains separately gated.",
+      "executedAt": "2026-08-14T15:07:46Z",
+      "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
+    },
+    "PAR-022": {
+      "status": "pass",
+      "scenario": "Scheduler overlap",
+      "testLevel": "Integration + soak",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "PERF-001": {
+      "status": "pass",
+      "scenario": "Current corpus cold build",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/local-performance-certification-20260814-v3.json",
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus aggregate-only performance packet passed cold build, warm/cold day, and complete week-context latency gates.",
+      "executedAt": "2026-08-14T15:27:08Z",
+      "resultDigest": "d76c71b6f096f01f680ebb57321ef5f8800ae024f6700eba6d2bdbcf739219c3"
+    },
+    "PERF-002": {
+      "status": "pass",
+      "scenario": "No-change incremental run",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-004-incremental-report.json"
+      ],
+      "notes": "145-thread synthetic incremental benchmark: no-change P95 92.998 ms <= 1 s; one-thread append P95 479.113 ms <= 2 s; 10/10 exact no-op and append transitions.",
+      "executedAt": "2026-08-14T11:20:40Z",
+      "resultDigest": "6312EDC798EE900B3A7E45ED9D8EC173BAAB0A3BEF5748FA42A77D01F1569B1E"
+    },
+    "PERF-003": {
+      "status": "pass",
+      "scenario": "One-thread append",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-004-incremental-report.json"
+      ],
+      "notes": "145-thread synthetic incremental benchmark: no-change P95 92.998 ms <= 1 s; one-thread append P95 479.113 ms <= 2 s; 10/10 exact no-op and append transitions.",
+      "executedAt": "2026-08-14T11:20:40Z",
+      "resultDigest": "6312EDC798EE900B3A7E45ED9D8EC173BAAB0A3BEF5748FA42A77D01F1569B1E"
+    },
+    "PERF-004": {
+      "status": "pass",
+      "scenario": "Warm day query",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/local-performance-certification-20260814-v3.json",
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus aggregate-only performance packet passed cold build, warm/cold day, and complete week-context latency gates.",
+      "executedAt": "2026-08-14T15:27:08Z",
+      "resultDigest": "d76c71b6f096f01f680ebb57321ef5f8800ae024f6700eba6d2bdbcf739219c3"
+    },
+    "PERF-005": {
+      "status": "pass",
+      "scenario": "Cold day query",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/local-performance-certification-20260814-v3.json",
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus aggregate-only performance packet passed cold build, warm/cold day, and complete week-context latency gates.",
+      "executedAt": "2026-08-14T15:27:08Z",
+      "resultDigest": "d76c71b6f096f01f680ebb57321ef5f8800ae024f6700eba6d2bdbcf739219c3"
+    },
+    "PERF-006": {
+      "status": "pass",
+      "scenario": "Week context pack",
+      "testLevel": "Benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/local-performance-certification-20260814-v3.json",
+        ".rnd/temporal-memory/perf-001-result.md"
+      ],
+      "notes": "Current-corpus aggregate-only performance packet passed cold build, warm/cold day, and complete week-context latency gates.",
+      "executedAt": "2026-08-14T15:27:08Z",
+      "resultDigest": "d76c71b6f096f01f680ebb57321ef5f8800ae024f6700eba6d2bdbcf739219c3"
+    },
+    "PERF-007": {
+      "status": "pass",
+      "scenario": "2× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-008": {
+      "status": "pass",
+      "scenario": "5× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-009": {
+      "status": "pass",
+      "scenario": "10× corpus replay",
+      "testLevel": "Scale benchmark",
+      "evidence": [
+        ".rnd/temporal-memory/perf-002-scale-report.json"
+      ],
+      "notes": "Synthetic 1x/2x/5x/10x exact-oracle scale run; live capacity remains separately gated.",
+      "executedAt": "2026-08-14T09:58:50Z",
+      "resultDigest": "9DCFC4D690D3D5D5703CCA223C70C2777E7C78AA8436A1DAACC272A007027B8B"
+    },
+    "PERF-010": {
+      "status": "pass",
+      "scenario": "Memory pressure",
+      "testLevel": "Profiling",
+      "evidence": [
+        ".rnd/temporal-memory/perf-003-resource-pressure-report.json"
+      ],
+      "notes": "64,000-event synthetic replay stayed under the explicit 128 MiB traced-allocation ceiling, with exact results and zero Windows handle growth.",
+      "executedAt": "2026-08-14T10:40:15Z",
+      "resultDigest": "870875C55451CEF00D09223B491994356BDFD2AC23A32566DE65721EEBD0926A"
+    },
+    "PERF-011": {
+      "status": "covered",
+      "scenario": "Idle state",
+      "testLevel": "Soak",
+      "evidence": [
+        ".rnd/temporal-memory/resource-soak-monitor.json"
+      ],
+      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 6 clean eligible normal runs, 1.0 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
+      "executedAt": "2026-08-15T03:32:23.832537Z",
+      "resultDigest": "394BFDD09493F50DFA1BC9C47E861F9724075101922BC30456BFC8BC4E7E5749"
+    },
+    "PERF-012": {
+      "status": "pass",
+      "scenario": "Repeated queries",
+      "testLevel": "Soak",
+      "evidence": [
+        ".rnd/temporal-memory/perf-003-resource-report.json"
+      ],
+      "notes": "50 repeated local temporal queries preserved exact results with zero handle growth and bounded traced allocation growth on the writer-locked index.",
+      "executedAt": "2026-08-14T10:53:06Z",
+      "resultDigest": "4EA2DB0679F460A1614AB84680052C89A6EF50017DCED0EBB558F260AA16E451"
+    },
+    "SEC-001": {
+      "status": "pass",
+      "scenario": "Credential patterns",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-sec.json",
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "Exact cross-runtime redaction, ACL, and report-secret exclusion cases passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:10:57Z",
+      "resultDigest": "5a314c0f3c68b3ae25526b97778f463a58419696d9c2418a2b2b0abcd76859c4"
+    },
+    "SEC-002": {
+      "status": "pass",
+      "scenario": "Private paths",
+      "testLevel": "Regression",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "SEC-003": {
+      "status": "pass",
+      "scenario": "Database ACL",
+      "testLevel": "Installation test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-sec.json",
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "Exact cross-runtime redaction, ACL, and report-secret exclusion cases passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:10:57Z",
+      "resultDigest": "5a314c0f3c68b3ae25526b97778f463a58419696d9c2418a2b2b0abcd76859c4"
+    },
+    "SEC-004": {
+      "status": "pass",
+      "scenario": "Logs/reports",
+      "testLevel": "Secret scan",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-sec.json",
+        ".rnd/temporal-memory/sec-001-result.md"
+      ],
+      "notes": "Exact cross-runtime redaction, ACL, and report-secret exclusion cases passed in the versioned local packet.",
+      "executedAt": "2026-08-14T15:10:57Z",
+      "resultDigest": "5a314c0f3c68b3ae25526b97778f463a58419696d9c2418a2b2b0abcd76859c4"
+    },
+    "SEC-005": {
+      "status": "pass",
+      "scenario": "Query errors",
+      "testLevel": "Fuzz/security",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "SEC-006": {
+      "status": "pass",
+      "scenario": "Retention",
+      "testLevel": "Integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "SEC-007": {
+      "status": "pass",
+      "scenario": "Rebuild/removal",
+      "testLevel": "Recovery test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "SEC-008": {
+      "status": "pass",
+      "scenario": "Dependency update",
+      "testLevel": "CI gate",
+      "evidence": [
+        ".rnd/temporal-memory/sec-008-dependency-audit.json"
+      ],
+      "notes": "Locked uv export audited with pinned pip-audit; no known vulnerabilities.",
+      "executedAt": "2026-08-14T10:33:17Z",
+      "resultDigest": "F5ED410947366B14713849A77084E86EDC11AE3D292DD46D9114B4279C4E089C"
+    },
+    "UX-001": {
+      "status": "pass",
+      "scenario": "Fresh Codex task",
+      "testLevel": "Cold-start eval",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "UX-002": {
+      "status": "pass",
+      "scenario": "Nontechnical phrasing",
+      "testLevel": "E2E",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "UX-003": {
+      "status": "pass",
+      "scenario": "Ambiguous period",
+      "testLevel": "UX eval",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "UX-004": {
+      "status": "pass",
+      "scenario": "Empty result",
+      "testLevel": "UX eval",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "UX-005": {
+      "status": "pass",
+      "scenario": "Degraded remote",
+      "testLevel": "UX eval",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "UX-006": {
+      "status": "pass",
+      "scenario": "Diagnostics",
+      "testLevel": "Contract test",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        "tests/test_temporal_skill_routing.py"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "OPS-001": {
+      "status": "pass",
+      "scenario": "Scheduled index update",
+      "testLevel": "Windows integration",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "OPS-002": {
+      "status": "pass",
+      "scenario": "Doctor",
+      "testLevel": "Integration + live",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "OPS-003": {
+      "status": "pass",
+      "scenario": "Rebuild",
+      "testLevel": "Recovery rehearsal",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run-20260814-ux-ops.json",
+        ".rnd/temporal-memory/rel-001-result.md"
+      ],
+      "notes": "Exact deterministic usability and operations fixture cases passed in the versioned local packet; live soak and external release gates remain separate.",
+      "executedAt": "2026-08-14T15:14:35Z",
+      "resultDigest": "c39d9ca93f108e3c97706f79aa0a17f551a862acb2744edde420c69d9a5645cd"
+    },
+    "OPS-004": {
+      "status": "pass",
+      "scenario": "Rollback",
+      "testLevel": "Release rehearsal",
+      "evidence": [
+        ".rnd/temporal-memory/local-certification-run.json"
+      ],
+      "notes": "Re-bound to the refreshed all-pass local certification packet; exact prior row mappings remain unchanged.",
+      "executedAt": "2026-08-14T14:57:46Z",
+      "resultDigest": "f97327b6c2304d169a28e1a086b112405ba26b628e67984edb36c05617eae598"
+    },
+    "OPS-005": {
+      "status": "covered",
+      "scenario": "Seven-day soak",
+      "testLevel": "Soak",
+      "evidence": [
+        ".rnd/temporal-memory/resource-soak-monitor.json"
+      ],
+      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 6 clean eligible normal runs, 1.0 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
+      "executedAt": "2026-08-15T02:50:05.091071Z",
+      "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
+    },
+    "OPS-006": {
+      "status": "pass",
+      "scenario": "Committed-revision proof",
+      "testLevel": "Release gate",
+      "evidence": [
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-76601db.json",
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-88979b7.json",
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-9d60b57.json",
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-9f1c544.json",
+        ".rnd/temporal-memory/full-gate-run-20260814-commit-b5fb53a.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-3e44ded.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-6e4df33.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-8a4a517.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-938fea6.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-a8bfcde.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-a8e8390.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json",
+        ".rnd/temporal-memory/full-gate-run.json",
+        ".rnd\\temporal-memory\\full-gate-run-20260814-commit-57353b0.json",
+        ".rnd\\temporal-memory\\full-gate-run-20260814-commit-b860167.json",
+        ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json"
+      ],
+      "notes": "Exact committed revision a8bfcde passed 48 Node tests, 232 Python tests, compile, PowerShell parse, and all 11 operational integrations after the post-refresh fingerprint hardening; the global installed runner hash matches the repository.",
+      "executedAt": "2026-08-15T06:56:00Z",
+      "resultDigest": "D2911F58C5028F7750F7D2D5CE10AB04C6CEC90B300C128C4F5F461542F2125A"
+    }
+  },
+  "updatedAt": "2026-08-15T06:58:31Z"
+}

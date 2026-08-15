@@ -1,0 +1,19 @@
+{
+  "contractVersion": "temporal-resource-benchmark-v1",
+  "status": "pass",
+  "iterations": 50,
+  "threadCount": 32,
+  "eventsPerThread": 16,
+  "expectedEventCount": 512,
+  "queryCorrect": true,
+  "queryP50Ms": 21.206,
+  "queryP95Ms": 31.27,
+  "pythonAllocationGrowthBytes": 2204,
+  "pythonPeakTracedBytes": 688202,
+  "handleCountBefore": 157,
+  "handleCountAfter": 157,
+  "handleGrowth": 0,
+  "boundedMemory": true,
+  "peakMemoryLimitBytes": 134217728,
+  "boundedHandles": true
+}

@@ -19,7 +19,9 @@ try {
   Assert-True ($config.ThreadIds.Count -eq 2) "thread scope must be preserved"
   Assert-True ($config.NotebookRole -eq "retrieval" -and $config.DisposableSearchChat -eq $true) "default config must isolate disposable retrieval chat"
   Assert-True ($config.AutoEnroll -eq $true -and $config.SourceReserve -ge 1) "default config must enable capacity-aware enrollment"
+  Assert-True ([string]$config.SoakEvidenceRoot -like "$temporary\thread-rag\fixture\soak-evidence") "config must place protected soak evidence under the projection root"
   Assert-True ($config.ExecutionTimeLimitMinutes -ge 120) "scheduler budget must cover long initial uploads"
+  Assert-True ($config.TemporalRefresh -eq $true -and [string]$config.TemporalRefreshScript -and [string]$config.TemporalIndexScript) "retrieval config must refresh temporal memory"
   Assert-True ([string]$config.ProjectionScript -like "$temporary\skills\codex-notebooklm-thread-rag\scripts\*") "config must use globally installed skill scripts"
   $registry = Get-Content -Raw -LiteralPath (Join-Path $temporary "thread-rag\registry.json") | ConvertFrom-Json
   Assert-True (@($registry.Configs).Count -eq 1) "config must register exactly once"
@@ -30,6 +32,7 @@ try {
   & $generator -CodexRoot $temporary -Device "fixture-chat" -NotebookId "chat-notebook" -Profile personal -NotebookRole chat -ThreadIds @("thread-a") -Output $chatOutput | Out-Null
   $chat = Get-Content -Raw -LiteralPath $chatOutput | ConvertFrom-Json
   Assert-True ($chat.NotebookRole -eq "chat" -and $chat.DisposableSearchChat -eq $false) "CLI chat config must preserve conversation history"
+  Assert-True ($chat.TemporalRefresh -eq $false) "CLI chat config must not own the shared temporal refresh"
   [pscustomobject]@{ Status = "passed"; Checks = 10 } | ConvertTo-Json
 } finally {
   if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }

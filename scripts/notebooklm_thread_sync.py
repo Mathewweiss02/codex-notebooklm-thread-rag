@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from notebooklm import NotebookLMClient
+from redaction_contract import summarize_error
 
 
 REQUIRED_POLICY = "visible-messages-secrets-redacted-v4"
@@ -371,9 +372,9 @@ async def main() -> int:
                     result = await sync_thread(client, notebook.id, thread, state, state_path, by_id, by_title, args)
                 except Exception as error:
                     thread["uploadStatus"] = "error"
-                    thread["uploadError"] = f"{type(error).__name__}: {error}"
+                    thread["uploadError"] = summarize_error(error)
                     atomic_json(state_path, state)
-                    report["results"].append({"threadId": thread["threadId"], "action": "error", "error": str(error)})
+                    report["results"].append({"threadId": thread["threadId"], "action": "error", "error": summarize_error(error)})
                     break
                 report["results"].append(result)
 

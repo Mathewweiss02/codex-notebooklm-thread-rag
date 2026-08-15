@@ -194,7 +194,7 @@ function isoFromSeconds(value) {
   return typeof value === "number" && Number.isFinite(value) ? new Date(value * 1000).toISOString() : null;
 }
 
-function workspaceIdentity(cwd) {
+export function workspaceIdentity(cwd) {
   if (!cwd) return { label: "unknown", hash: null };
   const normalized = String(cwd).replace(/^\\\\\?\\/, "").replace(/[\\/]+$/, "");
   return { label: safeTitle(basename(normalized), 80), hash: sha256(normalized.toLocaleLowerCase()).slice(0, 12) };

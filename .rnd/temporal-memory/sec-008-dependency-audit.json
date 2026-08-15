@@ -1,0 +1,11 @@
+{
+  "contractVersion": "dependency-audit-v1",
+  "status": "pass",
+  "executedAt": "2026-08-14T10:33:10Z",
+  "lockFile": "uv.lock",
+  "lockSha256": "e2fea920b209a07db8fee6525afb942a06701976afad88ff9c9c18e6da72e8bb",
+  "auditTool": "pip-audit==2.10.1",
+  "requirementsHashCount": 782,
+  "auditReturnCode": 0,
+  "outputSuppressed": true
+}

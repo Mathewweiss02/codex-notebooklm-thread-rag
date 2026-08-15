@@ -1,0 +1,2 @@
+{"timestamp":"2026-11-01T05:30:00Z","type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic message in the first repeated fall-back hour"}]}}
+{"timestamp":"2026-11-01T06:30:00Z","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"input_text","text":"synthetic message in the second repeated fall-back hour"}]}}

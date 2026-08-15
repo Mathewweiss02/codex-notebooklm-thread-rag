@@ -1,0 +1,13 @@
+{
+  "contract": "activity-segmentation-v1",
+  "status": "accepted",
+  "selectedBy": "TM-006",
+  "thresholdMinutes": 60,
+  "newSegmentWhen": "timestamp gap > threshold",
+  "threadBoundary": "different thread IDs never merge",
+  "localDateBoundary": "does not split",
+  "ordering": ["timestampUtc", "eventId"],
+  "members": "canonical events with valid timestamps",
+  "provenance": ["threadId", "eventId", "firstTimestampUtc", "lastTimestampUtc", "sourceRefs"],
+  "recalibration": "version policy and rerun dependent evidence; do not silently retune"
+}

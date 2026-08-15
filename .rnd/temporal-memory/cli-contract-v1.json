@@ -1,0 +1,18 @@
+{
+  "contract": "temporal-cli-v1",
+  "status": "accepted-for-implementation",
+  "defaultOutput": "machine-readable JSON",
+  "commands": {
+    "when": "resolve a period once and disclose UTC/local bounds",
+    "recap": "build a local temporal evidence pack",
+    "context": "build a local hierarchical evidence pack with optional segment drill-down",
+    "find": "run deterministic lexical matching inside a resolved period",
+    "compare": "compare two separately resolved periods by canonical event identity"
+  },
+  "exactTemporalAuthority": "local-canonical-codex-history-derived-index",
+  "remoteDependency": "none",
+  "defaultFindExpression": "today",
+  "errorContract": "nonzero exit plus status=error and stable code",
+  "provenance": "event IDs, digests, roles, UTC timestamps, and source refs remain attached",
+  "fallback": "NotebookLM semantic search remains a separate candidate-finding path; it never replaces exact local period selection"
+}

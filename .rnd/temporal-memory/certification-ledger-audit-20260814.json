@@ -1,0 +1,19 @@
+{
+  "contractVersion": "certification-ledger-audit-v1",
+  "generatedAtLocal": "2026-08-14T21:49:35-04:00",
+  "auditedCommit": "ee94c26",
+  "matrixRows": 133,
+  "evidenceRows": 133,
+  "missingEvidenceRows": 0,
+  "extraEvidenceRows": 0,
+  "duplicateMatrixIds": 0,
+  "statusCounts": {
+    "pass": 117,
+    "covered": 8,
+    "pending": 8,
+    "fail": 0,
+    "blocked": 0
+  },
+  "status": "passed",
+  "note": "Structural ledger audit only; covered and pending rows remain release-open."
+}

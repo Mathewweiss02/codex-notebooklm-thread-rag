@@ -128,6 +128,15 @@ def build_plan(
     if projection_revisions < 1 or retention_days < 1 or max_run_reports < 1 or max_search_reports < 1:
         raise ValueError("Retention bounds must all be positive")
 
+    soak_evidence_root = require_descendant(root / "soak-evidence", root)
+    if soak_evidence_root.exists() and not soak_evidence_root.is_dir():
+        raise ValueError(f"Protected soak evidence path is not a directory: {soak_evidence_root}")
+    soak_evidence_files = (
+        [require_descendant(path, soak_evidence_root) for path in soak_evidence_root.glob("*.json")]
+        if soak_evidence_root.is_dir()
+        else []
+    )
+
     state = read_json(state_path)
     keep = projection_keep_set(state, projections_root, projection_revisions)
     projection_files = [require_descendant(path, projections_root) for path in projections_root.rglob("r*-p*.md")]
@@ -167,6 +176,8 @@ def build_plan(
             "maxSearchReports": max_search_reports,
         },
         "protectedProjectionFiles": len(keep),
+        "protectedSoakEvidenceRoot": str(soak_evidence_root),
+        "protectedSoakEvidenceFiles": len(soak_evidence_files),
         "actions": actions,
         "candidateFiles": len(actions),
         "candidateBytes": sum(item["bytes"] for item in actions),

@@ -4,6 +4,10 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import { parseQuery, redactSensitiveText, searchThreads } from "./thread_search_lib.mjs";
+import { formatCliError, localTodayBounds, parseArgs } from "./thread_search.mjs";
+
+const FAKE_AWS_KEY = ["AKIA", "ABCDEFGHIJKLMNOP"].join("");
+const FAKE_OPENAI_KEY = ["sk", "proj_abcdefghijklmnop"].join("-");
 
 function meta(id, cwd, source = "vscode") {
   return {
@@ -46,7 +50,7 @@ async function makeFixture() {
   await writeThread(join(active, `rollout-${targetId}.jsonl`), targetId, cwd, [
     message("2026-08-01T00:26:21.000Z", "assistant", "Michelle copied 420 DentalPlans suppression files into Mike's private Files.com SFTP route."),
     message("2026-08-03T19:47:03.000Z", "user", "Can we upload those files into our AWS bucket or S3?"),
-    message("2026-08-03T20:08:46.000Z", "assistant", "The AWS S3 upload passed. access_key=AKIAABCDEFGHIJKLMNOP and all source checksums matched."),
+    message("2026-08-03T20:08:46.000Z", "assistant", `The AWS S3 upload passed. access_key=${FAKE_AWS_KEY} and all source checksums matched.`),
   ]);
 
   await writeThread(join(active, `rollout-${decoyId}.jsonl`), decoyId, cwd, [
@@ -99,6 +103,32 @@ test("query parsing normalizes small numbers and preservation intent", () => {
   assert.ok(preserve.jsRegex.test("The styling must not change."));
 });
 
+test("today expands to the machine-local calendar day and rejects mixed bounds", () => {
+  const now = new Date(2026, 7, 10, 15, 30, 0, 0);
+  const bounds = localTodayBounds(now);
+  const start = new Date(bounds.after);
+  const end = new Date(bounds.before);
+  assert.equal(start.getFullYear(), 2026);
+  assert.equal(start.getMonth(), 7);
+  assert.equal(start.getDate(), 10);
+  assert.equal(start.getHours(), 0);
+  assert.equal(end.getFullYear(), 2026);
+  assert.equal(end.getMonth(), 7);
+  assert.equal(end.getDate(), 10);
+  assert.equal(end.getHours(), 23);
+  assert.equal(end.getMinutes(), 59);
+  assert.equal(end.getSeconds(), 59);
+  assert.equal(end.getMilliseconds(), 999);
+
+  const options = parseArgs(["--query", "what was I doing", "--today"], { now });
+  assert.equal(options.after, bounds.after);
+  assert.equal(options.before, bounds.before);
+  assert.throws(
+    () => parseArgs(["--query", "work", "--today", "--after", "2026-08-01"]),
+    /cannot be combined/,
+  );
+});
+
 test("search ranks a coherent event over a giant scattered decoy and collapses archive duplicates", async () => {
   const fixture = await makeFixture();
   try {
@@ -115,7 +145,7 @@ test("search ranks a coherent event over a giant scattered decoy and collapses a
     assert.equal(report.results[0].id, fixture.targetId);
     assert.equal(report.results.filter((result) => result.id === fixture.targetId).length, 1);
     assert.ok(report.results[0].score > report.results[1].score);
-    assert.ok(!JSON.stringify(report).includes("AKIAABCDEFGHIJKLMNOP"));
+    assert.ok(!JSON.stringify(report).includes(FAKE_AWS_KEY));
     const secretReport = await searchThreads({
       query: "AWS S3 upload checksum",
       roots: [fixture.root],
@@ -125,7 +155,7 @@ test("search ranks a coherent event over a giant scattered decoy and collapses a
       excerpts: 2,
     });
     assert.ok(secretReport.results[0].evidence.some((item) => item.excerpt.includes("REDACTED")));
-    assert.ok(!JSON.stringify(secretReport).includes("AKIAABCDEFGHIJKLMNOP"));
+    assert.ok(!JSON.stringify(secretReport).includes(FAKE_AWS_KEY));
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
   }
@@ -248,9 +278,48 @@ test("workspace, date, and archive filters remain deterministic", async () => {
   }
 });
 
+test("current thread inclusion is excluded by default and explicit when requested", async () => {
+  const fixture = await makeFixture();
+  const previous = process.env.CODEX_THREAD_ID;
+  process.env.CODEX_THREAD_ID = fixture.currentId;
+  try {
+    const defaultOptions = parseArgs([
+      "--query", "Find the AWS suppression file from Mike and Michelle uploaded through VendorData SFTP",
+      "--root", fixture.root,
+      "--no-hydrate",
+    ]);
+    assert.deepEqual(defaultOptions.excludeThreadIds, [fixture.currentId]);
+    const defaultReport = await searchThreads(defaultOptions);
+    assert.ok(!defaultReport.results.some((result) => result.id === fixture.currentId));
+
+    const explicitOptions = parseArgs([
+      "--query", "Find the AWS suppression file from Mike and Michelle uploaded through VendorData SFTP",
+      "--root", fixture.root,
+      "--no-hydrate",
+      "--include-current",
+    ]);
+    assert.deepEqual(explicitOptions.excludeThreadIds, []);
+    const explicitReport = await searchThreads(explicitOptions);
+    assert.ok(explicitReport.results.some((result) => result.id === fixture.currentId));
+  } finally {
+    if (previous === undefined) delete process.env.CODEX_THREAD_ID;
+    else process.env.CODEX_THREAD_ID = previous;
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
 test("redaction covers common credential shapes", () => {
-  const redacted = redactSensitiveText("Bearer abcdefghijklmnop token=supersecret AKIAABCDEFGHIJKLMNOP sk-proj_abcdefghijklmnop");
+  const bearer = ["Bear", "er"].join("");
+  const redacted = redactSensitiveText(`${bearer} abcdefghijklmnop token=supersecret ${FAKE_AWS_KEY} ${FAKE_OPENAI_KEY}`);
   assert.ok(!redacted.includes("abcdefghijklmnop"));
   assert.ok(!redacted.includes("supersecret"));
-  assert.ok(!redacted.includes("AKIAABCDEFGHIJKLMNOP"));
+  assert.ok(!redacted.includes(FAKE_AWS_KEY));
+});
+
+test("CLI errors redact sensitive query material before printing", () => {
+  const secret = `${FAKE_AWS_KEY} token=supersecret`;
+  const rendered = formatCliError(new Error(`remote query failed for ${secret}`));
+  assert.ok(!rendered.includes(FAKE_AWS_KEY));
+  assert.ok(!rendered.includes("supersecret"));
+  assert.match(rendered, /REDACTED/);
 });

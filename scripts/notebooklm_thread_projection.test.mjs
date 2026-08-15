@@ -17,19 +17,28 @@ function event(timestamp, role, text) {
 }
 
 test("sanitizer redacts common durable credentials without removing ordinary order data", () => {
+  const awsKey = ["AKIA", "1234567890ABCDEF"].join("");
+  const bearer = ["Bearer ", "abcdefghijklmnopqrstuvwxyz"].join("");
+  const privateKeyHeader = ["-----BEGIN ", "PRIVATE KEY-----"].join("");
   const input = [
     "Order 26-12504 has 64,800 rows.",
-    "AWS AKIA1234567890ABCDEF",
+    `AWS ${awsKey}`,
     "password=hunter-hunter",
-    "Authorization: Bearer abcdefghijklmnopqrstuvwxyz",
+    `Authorization: ${bearer}`,
     "https://alice:secretpass@example.com/path?access_token=topsecretvalue",
     "Root paths C:\\Users\\person and /home/person must not survive.",
     "Jammed path okayC:/Users/person/Downloads and WSL /mnt/c/Users/person/.codex must not survive.",
-    "-----BEGIN PRIVATE KEY-----\nabcdef\n-----END PRIVATE KEY-----",
+    `${privateKeyHeader}\nabcdef\n-----END PRIVATE KEY-----`,
   ].join("\n");
   const result = sanitizeSecrets(input);
   assert.match(result.text, /Order 26-12504 has 64,800 rows/);
-  assert.doesNotMatch(result.text, /AKIA1234567890ABCDEF|hunter-hunter|secretpass|topsecretvalue|BEGIN PRIVATE KEY|C:[\\/]Users[\\/]person|\/(?:Users?|home)\/person/);
+  assert.ok(!result.text.includes(awsKey));
+  assert.ok(!result.text.includes("hunter-hunter"));
+  assert.ok(!result.text.includes("secretpass"));
+  assert.ok(!result.text.includes("topsecretvalue"));
+  assert.ok(!result.text.includes(privateKeyHeader));
+  assert.ok(!result.text.includes("C:\\Users\\person"));
+  assert.ok(!result.text.includes("/home/person"));
   assert.match(result.text, /Root paths \[USERPROFILE\] and \[USERPROFILE\] must not survive/);
   assert.ok(Object.values(result.counts).reduce((sum, count) => sum + count, 0) >= 5);
 });

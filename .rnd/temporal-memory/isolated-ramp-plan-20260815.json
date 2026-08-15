@@ -1,0 +1,122 @@
+{
+  "contractVersion": "notebooklm-isolated-ramp-v1",
+  "status": "dry-run",
+  "configRole": "retrieval",
+  "sourcePartCount": 147,
+  "sourceFingerprint": "240de5c1fd0e28257f3068e603821cfd275b84003d1b810338655e2751f8f361",
+  "plan": {
+    "contractVersion": "notebooklm-replica-plan-v1",
+    "sourceParts": 147,
+    "sourceLimit": 300,
+    "notebookLimit": 500,
+    "requestedReserve": 60,
+    "steadyCapacityPerReplica": 240,
+    "existingNotebooks": 1,
+    "currentRetrievalNotebooks": 1,
+    "poolSizes": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      50
+    ],
+    "plans": [
+      {
+        "retrievalPoolSize": 1,
+        "newReplicaCount": 0,
+        "notebooksAfter": 1,
+        "notebookHeadroomAfter": 499,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 147,
+        "initialCopyUnits": 0,
+        "worstCaseRefreshUnits": 147,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 2,
+        "newReplicaCount": 1,
+        "notebooksAfter": 2,
+        "notebookHeadroomAfter": 498,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 294,
+        "initialCopyUnits": 147,
+        "worstCaseRefreshUnits": 294,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 4,
+        "newReplicaCount": 3,
+        "notebooksAfter": 4,
+        "notebookHeadroomAfter": 496,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 588,
+        "initialCopyUnits": 441,
+        "worstCaseRefreshUnits": 588,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 8,
+        "newReplicaCount": 7,
+        "notebooksAfter": 8,
+        "notebookHeadroomAfter": 492,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 1176,
+        "initialCopyUnits": 1029,
+        "worstCaseRefreshUnits": 1176,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 16,
+        "newReplicaCount": 15,
+        "notebooksAfter": 16,
+        "notebookHeadroomAfter": 484,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 2352,
+        "initialCopyUnits": 2205,
+        "worstCaseRefreshUnits": 2352,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 32,
+        "newReplicaCount": 31,
+        "notebooksAfter": 32,
+        "notebookHeadroomAfter": 468,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 4704,
+        "initialCopyUnits": 4557,
+        "worstCaseRefreshUnits": 4704,
+        "capacitySafe": true
+      },
+      {
+        "retrievalPoolSize": 50,
+        "newReplicaCount": 49,
+        "notebooksAfter": 50,
+        "notebookHeadroomAfter": 450,
+        "sourcePartsPerReplica": 147,
+        "sourceHeadroomPerReplica": 153,
+        "steadyHeadroomPerReplica": 93,
+        "aggregateSourceCopies": 7350,
+        "initialCopyUnits": 7203,
+        "worstCaseRefreshUnits": 7350,
+        "capacitySafe": true
+      }
+    ],
+    "liveCreation": "not authorized by this planner"
+  },
+  "liveCreation": "not performed; requires --apply and --confirm-isolated-retrieval-replicas",
+  "generatedAt": "2026-08-15T03:26:41.761052Z"
+}

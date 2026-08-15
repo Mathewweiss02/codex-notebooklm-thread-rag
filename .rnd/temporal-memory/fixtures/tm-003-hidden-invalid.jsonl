@@ -1,0 +1,5 @@
+{"timestamp":"2026-08-12T17:00:00Z","type":"response_item","payload":{"type":"message","role":"developer","content":[{"type":"input_text","text":"synthetic hidden record"}]}}
+{"timestamp":"2026-08-12T17:01:00Z","type":"response_item","payload":{"type":"function_call_output","output":"synthetic hidden tool record"}}
+{"type":"response_item","payload":{"type":"message","role":"user","content":[{"type":"input_text","text":"synthetic record without a timestamp"}]}}
+{"timestamp":"not-a-timestamp","type":"response_item","payload":{"type":"message","role":"assistant","content":[{"type":"input_text","text":"synthetic record with an invalid timestamp"}]}}
+{"timestamp":"2026-08-12T17:02:00Z","type":"compacted","payload":{"summary":"synthetic hidden compaction"}}

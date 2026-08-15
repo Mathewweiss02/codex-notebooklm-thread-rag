@@ -16,7 +16,7 @@ try {
   $fail = Join-Path $temporary "fail.cmd"
   $signal = Join-Path $temporary "slow-started.txt"
   $slow = Join-Path $temporary "slow.cmd"
-  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@echo %*", "@exit /b 0")
+  Set-Content -LiteralPath $ok -Encoding Ascii -Value @("@echo harmless native warning 1>&2", "@echo %*", '@echo {"prompt":"private prompt","answer":"private answer"}', "@exit /b 0")
   Set-Content -LiteralPath $fail -Encoding Ascii -Value @("@echo simulated failure 1>&2", "@exit /b 7")
   Set-Content -LiteralPath $slow -Encoding Ascii -Value @("@echo started>$signal", "@ping -n 3 127.0.0.1 >nul", "@exit /b 0")
 
@@ -50,7 +50,26 @@ try {
   Assert-True ($result.Status -eq "ok") "benign native stderr must not fail a zero-exit command"
   $run = Get-Content -Raw -LiteralPath $result.Run | ConvertFrom-Json
   Assert-True ($run.Steps.Count -ge 3) "normal run must execute auth, projection, and sync"
+  Assert-True ([bool]$run.Resource.Available -and [int]$run.Resource.SampleCount -ge 2) "runner report must retain aggregate resource samples"
+  Assert-True ([int64]$run.Resource.WorkingSetPeakBytes -ge 0 -and [int64]$run.Resource.HandleCountPeak -ge 0) "resource summary must use bounded numeric diagnostics"
+  Assert-True (-not ($run.PSObject.Properties.Name -contains "NotebookId")) "runner report must not persist the notebook ID"
+  Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch [regex]::Escape("fixture-notebook")) "runner report must not persist notebook identifiers"
+  Assert-True (($run | ConvertTo-Json -Depth 12) -notmatch "private prompt|private answer") "runner report must not persist arbitrary child output"
   Assert-True ((Test-Path -LiteralPath (Join-Path $root "runner_state.json"))) "runner checkpoint must be written"
+  $evidenceLog = Get-ChildItem -LiteralPath (Join-Path $root "soak-evidence") -Filter "soak-*.json" | Select-Object -First 1
+  Assert-True ($null -ne $evidenceLog) "normal run must write protected soak evidence"
+  $evidence = Get-Content -Raw -LiteralPath $evidenceLog.FullName | ConvertFrom-Json
+  Assert-True ($evidence.ContractVersion -eq "temporal-soak-evidence-v1") "soak evidence must declare its contract"
+  Assert-True (($evidence | ConvertTo-Json -Depth 12) -notmatch "fixture-notebook|private prompt|private answer") "soak evidence must be aggregate-only"
+
+  $stableState = [ordered]@{ policyVersion = "fixture-policy"; threads = [ordered]@{} }
+  $stableState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $root "state.json") -Encoding UTF8
+  $firstStable = (& $Runner -Config $configPath) | ConvertFrom-Json
+  Assert-True ($firstStable.Status -eq "ok") "first fingerprinted run must succeed"
+  $secondStable = (& $Runner -Config $configPath) | ConvertFrom-Json
+  Assert-True ($secondStable.Status -eq "ok") "unchanged fingerprinted run must succeed"
+  $secondStableRun = Get-Content -Raw -LiteralPath $secondStable.Run | ConvertFrom-Json
+  Assert-True (@($secondStableRun.Steps.Label) -contains "sync-skipped") "unchanged projection must skip remote sync"
 
   $dryResult = (& $Runner -Config $configPath -DryRun) | ConvertFrom-Json
   $dryRun = Get-Content -Raw -LiteralPath $dryResult.Run | ConvertFrom-Json
@@ -81,6 +100,8 @@ try {
   $errorLog = Get-ChildItem -LiteralPath (Join-Path $errorRoot "runs") -Filter "runner-*.json" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
   $errorRun = Get-Content -Raw -LiteralPath $errorLog.FullName | ConvertFrom-Json
   Assert-True ($errorRun.Status -eq "error") "nonzero child exit must be durably logged"
+  Assert-True ([string]$errorRun.Error -eq "sync failed with exit code 7.") "runner error must retain only the safe step label and exit code"
+  Assert-True (($errorRun | ConvertTo-Json -Depth 12) -notmatch "simulated failure|private prompt|private answer|error-state") "runner error evidence must not retain child output or local paths"
 
   $slowRoot = Join-Path $temporary "slow-state"
   $slowPath = Join-Path $temporary "slow.json"

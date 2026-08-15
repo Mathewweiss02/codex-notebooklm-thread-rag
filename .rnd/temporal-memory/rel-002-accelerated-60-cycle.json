@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "cycles": 60,
+  "successfulCycles": 60,
+  "changedCycles": 60,
+  "uniqueEventDigests": 60,
+  "recoveryPass": true,
+  "failClosedPass": true,
+  "stagingLeakCount": 0,
+  "finalEventCount": 1,
+  "finalQuarantineCount": 0
+}

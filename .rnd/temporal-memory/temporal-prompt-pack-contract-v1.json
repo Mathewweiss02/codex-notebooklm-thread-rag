@@ -1,0 +1,20 @@
+{
+  "contractVersion": "temporal-prompt-pack-v1",
+  "status": "accepted-for-development",
+  "questionIdentity": "stable caseId and one numbered question per case",
+  "answerShape": "exactly one Q heading per input question",
+  "citationRule": "marker-first mapping, then answer offsets only as fallback",
+  "scopeRule": "every returned source ID must be current and mapper-approved",
+  "failure": {
+    "missingHeading": "degraded",
+    "unmappedCitation": "degraded",
+    "outOfScopeCitation": "abstained",
+    "claimVerification": "local temporal verifier remains authoritative"
+  },
+  "liveGate": {
+    "packSizes": [1, 2, 4, 8],
+    "minimumDevelopmentCases": 16,
+    "holdout": "VAL-001 holdout is not used for prompt tuning",
+    "parallelism": "not implied; same-notebook concurrent asks remain forbidden"
+  }
+}

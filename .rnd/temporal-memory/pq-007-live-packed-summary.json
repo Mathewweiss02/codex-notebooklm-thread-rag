@@ -1,0 +1,70 @@
+{
+  "contractVersion": "temporal-packed-live-summary-v1",
+  "status": "experiment",
+  "sourceCoverage": {
+    "stateThreadCount": 145,
+    "mappedThreadCount": 145,
+    "mappedSourceCount": 147,
+    "incompleteThreadCount": 0
+  },
+  "cases": 8,
+  "rows": [
+    {
+      "packSize": 1,
+      "batches": 4,
+      "questions": 4,
+      "passedExpectation": 4,
+      "rawTop1": 4,
+      "hybridTop1": 4,
+      "headingsPresent": 4,
+      "totalElapsedMs": 199612,
+      "wallElapsedMs": 201123
+    },
+    {
+      "packSize": 2,
+      "batches": 2,
+      "questions": 4,
+      "passedExpectation": 4,
+      "rawTop1": 3,
+      "hybridTop1": 4,
+      "headingsPresent": 4,
+      "totalElapsedMs": 106841,
+      "wallElapsedMs": 108626
+    },
+    {
+      "packSize": 4,
+      "batches": 1,
+      "questions": 4,
+      "passedExpectation": 4,
+      "rawTop1": 4,
+      "hybridTop1": 4,
+      "headingsPresent": 4,
+      "unmappedReferences": 14,
+      "totalElapsedMs": 59476,
+      "localVerificationElapsedMs": 1918,
+      "wallElapsedMs": 61394,
+      "queriesPerMinute": 3.9092
+    },
+    {
+      "packSize": 8,
+      "batches": 1,
+      "questions": 8,
+      "passedExpectation": 7,
+      "rawTop1": 4,
+      "hybridTop1": 7,
+      "headingsPresent": 8,
+      "unmappedReferences": 18,
+      "totalElapsedMs": 72581,
+      "localVerificationElapsedMs": 3464,
+      "wallElapsedMs": 76045,
+      "queriesPerMinute": 6.3121
+    }
+  ],
+  "safety": {
+    "topology": "single disposable retrieval notebook with sequential remote asks",
+    "persistentChatTouched": false,
+    "isolatedReplicasCreated": false,
+    "sameNotebookParallelismAttempted": false
+  },
+  "decision": "Pack sizes 1/2/4 are promising but under-sampled; pack size 8 is not promoted because hybrid expectation was 7/8. No live parallel-concurrency claim is made."
+}

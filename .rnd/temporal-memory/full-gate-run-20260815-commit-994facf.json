@@ -1,0 +1,27 @@
+{
+  "contractVersion": "full-gate-run-v1",
+  "status": "passed",
+  "generatedAtUtc": "2026-08-15T02:20:07.0340526Z",
+  "commitSha": "994facfcc090115507bcbcd8018c2152e19298c4",
+  "pythonRuntime": "pinned-notebooklm-py-0.8.0",
+  "nodeRuntime": "node",
+  "nodeTests": 48,
+  "pythonTests": 213,
+  "pythonScripts": 38,
+  "testFiles": 7,
+  "runAllExit": 0,
+  "steps": [
+    "node-tests",
+    "python-tests",
+    "python-compile",
+    "powershell-parse",
+    "runner-integration",
+    "doctor-integration",
+    "profile-auth-integration",
+    "profile-acl-integration",
+    "skill-install-integration",
+    "config-integration",
+    "task-scheduler-integration"
+  ],
+  "note": "Exact scheduler-health fix commit passed the complete local repository gate; live NotebookLM quality and release gates remain separate."
+}

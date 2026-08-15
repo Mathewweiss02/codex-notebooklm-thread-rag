@@ -5,6 +5,17 @@ param(
 $ErrorActionPreference = "Stop"
 function Assert-True { param([bool] $Condition, [string] $Message) if (-not $Condition) { throw "Assertion failed: $Message" } }
 
+$doctorLib = Join-Path (Split-Path -Parent $Doctor) "thread_rag_doctor_lib.ps1"
+. $doctorLib
+$ready = Test-ScheduledTaskHealth -State "Ready" -LastTaskResult 0
+$running = Test-ScheduledTaskHealth -State "Running" -LastTaskResult 267009
+$disabled = Test-ScheduledTaskHealth -State "Disabled" -LastTaskResult 0
+$failed = Test-ScheduledTaskHealth -State "Ready" -LastTaskResult 1
+Assert-True $ready.Passed "successful ready task must pass"
+Assert-True $running.Passed -and $running.Active "currently running task result must not be a false failure"
+Assert-True (-not $disabled.Passed) "disabled task must fail"
+Assert-True (-not $failed.Passed) "failed ready task must fail"
+
 $temporary = Join-Path ([System.IO.Path]::GetTempPath()) ("thread-rag-doctor-test-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $temporary -Force | Out-Null
 try {

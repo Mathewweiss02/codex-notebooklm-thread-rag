@@ -1,0 +1,25 @@
+{
+  "contractVersion": "temporal-release-monitor-v1",
+  "status": "fail",
+  "minimumHours": 168.0,
+  "observedHours": 4.04,
+  "observationStart": "2026-08-15T02:44:07.084458Z",
+  "observationEnd": "2026-08-15T06:46:30.179969Z",
+  "evaluatedAt": "2026-08-15T06:46:44.601779Z",
+  "eligibleRunCount": 19,
+  "failedRunCount": 1,
+  "malformedRunCount": 0,
+  "skippedNonproductionRunCount": 0,
+  "missingStepRunCount": 1,
+  "missingResourceRunCount": 0,
+  "resourceRequired": true,
+  "maxGapHours": 0.268,
+  "maxGapHoursAllowed": 2.0,
+  "requiredSteps": [
+    "projection",
+    "retention",
+    "sync",
+    "temporal-refresh"
+  ],
+  "sourceKind": "protected-soak-evidence"
+}

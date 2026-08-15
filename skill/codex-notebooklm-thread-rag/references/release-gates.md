@@ -37,10 +37,19 @@ Require all applicable gates before expanding a pilot or publishing a release.
 
 ## Retrieval
 
-- Use at least 20 varied real tasks: misleading titles, forks, active/archive copies, giant/split histories, and related-topic decoys.
+- Keep the legacy 20+ case suite as frozen regression evidence; do not treat saturation as proof of generalization.
+- Use a versioned development suite and a separately authored sealed holdout with at least 40 cases, including at least 8 negative/no-match cases plus misleading titles, forks, active/archive copies, giant/split histories, sibling-equivalent labels, and related-topic decoys.
+- Hash the normalized suite, query surface, labels, and corpus fingerprint before execution. Preserve raw, hybrid, and score reports in immutable evidence outside operational retention.
 - The benchmark command explicitly confirms that its target is a disposable retrieval notebook; persistent CLI chat notebooks are separate.
-- Require 100% semantic candidate recall on the pilot and record raw citation-order Top-1 separately.
-- Require at least 95% end-to-end hybrid Top-1 after candidate-only local reranking.
+- Record raw NotebookLM candidate recall separately from any local or union candidate surface; do not rename union recall as semantic recall.
+- Require 100% semantic candidate recall and record raw citation-order Top-1 separately.
+- Require at least 97.5% end-to-end hybrid Top-1 after candidate-only local reranking, at most 5% false positives, and at most 5% false negatives.
+- Require three consecutive frozen threshold-passing runs and a fresh unspent holdout after the final retrieval-policy change.
+- A score is not sufficient evidence by itself: retain a case-level result map and a causal analysis for every miss and every claimed improvement. The analysis must distinguish transport/rate-limit failure, source-scope failure, semantic candidate omission, raw citation-order error, local-reranker error, abstention, and true no-match behavior.
+- The proposed explanation must agree with independent evidence: replay or counterfactual checks must test at least one prediction made by the explanation, and any contradiction keeps the run non-promotable. Do not mark a benchmark pass when the result is favorable but the mechanism is unknown, circular, or explained only by the benchmark's own aggregate.
+- Before promoting a regression or development run, retain a `thread-rag-causal-evidence-v1` packet and audit it with `scripts/thread_rag_benchmark_causal_audit.py`. The audit checks that every case matches the scorer's observed outcome, the cause class is compatible with the observed candidate/top-1 behavior, all misses have an independent replay or counterfactual, and every referenced artifact has a matching SHA-256. Public causal packets must not contain sealed holdout case details.
+- The final promotion step must run `scripts/thread_rag_benchmark_promote.py`, which requires all four scorer gates to be explicitly true and a passing causal audit bound to the exact score-report digest. A favorable aggregate without an independently supported explanation is not promotable.
+- Suppress holdout case details. Aggregate holdout evidence may guide the next development stratum, but the exposed holdout is then spent and cannot prove the final release.
 - Verify the winning candidate locally; maintain deterministic fallback and exact-title/near-duplicate regressions.
 
 ## Full corpus and multiple devices

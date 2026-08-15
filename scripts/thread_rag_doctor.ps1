@@ -8,6 +8,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 . (Join-Path $PSScriptRoot "notebooklm_auth_helpers.ps1")
+. (Join-Path $PSScriptRoot "thread_rag_doctor_lib.ps1")
 $configPath = (Resolve-Path -LiteralPath $Config).Path
 $settings = Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
 $checks = @()
@@ -37,6 +38,42 @@ if (Test-Path -LiteralPath $statePath) {
   $state = Get-Content -Raw -LiteralPath $statePath | ConvertFrom-Json
   Add-Check "projection-policy" ([string]$state.policyVersion -eq "visible-messages-secrets-redacted-v4") ([string]$state.policyVersion)
   Add-Check "projection-threads" (@($state.threads.PSObject.Properties).Count -gt 0) ("count={0}" -f @($state.threads.PSObject.Properties).Count)
+}
+
+if ($settings.TemporalRefresh -eq $true) {
+  foreach ($name in @("TemporalRoot", "TemporalRefreshScript", "TemporalManifestScript", "TemporalExtractScript", "TemporalIndexScript")) {
+    Add-Check "temporal-config-$name" ([bool]$settings.$name) $(if ($settings.$name) { "present" } else { "missing" })
+  }
+  foreach ($name in @("TemporalRefreshScript", "TemporalManifestScript", "TemporalExtractScript", "TemporalIndexScript")) {
+    $value = [string]$settings.$name
+    Add-Check "temporal-path-$name" (Test-Path -LiteralPath $value) $value
+  }
+  $temporalRoot = [string]$settings.TemporalRoot
+  $temporalDb = Join-Path $temporalRoot "temporal.sqlite3"
+  $temporalHandoff = Join-Path $temporalRoot "temporal-events.ndjson"
+  Add-Check "temporal-handoff" (Test-Path -LiteralPath $temporalHandoff) $temporalHandoff
+  Add-Check "temporal-index-file" (Test-Path -LiteralPath $temporalDb) $temporalDb
+  if ((Test-Path -LiteralPath $temporalDb) -and (Test-Path -LiteralPath ([string]$settings.TemporalIndexScript))) {
+    try {
+      $temporalOutput = @(& ([string]$settings.PythonPath) ([string]$settings.TemporalIndexScript) --db $temporalDb --verify 2>$null)
+      $temporalExit = $LASTEXITCODE
+      $temporalPayload = (($temporalOutput | ForEach-Object { [string]$_ }) -join "`n" | ConvertFrom-Json)
+      $temporalValid = $temporalExit -eq 0 -and [string]$temporalPayload.eventDigest -and [int]$temporalPayload.eventCount -ge 0
+      Add-Check "temporal-index-integrity" $temporalValid ("exit={0}; events={1}; quarantines={2}" -f $temporalExit, $temporalPayload.eventCount, $temporalPayload.quarantineCount)
+      if ($temporalValid) {
+        try {
+          $temporalApplied = [DateTimeOffset]::Parse([string]$temporalPayload.lastAppliedAt).ToUniversalTime()
+          $temporalMaxAge = if ($null -ne $settings.TemporalMaxAgeMinutes) { [int]$settings.TemporalMaxAgeMinutes } else { 90 }
+          $temporalAge = ([DateTimeOffset]::UtcNow - $temporalApplied).TotalMinutes
+          Add-Check "temporal-index-freshness" ($temporalAge -ge -5 -and $temporalAge -le $temporalMaxAge) ("at={0}; ageMinutes={1:N1}; maxMinutes={2}" -f $temporalApplied.ToString("o"), $temporalAge, $temporalMaxAge)
+        } catch {
+          Add-Check "temporal-index-freshness" $false ("invalid timestamp: {0}" -f [string]$temporalPayload.lastAppliedAt)
+        }
+      }
+    } catch {
+      Add-Check "temporal-index-integrity" $false "verification command failed"
+    }
+  }
 }
 
 $runnerStatePath = Join-Path ([string]$settings.ProjectionRoot) "runner_state.json"
@@ -71,8 +108,13 @@ if ($TaskName) {
   try {
     $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
     $taskInfo = Get-ScheduledTaskInfo -TaskName $TaskName -ErrorAction Stop
-    $schedulerHealthy = $taskInfo.LastTaskResult -eq 0 -and [string]$task.State -ne "Disabled"
-    Add-Check "scheduled-task" $schedulerHealthy ("name={0}; state={1}; lastResult={2}; next={3}" -f $TaskName, $task.State, $taskInfo.LastTaskResult, $taskInfo.NextRunTime)
+    $schedulerHealth = Test-ScheduledTaskHealth -State ([string]$task.State) -LastTaskResult ([int]$taskInfo.LastTaskResult)
+    Add-Check "scheduled-task" $schedulerHealth.Passed ("name={0}; state={1}; lastResult={2}; active={3}; next={4}" -f $TaskName, $task.State, $taskInfo.LastTaskResult, $schedulerHealth.Active, $taskInfo.NextRunTime)
+    $matchingAction = @($task.Actions | Where-Object { [string]$_.Arguments -like "*$configPath*" } | Select-Object -First 1)
+    $actionExecutable = if ($matchingAction.Count) { [string]$matchingAction[0].Execute } else { "" }
+    $actionArguments = if ($matchingAction.Count) { [string]$matchingAction[0].Arguments } else { "" }
+    $consoleFree = $matchingAction.Count -eq 1 -and (Split-Path -Leaf $actionExecutable) -like "pythonw*.exe" -and $actionArguments -like "*notebooklm_thread_sync_hidden.pyw*"
+    Add-Check "scheduled-task-console-free" $consoleFree ("execute={0}; launcher={1}" -f $actionExecutable, $(if ($actionArguments -like "*notebooklm_thread_sync_hidden.pyw*") { "present" } else { "missing" }))
   } catch {
     Add-Check "scheduled-task" $false $_.Exception.Message
   }

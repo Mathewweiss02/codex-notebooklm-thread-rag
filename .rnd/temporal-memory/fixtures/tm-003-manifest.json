@@ -1,0 +1,11 @@
+{
+  "threads": [
+    {"id": "fixture-boundary", "path": "tm-003-boundary.jsonl", "updatedAt": 1786507200, "archived": false, "source": "appServer"},
+    {"id": "fixture-duplicate", "path": "tm-003-duplicate-archive.jsonl", "updatedAt": 1786507200, "archived": true, "source": "appServer"},
+    {"id": "fixture-duplicate", "path": "tm-003-duplicate-active.jsonl", "updatedAt": 1786507200, "archived": false, "source": "appServer"},
+    {"id": "fixture-fall", "path": "tm-003-fall.jsonl", "updatedAt": 1794000000, "archived": false, "source": "appServer"},
+    {"id": "fixture-hidden-invalid", "path": "tm-003-hidden-invalid.jsonl", "updatedAt": 1786507200, "archived": false, "source": "appServer"},
+    {"id": "fixture-resumed", "path": "tm-003-resumed.jsonl", "updatedAt": 1786507200, "archived": false, "source": "appServer"},
+    {"id": "fixture-spring", "path": "tm-003-spring.jsonl", "updatedAt": 1773000000, "archived": false, "source": "appServer"}
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "contract": "temporal-skill-routing-v1",
+  "broadTemporalSignals": [
+    "what was I doing yesterday",
+    "what did I work on last week",
+    "when did I ask",
+    "what changed between",
+    "show me today",
+    "load context from"
+  ],
+  "routes": {
+    "period-resolution": "thread_temporal_cli.py when",
+    "broad-recap": "thread_temporal_cli.py recap",
+    "hierarchical-context": "thread_temporal_cli.py context",
+    "period-find": "thread_temporal_cli.py find",
+    "period-compare": "thread_temporal_cli.py compare",
+    "vague-semantic-memory": "notebooklm_thread_search.py"
+  },
+  "coldStartCases": [
+    {"prompt": "What was I doing yesterday?", "expectedRoute": "thread_temporal_cli.py recap"},
+    {"prompt": "When did I ask for the refactor?", "expectedRoute": "thread_temporal_cli.py find"},
+    {"prompt": "Load the deep context from last week", "expectedRoute": "thread_temporal_cli.py context"},
+    {"prompt": "What changed between Tuesday and Wednesday?", "expectedRoute": "thread_temporal_cli.py compare"},
+    {"prompt": "What does yesterday mean in my timezone?", "expectedRoute": "thread_temporal_cli.py when"},
+    {"prompt": "I vaguely remember a notebook source about a refactor", "expectedRoute": "notebooklm_thread_search.py"}
+  ],
+  "invariants": [
+    "broad temporal requests route to local temporal CLI before semantic search",
+    "missing or stale local index is reported explicitly",
+    "NotebookLM is not the authority for exact period membership",
+    "persistent chat notebook is never reset by temporal automation"
+  ]
+}

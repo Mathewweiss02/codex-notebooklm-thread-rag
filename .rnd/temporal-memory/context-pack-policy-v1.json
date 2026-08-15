@@ -1,0 +1,19 @@
+{
+  "contract": "temporal-context-pack-v1",
+  "status": "accepted-for-implementation",
+  "selectionOrder": "complete-half-open-temporal-window-before-segmentation-or-ranking",
+  "segmentationPolicy": "activity-segmentation-v1",
+  "timezoneProvider": "node-intl-icu",
+  "budgets": {
+    "brief": {"maxMessages": 48, "maxChars": 16000},
+    "standard": {"maxMessages": 256, "maxChars": 100000},
+    "deep": {"maxMessages": 2000, "maxChars": 500000}
+  },
+  "allocation": "round-robin across deterministic activity segments, then chronological output",
+  "omissions": "every omitted event is counted and retained as a segment/day drill-down identity",
+  "drillDown": "segment identity is stable from thread ID and first full-history event ID",
+  "fullHistoryBoundary": "load selected threads beyond the requested period to preserve cross-boundary activity identity",
+  "remoteSynthesis": "not performed by the context packer",
+  "claims": "no generated factual summary; messages and provenance are evidence only",
+  "recalibration": "change the policy version and rerun context, benchmark, and release evidence"
+}

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "contractVersion": "temporal-prompt-pack-v1",
+  "suiteId": "temporal-pack-development-v1",
+  "cases": [
+    {"caseId":"pack-001","query":"What did I do yesterday?","class":"broad-temporal"},
+    {"caseId":"pack-002","query":"What was I working on last week?","class":"broad-temporal"},
+    {"caseId":"pack-003","query":"When did I ask for the refactor?","class":"exact-when"},
+    {"caseId":"pack-004","query":"What changed between Tuesday and Wednesday?","class":"period-compare"},
+    {"caseId":"pack-005","query":"Which decisions were made in the selected period?","class":"decision-synthesis"},
+    {"caseId":"pack-006","query":"Which work remained unresolved?","class":"unresolved-synthesis"},
+    {"caseId":"pack-007","query":"Which artifacts or files were mentioned?","class":"artifact-synthesis"},
+    {"caseId":"pack-008","query":"Did I revisit an older thread?","class":"resumed-thread"},
+    {"caseId":"pack-009","query":"Summarize the main workstream without merging separate activities.","class":"activity-boundary"},
+    {"caseId":"pack-010","query":"List exact timestamps only where the selected source provides them.","class":"timestamp"},
+    {"caseId":"pack-011","query":"What did I ask about NotebookLM?","class":"topic"},
+    {"caseId":"pack-012","query":"What should be continued next?","class":"follow-up"},
+    {"caseId":"pack-013","query":"Which message belongs to the earliest activity?","class":"activity-order"},
+    {"caseId":"pack-014","query":"Which activity happened latest in the period?","class":"activity-order"},
+    {"caseId":"pack-015","query":"Are there any no-evidence questions in this set?","class":"negative-control"},
+    {"caseId":"pack-016","query":"Give a concise evidence-backed recap with one section per question.","class":"format-control"}
+  ]
+}

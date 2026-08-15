@@ -1,0 +1,88 @@
+{
+  "contractVersion": "temporal-scale-benchmark-v1",
+  "status": "pass",
+  "multipliers": [
+    1,
+    2,
+    5,
+    10
+  ],
+  "baseThreads": 12,
+  "eventsPerThread": 8,
+  "repeats": 3,
+  "rows": [
+    {
+      "multiplier": 1,
+      "threadCount": 12,
+      "eventCount": 96,
+      "indexedEventCount": 96,
+      "oracleEventCount": 96,
+      "queryResultCounts": [
+        96,
+        96,
+        96
+      ],
+      "correctness": true,
+      "buildMs": 147.498,
+      "queryP50Ms": 2.418,
+      "queryP95Ms": 4.824,
+      "peakPythonAllocBytes": 209160,
+      "resultDigest": "d80407c27252d536028196e31e2fdb9ff99c6c58f9a9ed07df35028277360541"
+    },
+    {
+      "multiplier": 2,
+      "threadCount": 24,
+      "eventCount": 192,
+      "indexedEventCount": 192,
+      "oracleEventCount": 192,
+      "queryResultCounts": [
+        192,
+        192,
+        192
+      ],
+      "correctness": true,
+      "buildMs": 185.066,
+      "queryP50Ms": 3.155,
+      "queryP95Ms": 5.752,
+      "peakPythonAllocBytes": 376540,
+      "resultDigest": "3273a1c317428fb3118c6dfbc3d299848a854e6322817b57c2c197a16cd79633"
+    },
+    {
+      "multiplier": 5,
+      "threadCount": 60,
+      "eventCount": 480,
+      "indexedEventCount": 480,
+      "oracleEventCount": 480,
+      "queryResultCounts": [
+        480,
+        480,
+        480
+      ],
+      "correctness": true,
+      "buildMs": 280.224,
+      "queryP50Ms": 5.577,
+      "queryP95Ms": 7.726,
+      "peakPythonAllocBytes": 925120,
+      "resultDigest": "b554b4e412958469c4431ffb0bc471a82fba7602477d9866eaa7199a6b4530c4"
+    },
+    {
+      "multiplier": 10,
+      "threadCount": 120,
+      "eventCount": 960,
+      "indexedEventCount": 960,
+      "oracleEventCount": 960,
+      "queryResultCounts": [
+        960,
+        960,
+        960
+      ],
+      "correctness": true,
+      "buildMs": 450.679,
+      "queryP50Ms": 10.636,
+      "queryP95Ms": 11.949,
+      "peakPythonAllocBytes": 1843335,
+      "resultDigest": "ff5f69dcf9aff765561bf963cfa4835f6c32bdd5d3e598c910f03202a197a21e"
+    }
+  ],
+  "correctness": true
+}

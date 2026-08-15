@@ -32,7 +32,18 @@ jobs:
         run: uv sync --locked --group audit
       - name: Run offline test suite
         shell: pwsh
-        run: ./tests/run_all.ps1 -PythonPath ./.venv/Scripts/python.exe -NodePath node
+        run: ./tests/run_all.ps1 -PythonPath ./.venv/Scripts/python.exe -NodePath node -ReportPath .ci/full-gate-run.json
+      - name: Verify full-gate report revision
+        shell: pwsh
+        env:
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          $report = Get-Content -Raw -LiteralPath .ci/full-gate-run.json | ConvertFrom-Json
+          if ([string]$report.Status -ne "passed") { throw "full-gate report did not pass" }
+          if ([string]$report.CommitSha -ne $env:EXPECTED_COMMIT) {
+            throw "full-gate report commit does not match the checked-out revision"
+          }
+          Write-Output ("full-gate revision verified: " + $report.CommitSha)
       - name: Export locked runtime graph
         run: uv --quiet export --locked --no-default-groups --no-emit-project --format requirements.txt --output-file audit-requirements.txt
       - name: Audit Python dependencies

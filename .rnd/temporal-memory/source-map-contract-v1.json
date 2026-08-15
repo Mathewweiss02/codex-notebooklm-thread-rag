@@ -1,0 +1,31 @@
+{
+  "contract": "temporal-source-map-v1",
+  "status": "accepted-for-implementation",
+  "input": "selected thread IDs or a temporal context-pack selection",
+  "config": {
+    "role": "retrieval only",
+    "persistentChatRole": "never selected",
+    "disposableSearchChat": true,
+    "policyVersion": "visible-messages-secrets-redacted-v4"
+  },
+  "currentPart": {
+    "uploadStatus": ["ready", "ready-old-retained"],
+    "partStatus": "ready",
+    "revision": "uploadRevision",
+    "required": ["threadId", "part", "totalParts", "sourceId", "title", "sourceSha256"]
+  },
+  "lineage": {
+    "use": "current parts only",
+    "previousSources": "never sent to remote synthesis",
+    "duplicateSourceId": "fail closed",
+    "duplicateTitle": "fail closed"
+  },
+  "drift": {
+    "missingLocalProjection": "degraded",
+    "localDigestChange": "degraded",
+    "missingLiveSource": "degraded",
+    "liveTitleMismatch": "degraded",
+    "liveBadStatus": "degraded",
+    "strictOption": "nonzero exit"
+  }
+}
