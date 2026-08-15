@@ -201,6 +201,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no live quality score was counted and persistent chat was not touched.
 - The post-cooldown smoke is sealed as execution-error evidence only; the live
   retrieval gate remains unmeasured rather than falsely scored.
+- The scheduler doctor now treats an explicitly active `Running`/`Queued` task
+  as healthy while still failing disabled, stale, or failed-ready tasks; direct
+  regression coverage and the full 48/213 repository gate pass on the fix.
 
 ## Certification principle
 
