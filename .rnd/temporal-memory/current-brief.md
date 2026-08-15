@@ -43,7 +43,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Latest evidence
 
 - The latest retrieval state contains 145 projected threads.
-- The full repository gate passed 48 Node tests and 214 Python tests, plus
+- The exact committed benchmark-hardening gate at `46c197d` passed 48 Node tests
+  and 219 Python tests, plus
   compilation, PowerShell parsing, and operational integrations.
 - Temporal validation passed 19/19 development and 10/10 holdout cases; the
   holdout is still local and must be externalized before final release.
@@ -57,16 +58,18 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - PQ-002 rejected same-notebook `--new` fan-out because it deletes the current
   server-side conversation. The pinned CLI is v0.8.0; an older v0.6.0 binary
   remains earlier on PATH and is not used by configured profiles.
-- PQ-003 modeled replica capacity; no live replicas were created.
+- PQ-003 modeled replica capacity for pools 1/2/4/8/16/32/50; all fit the
+  configured capacity model, but no live replicas were created.
 - REL-001 initially found a stale handoff representing 140 threads and 15,990
   events while the current projection state had 144 threads and about 16,050
   events.
-- The wall-clock release monitor is active from the post-REL-001 boundary: 10
-  eligible runs, 0 failed or malformed runs, and 2.249 observed hours. The
-  seven-day gate is correctly still open.
+- The wall-clock release monitor is active from the protected-evidence reset
+  boundary at 2026-08-15T02:44:07Z: 4 eligible runs, 0 failed or malformed
+  runs, and 0.541 observed hours of the required 168. The seven-day gate is
+  correctly still open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
-  refresh completed successfully with 16,597 temporal events, 145 path-free
+  refresh completed successfully with 16,671 temporal events, 145 path-free
   thread metadata records, zero quarantines, nine
   allowed non-visible overflow lines, and matching index/handoff digests.
 - Schema version 1 was migrated in place to schema version 2 and the migration
@@ -78,7 +81,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 214 Python tests, plus
+- The full repository gate now passes 48 Node tests and 219 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -112,7 +115,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now reads the protected append-only
   evidence surface. The boundary was reset after operational retention removed
-  older reports; it currently has 2 eligible normal runs, 0.04 observed hours,
+  older reports; it currently has 4 eligible normal runs, 0.541 observed hours,
   zero failures, and zero missing-resource reports. The 168-hour gate is open.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
   84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
@@ -186,10 +189,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `791dfbd` currently passes 48 Node tests,
-  214 Python tests, compile checks, and all 11 integration steps; the exact
+- The committed repository gate at `46c197d` passes 48 Node tests, 219 Python
+  tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
 
@@ -198,7 +201,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The current local candidate baseline recovered all 32/32 development positives
   at candidate depth 80 on the 145-thread projection with zero local-search
   errors. This is local candidate evidence, not remote semantic or hybrid proof.
-- The latest one-case source-scoped smoke was rate-limited and failed closed;
+- The latest one-case source-scoped smoke used transport retries set to zero,
+  was rate-limited, and failed closed after one classified event;
   no live quality score was counted and persistent chat was not touched.
 - The post-cooldown smoke is sealed as execution-error evidence only; the live
   retrieval gate remains unmeasured rather than falsely scored.
