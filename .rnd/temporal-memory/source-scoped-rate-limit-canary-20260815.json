@@ -1,0 +1,25 @@
+{
+  "contractVersion": "source-scoped-rate-limit-canary-v1",
+  "auditedCommit": "646199a0c051d55140b9660f50b1ed0007dc5d15",
+  "transportMaxRetries": 0,
+  "caseCount": 1,
+  "completedCaseCount": 1,
+  "status": "execution-error-no-quality-evidence",
+  "failureClass": "rate-limit-circuit-breaker",
+  "rateLimitEvents": 1,
+  "candidateHits": 0,
+  "hybridTop1Hits": 0,
+  "scopeViolations": 0,
+  "persistentChatTouched": false,
+  "qualityCounted": false,
+  "causalAssessment": {
+    "cause": "NotebookLM returned a classified rate-limit response.",
+    "supportingSignals": [
+      "one rate-limit event",
+      "zero scope violations",
+      "zero persistent-chat mutation",
+      "zero quality cases counted"
+    ],
+    "interpretation": "This validates fail-closed throttle handling; it is not a retrieval-quality result."
+  }
+}

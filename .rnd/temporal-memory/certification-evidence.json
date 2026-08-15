@@ -1101,15 +1101,16 @@
       "resultDigest": "98d65718c7a8dd74da3eb51a57f852affb60944f69de05230fcbe0adb6b69301"
     },
     "PAR-019": {
-      "status": "covered",
+      "status": "pass",
       "scenario": "Rate-limit burst",
       "testLevel": "Mock + canary",
       "evidence": [
-        ".rnd/temporal-memory/local-certification-run.json"
+        ".rnd/temporal-memory/local-certification-run.json",
+        ".rnd/temporal-memory/source-scoped-rate-limit-canary-20260815.json"
       ],
-      "notes": "Deterministic adaptive rate-limit/backoff mock passes; live rate-limit canary remains required before promotion.",
-      "executedAt": "2026-08-14T13:03:08Z",
-      "resultDigest": "3379722a4601a195a868807380386323c86921378e9360b0b1e9b9d3ae6bffa8"
+      "notes": "Mock adaptive-limiter tests plus live one-case canary passed the operational rate-limit contract: bounded local backoff is proven; the live 429 path failed closed with one classified event, zero scope violations, and no persistent-chat mutation. No retrieval-quality score was counted.",
+      "executedAt": "2026-08-15T05:45:00Z",
+      "resultDigest": "41cb7799fb71bc0179868c4d99cf8fbbbae4b3e981b036c71a501b3b319cd470"
     },
     "PAR-020": {
       "status": "pass",
@@ -1533,5 +1534,5 @@
       "resultDigest": "0d22e49c27d7e1e601fcdd64083c66c3890615489c3e1904281ddb00b838abb0"
     }
   },
-  "updatedAt": "2026-08-15T05:35:23Z"
+  "updatedAt": "2026-08-15T05:50:56Z"
 }
