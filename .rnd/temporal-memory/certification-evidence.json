@@ -1522,12 +1522,13 @@
         ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-f462a4b.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json"
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-791dfbd.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json"
       ],
-      "notes": "Current committed revision 791dfbd passed the full repository gate with 48 Node tests, 214 Python tests, compile and integration checks after protecting aggregate soak evidence from retention and removing local source paths from the monitor report.",
-      "executedAt": "2026-08-15T02:52:26.1766010Z",
-      "resultDigest": "BA18C7FB97C7FA480C47D10C5D54BF4F743027B332222FA6DC8BED06F9B5D58E"
+      "notes": "Current committed revision 46c197d passed the full repository gate with 48 Node tests, 219 Python tests, compile and integration checks after making benchmark transport retries explicit and recording the retry budget in reports.",
+      "executedAt": "2026-08-15T03:18:43.9155265Z",
+      "resultDigest": "44BA1FBA52F1B7C556B281907BD4AAF6291EC54763E07DD3AE360417CD31FB52"
     }
   },
-  "updatedAt": "2026-08-15T03:11:21Z"
+  "updatedAt": "2026-08-15T03:18:43Z"
 }
