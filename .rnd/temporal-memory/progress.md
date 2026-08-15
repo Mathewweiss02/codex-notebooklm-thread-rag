@@ -326,3 +326,7 @@ explicit replica approval.
 - NotebookLM live source-scoped retrieval is still rate-limited. No new
   quality run, holdout, replica, or concurrency result is being counted until
   a one-case cooldown smoke succeeds.
+- A bounded tracked-file and reachable-history credential scan at `f005ccb`
+  found zero non-fixture token, private-key, bearer-token, or credential
+  assignment matches across 272 tracked files and zero matching history
+  commits. This is retained as scoped evidence, not the final privacy audit.
