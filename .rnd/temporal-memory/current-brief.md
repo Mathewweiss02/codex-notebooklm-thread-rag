@@ -195,6 +195,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   `.rnd/temporal-memory/full-gate-run-20260815-commit-46c197d.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
+- GitHub draft PR #3 remains at the older remote head and has only its
+  historical Windows check; the current branch has not been pushed or merged
+  because the live retrieval, soak, concurrency, and final CI gates remain
+  open.
 
 ## Current continuation checkpoint
 
