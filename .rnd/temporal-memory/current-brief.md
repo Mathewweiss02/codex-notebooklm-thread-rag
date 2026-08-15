@@ -178,7 +178,9 @@ mapping. Treat packing and parallelism as separate experimental branches.
   live run was invalidated by NotebookLM rate limiting across all semantic
   attempts; the benchmark now records that as an execution error and applies
   bounded rate-limit backoff. A post-cooldown smoke is still rate-limited, so
-  no adaptive route pass has been counted.
+  no adaptive route pass has been counted. The benchmark now stops on a
+  terminal rate-limit case and scores sealed aggregate reports from in-memory
+  records before hiding per-case details.
 - The committed repository gate at `df7af8e` currently passes 48 Node tests,
   210 Python tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in

@@ -214,6 +214,13 @@ The live benchmark stores hashes, ranks, source IDs, and task IDs—not answer t
 
 Private benchmark suites support `match` and `no_match` expectations, acceptable sibling IDs, development/holdout splits, corpus fingerprints, and separate query/label digests. Use `thread_rag_benchmark_audit.py` to seal a frozen suite, `thread_rag_benchmark_score.py` for holdout-safe scoring, and `thread_rag_benchmark_archive.py` to preserve immutable evidence outside operational retention. Private suites, seals, labels, queries, IDs, and reports are gitignored.
 
+The source-scoped development benchmark is rate-limit circuit-breaker guarded:
+after a terminal classified rate-limit case it stops the run and records an
+incomplete aggregate instead of continuing to spend requests during cooldown.
+Holdout aggregate-only scoring is computed from in-memory records before
+per-case results are sealed away, so hidden details never erase latency, error,
+scope, or completion gates.
+
 Require 100% semantic candidate recall, at least 97.5% hybrid Top-1, at most 5% false-positive and false-negative rates, and three consecutive frozen runs. Do not tune on holdout case details or relabel hard cases after scoring.
 
 The experimental `notebooklm_thread_batch_benchmark.py` can measure 2/4/8 independently numbered questions in one disposable ask. It maps citations to each answer section, reranks each section locally, and stores no answer text. Do not treat prompt packing as production-ready from a small smoke test, and do not race concurrent null-conversation asks against one notebook: upstream intentionally serializes those asks and separate processes can race the server's mutable current conversation.

@@ -58,3 +58,64 @@ class SourceScopedBenchmarkTests(unittest.TestCase):
     def test_rate_limit_classifier_is_specific_to_pinned_chat_error(self):
         self.assertTrue(benchmark.is_rate_limited_error(benchmark.ChatError("rate limited")))
         self.assertFalse(benchmark.is_rate_limited_error(RuntimeError("rate limited")))
+
+    def test_rate_limit_circuit_breaker_requires_terminal_error(self):
+        self.assertTrue(benchmark.should_abort_rate_limit({
+            "error": "all semantic attempts failed",
+            "attempts": [{"kind": "rate-limit"}],
+        }))
+        self.assertFalse(benchmark.should_abort_rate_limit({
+            "attempts": [{"kind": "rate-limit"}],
+        }))
+        self.assertFalse(benchmark.should_abort_rate_limit({
+            "error": "other failure",
+            "attempts": [{"kind": "transport"}],
+        }))
+
+    def test_summary_scores_sealed_records_before_hiding_case_details(self):
+        records = [
+            {
+                "expectation": "match",
+                "remoteCandidateHit": True,
+                "hybridTop1": True,
+                "hybridAbstained": False,
+                "sourceScopeValid": True,
+                "elapsedMs": 120.5,
+                "attempts": [{"referenceCount": 2}],
+            },
+            {
+                "expectation": "no_match",
+                "remoteCandidateHit": False,
+                "hybridTop1": False,
+                "hybridAbstained": True,
+                "sourceScopeValid": True,
+                "elapsedMs": 80.25,
+                "attempts": [{"referenceCount": 0}],
+            },
+        ]
+        summary, gates = benchmark.summarize_results(records, expected_case_count=2, threshold=0.975)
+        self.assertEqual(summary["completedCases"], 2)
+        self.assertEqual(summary["latencyMs"]["count"], 2)
+        self.assertEqual(summary["semanticCandidateRecall"]["rate"], 1.0)
+        self.assertEqual(summary["hybridTop1"]["rate"], 1.0)
+        self.assertTrue(all(gates.values()))
+
+    def test_summary_fails_closed_for_rate_limit_partial_run(self):
+        summary, gates = benchmark.summarize_results(
+            [{
+                "expectation": "match",
+                "remoteCandidateHit": False,
+                "hybridTop1": False,
+                "hybridAbstained": True,
+                "sourceScopeValid": True,
+                "elapsedMs": 10.0,
+                "error": "all semantic attempts failed",
+                "attempts": [{"kind": "rate-limit", "error": "redacted"}],
+            }],
+            expected_case_count=40,
+            threshold=0.975,
+        )
+        self.assertEqual(summary["rateLimitEvents"], 1)
+        self.assertFalse(gates["complete"])
+        self.assertFalse(gates["candidateRecall100"])
+        self.assertFalse(gates["errors"])

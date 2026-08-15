@@ -226,3 +226,16 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   cooldown smoke must pass before another 40-case run is counted; then three
   consecutive frozen development passes and a fresh sealed holdout remain
   required.
+
+## Benchmark safety and sealed aggregation - 2026-08-14
+
+- The source-scoped benchmark now treats a failed case containing a classified
+  rate-limit attempt as a circuit-breaker event: it stops the remaining cases,
+  records `aborted` and `abortReason`, and never spends the rest of a run on
+  requests that are already known to be throttled.
+- Benchmark gates now score the in-memory records before the aggregate-only
+  report surface is sealed. This preserves latency, error, scope, and
+  rate-limit counts without writing per-case holdout details, and an aborted
+  partial run cannot pass because hidden case records were omitted.
+- The new behavior is covered by deterministic unit tests. No live quality
+  score changed, and the rate-limited cooldown smoke remains invalid evidence.

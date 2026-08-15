@@ -46,6 +46,13 @@ def is_rate_limited_error(error: BaseException) -> bool:
     return isinstance(error, ChatError) and "rate limited" in str(error).lower()
 
 
+def should_abort_rate_limit(record: dict[str, Any]) -> bool:
+    """Stop a benchmark after a terminal rate-limit case, before more asks."""
+    return bool(record.get("error")) and any(
+        attempt.get("kind") == "rate-limit" for attempt in record.get("attempts") or []
+    )
+
+
 def now_iso() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
@@ -184,6 +191,58 @@ def percentile(values: list[float], fraction: float) -> float | None:
     return round(ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower), 3)
 
 
+def summarize_results(
+    result_records: list[dict[str, Any]],
+    *,
+    expected_case_count: int,
+    threshold: float,
+) -> tuple[dict[str, Any], dict[str, bool]]:
+    """Score the in-memory records, even when the report surface is sealed."""
+    positives = [item for item in result_records if item["expectation"] == "match"]
+    negatives = [item for item in result_records if item["expectation"] == "no_match"]
+    candidate_hits = sum(bool(item.get("remoteCandidateHit")) for item in positives)
+    hybrid_hits = sum(bool(item.get("hybridTop1")) for item in positives)
+    false_positives = sum(not bool(item.get("hybridAbstained")) for item in negatives)
+    false_negatives = len(positives) - candidate_hits
+    latencies = [
+        float(item["elapsedMs"])
+        for item in result_records
+        if isinstance(item.get("elapsedMs"), (int, float))
+    ]
+    candidate_rate = candidate_hits / len(positives) if positives else 0.0
+    hybrid_rate = hybrid_hits / len(positives) if positives else 0.0
+    false_positive_rate = false_positives / len(negatives) if negatives else 0.0
+    false_negative_rate = false_negatives / len(positives) if positives else 0.0
+    summary = {
+        "completedCases": len(result_records),
+        "positiveTotal": len(positives),
+        "negativeTotal": len(negatives),
+        "semanticCandidateRecall": {"successes": candidate_hits, "total": len(positives), "rate": round(candidate_rate, 4), "wilson95": wilson_interval(candidate_hits, len(positives))},
+        "hybridTop1": {"successes": hybrid_hits, "total": len(positives), "rate": round(hybrid_rate, 4), "wilson95": wilson_interval(hybrid_hits, len(positives))},
+        "falsePositiveRate": {"successes": false_positives, "total": len(negatives), "rate": round(false_positive_rate, 4), "wilson95": wilson_interval(false_positives, len(negatives))},
+        "falseNegativeRate": {"successes": false_negatives, "total": len(positives), "rate": round(false_negative_rate, 4), "wilson95": wilson_interval(false_negatives, len(positives))},
+        "latencyMs": {"count": len(latencies), "p50": percentile(latencies, 0.5), "p95": percentile(latencies, 0.95), "max": max(latencies) if latencies else None},
+        "scopeViolations": sum(not bool(item.get("sourceScopeValid")) for item in result_records),
+        "errors": sum(bool(item.get("error")) for item in result_records),
+        "rateLimitEvents": sum(
+            1
+            for item in result_records
+            for attempt in item.get("attempts") or []
+            if attempt.get("kind") == "rate-limit"
+        ),
+    }
+    gates = {
+        "complete": len(result_records) == expected_case_count,
+        "candidateRecall100": candidate_hits == len(positives) and len(result_records) == expected_case_count,
+        "hybridTop1": hybrid_rate >= threshold and len(result_records) == expected_case_count,
+        "falsePositiveRate": false_positive_rate <= 0.05,
+        "falseNegativeRate": false_negative_rate <= 0.05,
+        "scopeValid": all(bool(item.get("sourceScopeValid")) for item in result_records),
+        "errors": not any(item.get("error") for item in result_records),
+    }
+    return summary, gates
+
+
 def enforce_semantic_candidate_gate(
     by_thread: dict[str, dict[str, Any]],
     minimum: int,
@@ -221,6 +280,8 @@ async def main() -> int:
         "maxSemanticAttempts": args.max_semantic_attempts,
         "minSemanticCandidates": args.min_semantic_candidates,
         "caseCount": len(cases),
+        "completedCaseCount": 0,
+        "aborted": False,
         "results": [],
     }
     result_records: list[dict[str, Any]] = []
@@ -383,42 +444,23 @@ async def main() -> int:
                 record["error"] = summarize_error(error)
             record["elapsedMs"] = round((time.perf_counter() - started) * 1000, 3)
             result_records.append(record)
+            report["completedCaseCount"] = len(result_records)
             if not args.aggregate_only:
                 report["results"] = result_records
                 atomic_json(args.out.resolve(), report)
             passed = record["hybridTop1"] if case["expectation"] == "match" else record["hybridAbstained"]
             print(f"[{index}/{len(cases)}] {'PASS' if passed else 'FAIL'} {record['elapsedMs']}ms", flush=True)
-    positives = [item for item in result_records if item["expectation"] == "match"]
-    negatives = [item for item in result_records if item["expectation"] == "no_match"]
-    candidate_hits = sum(bool(item.get("remoteCandidateHit")) for item in positives)
-    hybrid_hits = sum(bool(item.get("hybridTop1")) for item in positives)
-    false_positives = sum(not bool(item.get("hybridAbstained")) for item in negatives)
-    false_negatives = len(positives) - candidate_hits
-    latencies = [float(item["elapsedMs"]) for item in report["results"] if isinstance(item.get("elapsedMs"), (int, float))]
-    candidate_rate = candidate_hits / len(positives) if positives else 0.0
-    hybrid_rate = hybrid_hits / len(positives) if positives else 0.0
-    false_positive_rate = false_positives / len(negatives) if negatives else 0.0
-    false_negative_rate = false_negatives / len(positives) if positives else 0.0
-    gates = {
-        "candidateRecall100": candidate_hits == len(positives),
-        "hybridTop1": hybrid_rate >= args.threshold,
-        "falsePositiveRate": false_positive_rate <= 0.05,
-        "falseNegativeRate": false_negative_rate <= 0.05,
-        "scopeValid": all(bool(item.get("sourceScopeValid")) for item in report["results"]),
-        "errors": not any(item.get("error") for item in report["results"]),
-    }
+            if should_abort_rate_limit(record):
+                report["aborted"] = True
+                report["abortReason"] = "rate-limit-circuit-breaker"
+                break
+    summary, gates = summarize_results(
+        result_records,
+        expected_case_count=len(cases),
+        threshold=args.threshold,
+    )
     report["completedAt"] = now_iso()
-    report["summary"] = {
-        "positiveTotal": len(positives),
-        "negativeTotal": len(negatives),
-        "semanticCandidateRecall": {"successes": candidate_hits, "total": len(positives), "rate": round(candidate_rate, 4), "wilson95": wilson_interval(candidate_hits, len(positives))},
-        "hybridTop1": {"successes": hybrid_hits, "total": len(positives), "rate": round(hybrid_rate, 4), "wilson95": wilson_interval(hybrid_hits, len(positives))},
-        "falsePositiveRate": {"successes": false_positives, "total": len(negatives), "rate": round(false_positive_rate, 4), "wilson95": wilson_interval(false_positives, len(negatives))},
-        "falseNegativeRate": {"successes": false_negatives, "total": len(positives), "rate": round(false_negative_rate, 4), "wilson95": wilson_interval(false_negatives, len(positives))},
-        "latencyMs": {"count": len(latencies), "p50": percentile(latencies, 0.5), "p95": percentile(latencies, 0.95), "max": max(latencies) if latencies else None},
-        "scopeViolations": sum(not bool(item.get("sourceScopeValid")) for item in report["results"]),
-        "errors": sum(bool(item.get("error")) for item in report["results"]),
-    }
+    report["summary"] = summary
     report["gates"] = gates
     report["passed"] = all(gates.values())
     report["results"] = [] if args.aggregate_only else result_records
