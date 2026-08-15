@@ -62,6 +62,15 @@ try {
   Assert-True ($evidence.ContractVersion -eq "temporal-soak-evidence-v1") "soak evidence must declare its contract"
   Assert-True (($evidence | ConvertTo-Json -Depth 12) -notmatch "fixture-notebook|private prompt|private answer") "soak evidence must be aggregate-only"
 
+  $stableState = [ordered]@{ policyVersion = "fixture-policy"; threads = [ordered]@{} }
+  $stableState | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $root "state.json") -Encoding UTF8
+  $firstStable = (& $Runner -Config $configPath) | ConvertFrom-Json
+  Assert-True ($firstStable.Status -eq "ok") "first fingerprinted run must succeed"
+  $secondStable = (& $Runner -Config $configPath) | ConvertFrom-Json
+  Assert-True ($secondStable.Status -eq "ok") "unchanged fingerprinted run must succeed"
+  $secondStableRun = Get-Content -Raw -LiteralPath $secondStable.Run | ConvertFrom-Json
+  Assert-True (@($secondStableRun.Steps.Label) -contains "sync-skipped") "unchanged projection must skip remote sync"
+
   $dryResult = (& $Runner -Config $configPath -DryRun) | ConvertFrom-Json
   $dryRun = Get-Content -Raw -LiteralPath $dryResult.Run | ConvertFrom-Json
   $dryProjection = @($dryRun.Steps | Where-Object Label -eq "projection")[0]
