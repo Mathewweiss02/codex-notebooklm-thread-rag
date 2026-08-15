@@ -1523,6 +1523,7 @@
         ".rnd/temporal-memory/full-gate-run-20260815-commit-8a4a517.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-938fea6.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-994facf.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-a8bfcde.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-a8e8390.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-d9d4fb2.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
@@ -1532,10 +1533,10 @@
         ".rnd\\temporal-memory\\full-gate-run-20260814-commit-b860167.json",
         ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json"
       ],
-      "notes": "Exact committed revision 3e44ded passed 48 Node tests, 232 Python tests, compile, PowerShell parse, and all 11 operational integrations; GitHub Actions run 31870090633 passed the revision-bound Windows suite, locked export, and pip-audit.",
-      "executedAt": "2026-08-15T06:44:00Z",
-      "resultDigest": "50F0FCCACE5E70BDA9465B6996233D2DD8518BF8E3031E5C9FAFCF0EA071D9DD"
+      "notes": "Exact committed revision a8bfcde passed 48 Node tests, 232 Python tests, compile, PowerShell parse, and all 11 operational integrations after the post-refresh fingerprint hardening; the global installed runner hash matches the repository.",
+      "executedAt": "2026-08-15T06:56:00Z",
+      "resultDigest": "D2911F58C5028F7750F7D2D5CE10AB04C6CEC90B300C128C4F5F461542F2125A"
     }
   },
-  "updatedAt": "2026-08-15T06:44:50Z"
+  "updatedAt": "2026-08-15T06:58:31Z"
 }

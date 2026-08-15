@@ -67,8 +67,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   latest protected-evidence evaluation has 19 eligible runs over 4.04 hours,
   with one failed run at 2026-08-15T04:32:01Z that stopped after a successful
   temporal refresh and therefore lacked sync/retention steps. The safe runner
-  record contains no remote error or secret; a bounded post-refresh state
-  fingerprint retry is being validated before a new soak boundary is allowed.
+  record contains no remote error or secret; commit `a8bfcde` adds a bounded
+  post-refresh state fingerprint retry, the exact local gate passes, and the
+  global installed runner matches it. A new soak boundary still requires
+  clean normal scheduled cycles.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
   refresh completed successfully with 16,671 temporal events, 145 path-free
