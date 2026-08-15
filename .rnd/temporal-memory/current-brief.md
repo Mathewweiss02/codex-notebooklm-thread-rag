@@ -82,7 +82,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 221 Python tests, plus
+- The full repository gate now passes 48 Node tests and 224 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
