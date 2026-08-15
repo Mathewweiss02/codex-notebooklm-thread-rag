@@ -84,6 +84,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   concurrent-writer regression coverage passes.
 - The full repository gate now passes 48 Node tests and 229 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
+- The exact committed revision 938fea6 has a retained full-gate packet with
+  48 Node tests, 229 Python tests, compile and parse checks, and all 11
+  operational integration steps passing; the matching GitHub Actions run is
+  also green.
 - The certification ledger contains 133 rows: 119 retained passes, 6 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
   retain 101 focused deterministic cases, including local fallback across
