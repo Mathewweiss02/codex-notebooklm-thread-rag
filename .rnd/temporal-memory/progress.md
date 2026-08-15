@@ -304,3 +304,25 @@ explicit replica approval.
 - Reran the local full gate at commit `3147358077b55c3fbbba7a5093212839635f1e18`:
   43 Node tests, 154 Python tests, compilation, parsing, runner, doctor,
   auth/ACL, installation, configuration, and scheduler integrations passed.
+
+## 2026-08-14 - rate-limit-safe benchmark closure
+
+- The source-scoped benchmark now scores in-memory records before sealing
+  aggregate-only reports. Hidden holdout case details therefore cannot erase
+  latency, error, scope, completion, or rate-limit metrics.
+- A terminal classified NotebookLM rate-limit case now trips a benchmark
+  circuit breaker and stops the remaining cases. Partial runs are explicitly
+  incomplete and cannot pass release gates.
+- Commit `5bb6e7fde835776350caac2ea9122c3857f7aeb8` passed the complete local
+  gate with 48 Node tests, 213 Python tests, compilation, parsing, runner,
+  doctor, auth/ACL, installation, configuration, and scheduler integrations.
+  Evidence is retained in
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json`; the
+  evidence/docs commit is `a9a8586`.
+- The personal passive auth check remains `status=ok` and both scheduled
+  retrieval/chat tasks last returned 0. The certification ledger remains
+  117 pass, 8 covered, and 8 pending; the resource-aware soak remains open at
+  11 eligible runs and 2.506 observed hours of 168 required.
+- NotebookLM live source-scoped retrieval is still rate-limited. No new
+  quality run, holdout, replica, or concurrency result is being counted until
+  a one-case cooldown smoke succeeds.
