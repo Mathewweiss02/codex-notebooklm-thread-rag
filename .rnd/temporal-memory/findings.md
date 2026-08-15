@@ -243,3 +243,8 @@ Sol Advisor orchestration could not run during the preceding architecture pass b
   classified rate-limit response, completed exactly one case, and stopped with
   `abortReason=rate-limit-circuit-breaker`. This confirms the safety behavior;
   it does not count as a retrieval pass or a quality failure.
+- The first post-`generalization-v1` policy canary likewise received one
+  classified rate-limit response, failed closed after about 6.99 seconds, and
+  recorded the policy label in its private aggregate report. It is execution
+  evidence only; no live quality score, holdout result, or promotion decision
+  was made.

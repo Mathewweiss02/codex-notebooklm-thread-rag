@@ -19,6 +19,7 @@
 - A broader visible-development replay compared 6,480 explicit ranking policies. The opt-in `generalization-v1` candidate improved one related-decoy run while preserving zero visible false positives; it remains experimental and the `baseline` policy remains the default.
 - Both benchmark entry points now set the pinned NotebookLM transport retry budget explicitly, defaulting to zero; the logical semantic-attempt loop remains separate and is recorded independently.
 - The latest one-case live source-scoped smoke with transport retries set to zero hit the NotebookLM rate-limit circuit breaker after one classified event and failed closed; no new remote quality evidence was counted, and hidden middleware latency was eliminated from the observation.
+- The first `generalization-v1` policy canary was also rate-limited after one classified event and failed closed in about 6.99 seconds; it is execution evidence only and does not count toward quality.
 - Publication remains intentionally pending: the local branch is clean, but draft PR #3 still points to the older remote commit and has only its historical Windows check; no push or merge has been performed.
 - Suspected bottleneck: The largest immediate bottleneck is validation: several important properties work but are not continuously proven.
 - Suspected bottleneck: The first-fit planner preserves task locality and reserve capacity, but stateless full replanning causes 64.62% shared-assignment churn at 5x and 83.08% at 10x; sticky ownership is the scaling bottleneck.

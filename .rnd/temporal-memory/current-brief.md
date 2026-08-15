@@ -81,7 +81,7 @@ mapping. Treat packing and parallelism as separate experimental branches.
   exact path-free project filtering fails closed when metadata is unavailable.
 - Direct index writers now serialize through a recoverable SQLite sidecar lock;
   concurrent-writer regression coverage passes.
-- The full repository gate now passes 48 Node tests and 219 Python tests, plus
+- The full repository gate now passes 48 Node tests and 221 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
 - The certification ledger contains 133 rows: 117 retained passes, 8 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
@@ -222,11 +222,14 @@ mapping. Treat packing and parallelism as separate experimental branches.
 - The latest one-case source-scoped smoke used transport retries set to zero,
   was rate-limited, and failed closed after one classified event;
   no live quality score was counted and persistent chat was not touched.
+- The first post-policy `generalization-v1` one-case canary was also
+  rate-limited and failed closed after one classified event in about 6.99
+  seconds. It is execution evidence only; the policy remains unpromoted.
 - The post-cooldown smoke is sealed as execution-error evidence only; the live
   retrieval gate remains unmeasured rather than falsely scored.
 - The scheduler doctor now treats an explicitly active `Running`/`Queued` task
   as healthy while still failing disabled, stale, or failed-ready tasks; direct
-  regression coverage and the full 48/219 repository gate pass on the fix.
+  regression coverage and the full 48/221 repository gate pass on the fix.
 - The patched skill was installed globally with a recoverable backup; the
   repository and installed doctor scripts have matching SHA-256 hashes, and
   the live retrieval doctor passes all 40 checks.
