@@ -179,10 +179,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   attempts; the benchmark now records that as an execution error and applies
   bounded rate-limit backoff. A post-cooldown smoke is still rate-limited, so
   no adaptive route pass has been counted.
-- The committed repository gate at `6e242a4` currently passes 48 Node tests,
+- The committed repository gate at `df7af8e` currently passes 48 Node tests,
   210 Python tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
 
