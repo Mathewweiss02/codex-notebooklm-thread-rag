@@ -38,6 +38,15 @@ NotebookLM.
 6. If the temporal index is missing or stale, report the explicit local diagnostic and bootstrap/rebuild it; do not silently downgrade an exhaustive temporal request to semantic search. If semantic auth, freshness, reconciliation, citations, or identity is uncertain, skip NotebookLM and use deterministic local search directly.
 7. Relay only relevant, credential-redacted evidence. Distinguish original request, later clarification, and downstream summary.
 
+## Interpret benchmark evidence
+
+Treat aggregate retrieval scores as provisional until the retained case-level
+result map and causal packet agree with the observed behavior. For regression
+or development runs, audit the packet with
+`scripts/thread_rag_benchmark_causal_audit.py`; every miss and claimed
+improvement needs an independent replay or counterfactual, with hash-checked
+evidence. Never publish per-case details from a sealed holdout.
+
 The stable cold-start route table is `references/temporal-routing.json`; its
 examples are evaluated by the repository test suite.
 
