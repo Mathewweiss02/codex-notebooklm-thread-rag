@@ -1517,12 +1517,13 @@
         ".rnd\\temporal-memory\\full-gate-run-20260814-commit-b860167.json",
         ".rnd\\temporal-memory\\full-gate-run-20260815-commit-a37248c.json",
         ".rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json",
-        ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json"
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json",
+        ".rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json"
       ],
-      "notes": "Current committed revision df7af8e passed the full repository gate with 48 Node tests, 210 Python tests, compile and integration checks.",
-      "executedAt": "2026-08-15T01:18:00.0322378Z",
-      "resultDigest": "73940e8242fc54080ea6d749daed6016e01571c17f159ec09b554f4feae9c2fd"
+      "notes": "Current committed revision 5bb6e7f passed the full repository gate with 48 Node tests, 213 Python tests, compile and integration checks.",
+      "executedAt": "2026-08-15T01:31:39.0178679Z",
+      "resultDigest": "46504ec9eaddf4bc50a85bfc6897f0d81298c853ea9c731c448f8c5186d0640c"
     }
   },
-  "updatedAt": "2026-08-15T01:18:30Z"
+  "updatedAt": "2026-08-15T01:32:00Z"
 }

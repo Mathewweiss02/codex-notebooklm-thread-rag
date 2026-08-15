@@ -181,10 +181,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   no adaptive route pass has been counted. The benchmark now stops on a
   terminal rate-limit case and scores sealed aggregate reports from in-memory
   records before hiding per-case details.
-- The committed repository gate at `df7af8e` currently passes 48 Node tests,
-  210 Python tests, compile checks, and all 11 integration steps; the exact
+- The committed repository gate at `5bb6e7f` currently passes 48 Node tests,
+  213 Python tests, compile checks, and all 11 integration steps; the exact
   aggregate proof is retained in
-  `.rnd/temporal-memory/full-gate-run-20260815-commit-df7af8e.json`. This proves
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-5bb6e7f.json`. This proves
   local correctness of the patch, not live NotebookLM availability or final
   release readiness.
 
