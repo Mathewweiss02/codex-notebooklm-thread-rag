@@ -84,17 +84,17 @@ mapping. Treat packing and parallelism as separate experimental branches.
   concurrent-writer regression coverage passes.
 - The full repository gate now passes 48 Node tests and 224 Python tests, plus
   compilation, PowerShell parsing, and all operational integrations.
-- The certification ledger contains 133 rows: 117 retained passes, 8 covered
+- The certification ledger contains 133 rows: 119 retained passes, 6 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
   retain 101 focused deterministic cases, including local fallback across
   remote failure classes, bounded Windows file-lock retry, process-kill
   recovery, schema migration, overlapping-refresh serialization, paired
   rollback, derived-index removal/rebuild, query-error redaction,
   ambiguous-time disclosure, cross-runtime redaction parity, and explicit
-  local performance gates. The eight covered rows now have explicit aggregate
-  evidence for packed sizes 1/2/4/8 and the adaptive rate-limit mock, while
-  the post-install resource soak and committed-revision/CI release proof remain
-  open. The pending rows are the live explicit-conversation and isolated-
+  local performance gates. The six covered rows now have explicit aggregate
+  evidence for packed sizes 1/2/4/8 and the post-install resource soak, while
+  the 168-hour soak and final exact-release audit remain open. The pending rows
+  are the live explicit-conversation and isolated-
   concurrency experiments.
   The 145-thread
   incremental benchmark also passes
