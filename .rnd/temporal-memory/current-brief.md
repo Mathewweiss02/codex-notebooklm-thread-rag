@@ -64,8 +64,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   events while the current projection state had 144 threads and about 16,050
   events.
 - The wall-clock release monitor is active from the protected-evidence reset
-  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 5 clean eligible
-  runs, 0 failures, and 0.747 observed hours of the required 168. The prior
+  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 6 clean eligible
+  runs, 0 failures, and 1.0 observed hours of the required 168. The prior
   pre-mitigation failure remains retained before this boundary; the new
   seven-day gate is correctly open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
@@ -116,8 +116,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now reads the protected append-only
   evidence surface. The boundary was reset after operational retention removed
-  older reports; its post-mitigation boundary currently has 5 eligible normal
-  runs, 0.747 observed hours, zero failures, zero missing-step runs, and zero
+  older reports; its post-mitigation boundary currently has 6 eligible normal
+  runs, 1.0 observed hours, zero failures, zero missing-step runs, and zero
   missing-resource reports. The 168-hour gate is open; the pre-mitigation
   failure is retained outside this new certification boundary.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at

@@ -1267,7 +1267,7 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 5 clean eligible normal runs, 0.747 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
+      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 6 clean eligible normal runs, 1.0 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
       "executedAt": "2026-08-15T03:32:23.832537Z",
       "resultDigest": "394BFDD09493F50DFA1BC9C47E861F9724075101922BC30456BFC8BC4E7E5749"
     },
@@ -1498,7 +1498,7 @@
       "evidence": [
         ".rnd/temporal-memory/resource-soak-monitor.json"
       ],
-      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 5 clean eligible normal runs, 0.747 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
+      "notes": "Protected aggregate-only soak evidence uses a fresh post-mitigation boundary at 2026-08-15T04:46:31Z. It has 6 clean eligible normal runs, 1.0 observed hours of 168 required, 0 failures, 0 missing-step runs, 0 malformed runs, and 0 missing-resource reports; the pre-mitigation failure remains retained outside this boundary. Covered is not a soak pass.",
       "executedAt": "2026-08-15T02:50:05.091071Z",
       "resultDigest": "A489488162328CBC8DD939E7D5A3AB31FD14A10C6DE771A8D2F5A8EFBC2418FA"
     },
