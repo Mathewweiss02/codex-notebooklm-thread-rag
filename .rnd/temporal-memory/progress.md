@@ -339,3 +339,7 @@ explicit replica approval.
   `test-windows` check, but has zero required approving reviews and admin
   enforcement disabled. This remains an external publication-governance item;
   no protection settings were changed.
+- A structural certification-ledger audit found exactly 133 matrix rows and
+  133 evidence rows, with zero missing, extra, or duplicate IDs. The honest
+  status remains 117 pass, 8 covered, 8 pending, and zero fail/blocked; the
+  audit is retained in `certification-ledger-audit-20260814.json`.
