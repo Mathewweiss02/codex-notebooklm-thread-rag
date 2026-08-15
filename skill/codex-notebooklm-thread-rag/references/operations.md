@@ -142,6 +142,20 @@ Benchmark a recorded live run without paying for another NotebookLM pass:
 & "PYTHON_PATH" "$Skill\scripts\thread_rag_hybrid_benchmark.py" --raw-report "RAW_REPORT" --cases "CASES_JSON" --state "PROJECTION_ROOT\state.json" --out "HYBRID_REPORT" --threshold 0.95
 ```
 
+For a regression or development run, audit the explanation packet before
+using the score as promotion evidence:
+
+```powershell
+& "PYTHON_PATH" "$Skill\scripts\thread_rag_benchmark_causal_audit.py" `
+  --packet ".rnd\temporal-memory\causal-evidence.json" `
+  --out ".rnd\temporal-memory\causal-audit.json"
+```
+
+The packet must bind to the exact score-report digest, map every score case to
+an observed outcome and cause class, and cite an independent replay or
+counterfactual for each miss and claimed improvement. Do not create a public
+packet from a sealed holdout report.
+
 ## Schedule
 
 ```powershell
