@@ -88,6 +88,13 @@ mapping. Treat packing and parallelism as separate experimental branches.
   48 Node tests, 229 Python tests, compile and parse checks, and all 11
   operational integration steps passing; the matching GitHub Actions run is
   also green.
+- CI run 31868664726 supplied a useful failure cause rather than a vague
+  flake: the hosted Windows extractor received `EBUSY` after exhausting the
+  old four-retry/1.5-second backoff budget. The exact external lock holder is
+  not identifiable from the hosted log, so the explanation is bounded to
+  "transient lock outlived the budget." A six-retry default was the
+  counterfactual, and both the local gate and hosted run 31868913802 then
+  passed.
 - The certification ledger contains 133 rows: 119 retained passes, 6 covered
   rows, and 8 pending release evidence. Versioned local-certification packets
   retain 101 focused deterministic cases, including local fallback across
