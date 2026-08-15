@@ -199,6 +199,8 @@ mapping. Treat packing and parallelism as separate experimental branches.
   errors. This is local candidate evidence, not remote semantic or hybrid proof.
 - The latest one-case source-scoped smoke was rate-limited and failed closed;
   no live quality score was counted and persistent chat was not touched.
+- The post-cooldown smoke is sealed as execution-error evidence only; the live
+  retrieval gate remains unmeasured rather than falsely scored.
 
 ## Certification principle
 
