@@ -59,6 +59,16 @@ function Convert-ToSafeDiagnosticLine {
   return "flags=$($flags -join ',')"
 }
 
+function Convert-ToSafeErrorMessage {
+  param([object] $ErrorRecord)
+  $message = [string]$ErrorRecord.Exception.Message
+  $match = [regex]::Match($message, '^(?<label>[A-Za-z0-9_-]+) failed with exit code (?<code>[0-9]+)\.')
+  if ($match.Success) {
+    return "{0} failed with exit code {1}." -f $match.Groups['label'].Value, $match.Groups['code'].Value
+  }
+  return "runner failure: {0}" -f (Convert-ToSafeDiagnosticLine $message)
+}
+
 $resourceSamples = @()
 
 function Add-ResourceSample {
@@ -292,7 +302,7 @@ try {
   $run.Status = "ok"
 } catch {
   $run.Status = "error"
-  $run.Error = "$($_.Exception.GetType().Name): runner step failed"
+  $run.Error = Convert-ToSafeErrorMessage $_
   throw
 } finally {
   $run.CompletedAt = (Get-Date).ToUniversalTime().ToString("o")

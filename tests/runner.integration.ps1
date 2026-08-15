@@ -91,6 +91,8 @@ try {
   $errorLog = Get-ChildItem -LiteralPath (Join-Path $errorRoot "runs") -Filter "runner-*.json" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
   $errorRun = Get-Content -Raw -LiteralPath $errorLog.FullName | ConvertFrom-Json
   Assert-True ($errorRun.Status -eq "error") "nonzero child exit must be durably logged"
+  Assert-True ([string]$errorRun.Error -eq "sync failed with exit code 7.") "runner error must retain only the safe step label and exit code"
+  Assert-True (($errorRun | ConvertTo-Json -Depth 12) -notmatch "simulated failure|private prompt|private answer|error-state") "runner error evidence must not retain child output or local paths"
 
   $slowRoot = Join-Path $temporary "slow-state"
   $slowPath = Join-Path $temporary "slow.json"
