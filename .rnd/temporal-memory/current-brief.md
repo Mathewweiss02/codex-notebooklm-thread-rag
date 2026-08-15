@@ -64,9 +64,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   events while the current projection state had 144 threads and about 16,050
   events.
 - The wall-clock release monitor is active from the protected-evidence reset
-  boundary at 2026-08-15T02:44:07Z: 9 eligible runs, 1 failed run, 1 missing-step
-  run, and 2.288 observed hours of the required 168. The seven-day gate is
-  correctly still open.
+  boundary at 2026-08-15T04:46:31Z after the sync mitigation: 3 clean eligible
+  runs, 0 failures, and 0.248 observed hours of the required 168. The prior
+  pre-mitigation failure remains retained before this boundary; the new
+  seven-day gate is correctly open.
 - The stable-snapshot temporal refresh is wired into the retrieval runner and
   is protected by a recoverable SQLite overlap lock. The latest installed
   refresh completed successfully with 16,671 temporal events, 145 path-free
@@ -115,9 +116,10 @@ mapping. Treat packing and parallelism as separate experimental branches.
   is implementation readiness for the idle/resource soak, not a soak pass.
 - The resource-aware retrieval soak monitor now reads the protected append-only
   evidence surface. The boundary was reset after operational retention removed
-  older reports; it currently has 12 eligible normal runs, 2.288 observed hours,
-  one failed run, one missing-step run, and zero missing-resource reports. The
-  post-mitigation run is clean, but the 168-hour gate is not passed.
+  older reports; its post-mitigation boundary currently has 3 eligible normal
+  runs, 0.248 observed hours, zero failures, zero missing-step runs, and zero
+  missing-resource reports. The 168-hour gate is open; the pre-mitigation
+  failure is retained outside this new certification boundary.
 - Across the latest 10 resource-bearing retrieval runs, the runner peaked at
   84.4 MiB working set, 70.3 MiB private bytes, and 626 handles; this shows no
   repo-runner memory-growth signal. The separate large Node process group on
