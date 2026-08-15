@@ -31,10 +31,11 @@ mapping. Treat packing and parallelism as separate experimental branches.
 ## Next item
 
 - Reproduce and close the live development retrieval-quality failure before
-  spending another holdout or starting live replica concurrency: the frozen
-  40-case run recorded raw semantic candidate recall 31/32, raw Top-1 28/32,
-  and 8/8 negative false positives; local reranking recovered to 31/32 hybrid
-  Top-1 with 0/8 false positives, still below the 97.5%/100% release gates.
+  spending another holdout or starting live replica concurrency. The original
+  frozen run is below the release gates, while the newer source-scoped route
+  still needs a healthy NotebookLM cooldown, three consecutive frozen passes,
+  and a fresh sealed holdout. Rate-limited attempts are execution errors, not
+  quality evidence.
 - REL-002: complete the seven-day or reset fourteen-day soak and rollback
   evidence.
 - PQ-006 remains separately gated on explicit isolated-replica approval.
@@ -178,10 +179,12 @@ mapping. Treat packing and parallelism as separate experimental branches.
   attempts; the benchmark now records that as an execution error and applies
   bounded rate-limit backoff. A post-cooldown smoke is still rate-limited, so
   no adaptive route pass has been counted.
-- The committed repository gate currently passes 48 Node tests, 210 Python
-  tests, compile checks, and all 11 integration steps. This proves local
-  correctness of the patch, not live NotebookLM availability or final release
-  readiness.
+- The committed repository gate at `6e242a4` currently passes 48 Node tests,
+  210 Python tests, compile checks, and all 11 integration steps; the exact
+  aggregate proof is retained in
+  `.rnd/temporal-memory/full-gate-run-20260815-commit-6e242a4.json`. This proves
+  local correctness of the patch, not live NotebookLM availability or final
+  release readiness.
 
 ## Certification principle
 
