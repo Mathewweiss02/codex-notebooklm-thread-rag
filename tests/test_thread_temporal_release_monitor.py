@@ -55,6 +55,21 @@ class TemporalReleaseMonitorTests(unittest.TestCase):
         self.assertEqual(result["eligibleRunCount"], 1)
         self.assertEqual(result["failedRunCount"], 0)
 
+    def test_boundary_file_round_trips_the_release_start(self) -> None:
+        start = datetime(2026, 8, 1, tzinfo=UTC)
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "boundary.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "contractVersion": "temporal-soak-boundary-v1",
+                        "startAt": start.isoformat().replace("+00:00", "Z"),
+                    }
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(monitor.read_boundary_file(path), start)
+
     def test_full_clean_window_passes(self) -> None:
         start = datetime(2026, 8, 1, tzinfo=UTC)
         result = monitor.evaluate(

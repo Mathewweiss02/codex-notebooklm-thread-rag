@@ -172,6 +172,17 @@ def write_json(path: Path, payload: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
+def read_boundary_file(path: Path) -> datetime:
+    """Read a versioned soak boundary so refreshes remain reproducible."""
+    value = json.loads(path.read_text(encoding="utf-8-sig"))
+    if not isinstance(value, dict) or value.get("contractVersion") != "temporal-soak-boundary-v1":
+        raise ValueError("invalid soak boundary contract")
+    start_at = parse_time(value.get("startAt"))
+    if start_at is None:
+        raise ValueError("invalid soak boundary startAt")
+    return start_at
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
@@ -181,10 +192,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--minimum-hours", type=float, default=168.0)
     parser.add_argument("--max-gap-hours", type=float, default=2.0)
     parser.add_argument("--start-at", help="ignore reports completed before this UTC timestamp")
+    parser.add_argument(
+        "--boundary-file",
+        type=Path,
+        help="read the reproducible UTC start boundary from a versioned JSON file",
+    )
     parser.add_argument("--require-resource", action="store_true", help="require aggregate resource evidence in every eligible run")
     args = parser.parse_args(argv)
     try:
-        start_at = parse_time(args.start_at) if args.start_at else None
+        if args.start_at and args.boundary_file:
+            raise ValueError("--start-at and --boundary-file are mutually exclusive")
+        start_at = read_boundary_file(args.boundary_file) if args.boundary_file else parse_time(args.start_at) if args.start_at else None
         if args.start_at and start_at is None:
             raise ValueError("invalid --start-at timestamp")
         if args.evidence_root:

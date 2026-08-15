@@ -281,9 +281,14 @@ Review the report before adding `--apply` or enabling scheduled application.
 
 The resource-aware soak monitor reads the protected evidence surface:
 
+The start boundary is stored in the versioned
+`.rnd/temporal-memory/resource-soak-boundary.json` file. This prevents a
+later refresh from accidentally re-admitting pre-mitigation history.
+
 ```powershell
 & "$env:USERPROFILE\.codex\runtimes\notebooklm-py-0.8.0\Scripts\python.exe" .\scripts\thread_temporal_release_monitor.py `
   --evidence-root "$env:USERPROFILE\.codex\thread-rag\my-pc-retrieval\soak-evidence" `
+  --boundary-file ".rnd\temporal-memory\resource-soak-boundary.json" `
   --out ".rnd\temporal-memory\resource-soak-monitor.json" `
   --minimum-hours 168 `
   --max-gap-hours 2 `
