@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from threading import Event, Lock
+from threading import Barrier, Event, Lock
 import time
 import unittest
 from pathlib import Path
@@ -140,6 +140,42 @@ class TemporalExecutorTests(unittest.TestCase):
         )
         self.assertEqual(result, list(range(8)))
         self.assertLessEqual(peak, 2)
+
+    def test_isolated_pool_ramp_is_bounded_at_each_supported_level(self) -> None:
+        """Exercise the local executor contract at the planned ramp sizes.
+
+        This is deliberately a synthetic proof: it verifies bounded worker
+        behavior and ordered completion without pretending that a local mock
+        certifies NotebookLM's live rate limits or replica isolation.
+        """
+        for concurrency in (2, 4, 8, 16, 32, 50):
+            active = 0
+            peak = 0
+            guard = Lock()
+            wave = Barrier(concurrency)
+
+            def operation(value: int) -> int:
+                nonlocal active, peak
+                with guard:
+                    active += 1
+                    peak = max(peak, active)
+                wave.wait(timeout=5)
+                with guard:
+                    active -= 1
+                return value
+
+            values = list(range(concurrency * 2))
+            result = execute_bounded(
+                values,
+                operation,
+                policy=ExecutorPolicy(
+                    mode="isolated-replicas",
+                    concurrency=concurrency,
+                    isolated_replica_proof=True,
+                ),
+            )
+            self.assertEqual(result, values)
+            self.assertEqual(peak, concurrency)
 
     def test_failure_does_not_return_a_partial_success(self) -> None:
         def operation(value: int) -> int:
